@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+pymongo
+python-dotenv
+bcrypt
+python-jose[cryptography]
+openai
+google-generativeai
+python-multipart
+pydantic
+email-validator
+sqlalchemy
+PyPDF2
+passlib
+anthropic

@@ -1,0 +1,172 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: white;
+}
+
+/* Background Animation */
+
+body::before {
+  content: "";
+  position: fixed;
+  width: 500px;
+  height: 500px;
+  background: #2563eb;
+  border-radius: 50%;
+  filter: blur(180px);
+  top: -100px;
+  left: -100px;
+  opacity: 0.5;
+  animation: moveBlob 10s infinite alternate;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  width: 500px;
+  height: 500px;
+  background: #7c3aed;
+  border-radius: 50%;
+  filter: blur(180px);
+  bottom: -100px;
+  right: -100px;
+  opacity: 0.5;
+  animation: moveBlob2 12s infinite alternate;
+}
+
+@keyframes moveBlob {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(100px, 80px);
+  }
+}
+
+@keyframes moveBlob2 {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(-120px, -60px);
+  }
+}
+
+/* Container */
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  min-height: 100vh;
+  flex-wrap: wrap;
+  padding: 20px;
+}
+
+/* Glass Card */
+
+.auth-box {
+  width: 340px;
+  padding: 35px;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  border: 1px solid rgba(255,255,255,0.2);
+
+  backdrop-filter: blur(15px);
+
+  border-radius: 20px;
+
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+
+  animation: fadeUp 1s ease;
+}
+
+/* Animation */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Heading */
+
+.auth-box h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 30px;
+  color: white;
+}
+
+/* Inputs */
+
+.auth-box input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 18px;
+
+  border: none;
+  outline: none;
+
+  border-radius: 12px;
+
+  background: rgba(255,255,255,0.12);
+
+  color: white;
+
+  font-size: 16px;
+}
+
+.auth-box input::placeholder {
+  color: #d1d5db;
+}
+
+/* Button */
+
+.auth-box button {
+  width: 100%;
+  padding: 14px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.auth-box button:hover {
+  transform: scale(1.05);
+
+  box-shadow: 0 0 25px #2563eb;
+}
+
+/* Responsive */
+
+@media(max-width: 768px) {
+  .auth-container {
+    flex-direction: column;
+  }
+}

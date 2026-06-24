@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mock Interview – AI Copilot</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="navbar">
+  <div class="logo">🚀 Interview Copilot</div>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="interview.html" class="active">Practice</a>
+    <a href="analytics.html">Analytics</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </nav>
+</div>
+
+<div class="page-container">
+
+  <!-- Config Panel -->
+  <div class="card mb-2" id="config-panel">
+    <div class="section-title">🎤 Setup Your Mock Interview</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:1rem">
+      <div class="form-group">
+        <label>Job Role</label>
+        <select id="job-role" class="form-control">
+          <option>Frontend Developer</option>
+          <option>Backend Developer</option>
+          <option>Full Stack Developer</option>
+          <option>Data Scientist</option>
+          <option>DevOps Engineer</option>
+          <option>Machine Learning Engineer</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Experience Level</label>
+        <select id="exp-level" class="form-control">
+          <option>Fresher</option>
+          <option>Experienced</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Question Type</label>
+        <select id="q-type" class="form-control">
+          <option>Technical</option>
+          <option>HR</option>
+          <option>Behavioral</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Number of Questions</label>
+        <select id="q-count" class="form-control">
+          <option value="3">3</option>
+          <option value="5" selected>5</option>
+          <option value="8">8</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="generateInterview()">Generate Interview</button>
+  </div>
+
+  <!-- Interview Area -->
+  <div id="interview-area" style="display:none">
+    <div class="interview-layout">
+
+      <!-- Left: Question List -->
+      <div>
+        <div class="card">
+          <div class="section-title">Questions</div>
+          <div id="q-progress" class="mb-2">
+            <div class="flex justify-between text-muted mb-1" style="font-size:0.85rem">
+              <span id="progress-label">0 / 0 answered</span>
+              <span id="progress-pct">0%</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="question-list" id="question-list"></div>
+          <button class="btn btn-outline mt-2" style="width:100%" onclick="resetInterview()">New Interview</button>
+        </div>
+      </div>
+
+      <!-- Right: Answer Area -->
+      <div>
+        <div class="card" id="answer-panel">
+          <div id="current-question" class="section-title" style="font-size:1rem;margin-bottom:1rem">
+            Select a question to begin →
+          </div>
+
+          <!-- Voice Button -->
+          <div class="flex gap-2 items-center mb-2">
+            <button class="btn btn-outline btn-sm" id="voice-btn" onclick="toggleVoice()">🎙️ Voice Input</button>
+            <span id="voice-status" class="text-muted" style="font-size:0.85rem"></span>
+          </div>
+
+          <div class="form-group">
+            <label>Your Answer</label>
+            <textarea id="user-answer" class="form-control" rows="7"
+              placeholder="Type your answer here, or use voice input above..."></textarea>
+          </div>
+
+          <div class="flex gap-2 flex-wrap">
+            <button class="btn btn-primary" onclick="submitAnswer()">Evaluate Answer</button>
+            <button class="btn btn-outline" onclick="improveAnswer()">✨ Improve Answer</button>
+          </div>
+
+          <!-- Result -->
+          <div id="eval-result" style="display:none" class="mt-3">
+            <div class="flex gap-2 items-center mb-2">
+              <span>Score:</span>
+              <span class="score-badge" id="score-badge">—</span>
+            </div>
+            <div class="card" style="margin-top:0.5rem;background:var(--surface)">
+              <div style="font-size:0.85rem;color:var(--muted);margin-bottom:0.4rem">📋 Feedback</div>
+              <div id="feedback-text"></div>
+            </div>
+            <div class="card" style="margin-top:0.5rem;background:var(--surface)">
+              <div style="font-size:0.85rem;color:var(--muted);margin-bottom:0.4rem">💡 Improvement Tip</div>
+              <div id="improvement-text"></div>
+            </div>
+            <button class="btn btn-success btn-sm mt-2" onclick="saveAnswer()">💾 Save Answer</button>
+          </div>
+
+          <!-- Improved Answer -->
+          <div id="improved-section" style="display:none" class="mt-3">
+            <div class="card" style="background:rgba(108,99,255,0.1);border-color:var(--primary)">
+              <div style="font-size:0.85rem;color:var(--primary);margin-bottom:0.4rem">✨ Improved Version</div>
+              <div id="improved-text"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/interview.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Analytics – AI Interview Copilot</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="logo">🚀 Interview Copilot</div>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="interview.html">Practice</a>
+    <a href="analytics.html" class="active">Analytics</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </nav>
+</div>
+
+<div class="page-container">
+  <div id="page-breadcrumb" class="breadcrumb">Home › Analytics</div>
+  <h2 id="page-title" class="section-title">📊 Performance Analytics</h2>
+
+  <!-- Summary -->
+  <div class="stats-grid mb-2">
+    <div class="stat-card">
+      <div class="stat-icon">📝</div>
+      <div>
+        <div class="stat-value" id="a-total">—</div>
+        <div class="stat-label">Total Answers</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⭐</div>
+      <div>
+        <div class="stat-value" id="a-avg">—</div>
+        <div class="stat-label">Average Score</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🏆</div>
+      <div>
+        <div class="stat-value" id="a-best">—</div>
+        <div class="stat-label">Best Score</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score Chart -->
+  <div class="card mb-2">
+    <div class="section-title">Score Trend</div>
+    <canvas id="score-chart" height="120"></canvas>
+  </div>
+
+  <!-- History Table -->
+  <div class="card">
+    <div class="section-title">Answer History</div>
+    <div id="history-table"></div>
+  </div>
+</div>
+
+<script src="js/analytics.js"></script>
+</body>
+</html>
