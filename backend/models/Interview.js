@@ -1,20 +1,64 @@
 const mongoose = require("mongoose");
 
-const interviewSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+const interviewSchema = new mongoose.Schema(
+  {
+    interviewId: {
+      type: String,
+      required: true,
+      index: true,
+    },
+
+    messages: [
+      {
+        role: {
+          type: String,
+          enum: ["hr", "user"],
+          required: true,
+        },
+        text: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+
+    scores: {
+      communication: {
+        type: Number,
+        default: 0,
+      },
+      confidence: {
+        type: Number,
+        default: 0,
+      },
+      clarity: {
+        type: Number,
+        default: 0,
+      },
+      technical: {
+        type: Number,
+        default: 0,
+      },
+    },
+
+    overallScore: {
+      type: Number,
+      default: 0,
+    },
+
+    strengths: {
+      type: [String],
+      default: [],
+    },
+
+    weaknesses: {
+      type: [String],
+      default: [],
+    },
   },
-  templateId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Template",
-  },
-  score: Number,
-  status: String, // pass/fail
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
 module.exports = mongoose.model("Interview", interviewSchema);

@@ -1,211 +1,89 @@
 const { Resend } = require("resend");
 
 /* =========================
-   RESEND CONFIG
+   SAFE RESEND SETUP
 ========================= */
 
-const resend = new Resend(
-  process.env.RESEND_API_KEY
-);
+let resend = null;
+
+if (process.env.RESEND_API_KEY) {
+  resend = new Resend(process.env.RESEND_API_KEY);
+} else {
+  console.warn("⚠️ RESEND_API_KEY missing — reset email disabled");
+}
 
 /* =========================
-   SEND WELCOME EMAIL
+   RESET PASSWORD EMAIL
 ========================= */
 
-const sendWelcomeEmail = async (
-  userEmail,
-  userName
-) => {
+const sendResetEmail = async (userEmail, userName, resetLink) => {
   try {
-    console.log("📩 Sending Welcome Email...");
+    console.log("📩 Sending Reset Password Email...");
+    console.log("TO:", userEmail);
 
-    const response =
-      await resend.emails.send({
+    // Skip if resend not configured
+    if (!resend) {
+      console.log("⚠️ Skipping reset email (no RESEND_API_KEY)");
+      console.log("Reset Link:", resetLink);
+      return;
+    }
 
-        from:
-          "AI Interview Copilot <onboarding@resend.dev>",
+    const response = await resend.emails.send({
+      from: "AI Interview Copilot <onboarding@resend.dev>",
+      to: userEmail,
+      subject: "🔐 Reset Your Password - AI Interview Copilot",
+      html: `
+        <div style="font-family:Arial;background:#020617;padding:30px;color:white">
 
-        to: userEmail,
+          <div style="max-width:600px;margin:auto;background:#0f172a;padding:30px;border-radius:16px">
 
-        subject:
-          "🚀 Welcome to AI Interview Copilot",
+            <h1 style="text-align:center;color:#38bdf8">
+              🔐 Password Reset Request
+            </h1>
 
-        html: `
+            <h2 style="text-align:center">
+              Hello ${userName} 👋
+            </h2>
 
-        <div style="
-          background:#020617;
-          padding:40px;
-          font-family:Arial,sans-serif;
-          color:white;
-        ">
+            <p style="text-align:center;color:#cbd5e1;font-size:16px">
+              We received a request to reset your password.
+            </p>
 
-          <div style="
-            max-width:600px;
-            margin:auto;
-            background:#0f172a;
-            border-radius:20px;
-            overflow:hidden;
-            border:1px solid #1e293b;
-          ">
+            <p style="text-align:center;color:#94a3b8">
+              Click the button below to reset your password. This link will expire in 15 minutes.
+            </p>
 
-            <!-- TOP -->
-
-            <div style="
-              background:linear-gradient(90deg,#7c3aed,#06b6d4);
-              padding:35px;
-              text-align:center;
-            ">
-
-              <h1 style="
-                margin:0;
-                font-size:34px;
-                color:white;
-              ">
-                🚀 AI Interview Copilot
-              </h1>
-
-              <p style="
-                margin-top:10px;
-                color:#e0f2fe;
-                font-size:16px;
-              ">
-                Smart AI Interview Preparation Platform
-              </p>
-
+            <div style="text-align:center;margin-top:30px">
+              <a href="${resetLink}"
+                style="padding:14px 28px;background:#ef4444;color:white;
+                text-decoration:none;border-radius:10px;font-weight:bold">
+                Reset Password
+              </a>
             </div>
 
-            <!-- BODY -->
+            <p style="text-align:center;margin-top:30px;color:#64748b;font-size:12px">
+              If you did not request this, you can ignore this email.
+            </p>
 
-            <div style="padding:40px;">
-
-              <h2 style="
-                color:#38bdf8;
-                margin-bottom:20px;
-                text-align:center;
-              ">
-                Welcome ${userName} 👋
-              </h2>
-
-              <p style="
-                font-size:17px;
-                line-height:1.8;
-                color:#cbd5e1;
-              ">
-                Your account has been created successfully ✅
-              </p>
-
-              <p style="
-                font-size:17px;
-                line-height:1.8;
-                color:#cbd5e1;
-              ">
-                You can now access powerful AI tools to improve your placement preparation and interview skills.
-              </p>
-
-              <!-- FEATURES -->
-
-              <div style="
-                margin-top:30px;
-                background:#111827;
-                border-radius:16px;
-                padding:25px;
-              ">
-
-                <h3 style="
-                  color:#06b6d4;
-                  margin-bottom:20px;
-                ">
-                  ✨ Features Included
-                </h3>
-
-                <p>✅ AI Mock Interviews</p>
-
-                <p>✅ Resume Analysis</p>
-
-                <p>✅ Placement Preparation</p>
-
-                <p>✅ Technical Interview Questions</p>
-
-                <p>✅ HR Interview Practice</p>
-
-                <p>✅ Performance Tracking</p>
-
-              </div>
-
-              <!-- BUTTON -->
-
-              <div style="
-                text-align:center;
-                margin-top:35px;
-              ">
-
-                <a
-                  href="http://localhost:5173"
-                  style="
-                    background:linear-gradient(90deg,#7c3aed,#06b6d4);
-                    color:white;
-                    text-decoration:none;
-                    padding:16px 35px;
-                    border-radius:12px;
-                    font-size:18px;
-                    font-weight:bold;
-                    display:inline-block;
-                  "
-                >
-                  Open AI Interview Copilot
-                </a>
-
-              </div>
-
-              <!-- FOOTER -->
-
-              <p style="
-                margin-top:40px;
-                color:#94a3b8;
-                text-align:center;
-                font-size:14px;
-                line-height:1.7;
-              ">
-
-                Thank you for joining AI Interview Copilot ❤️
-                <br />
-                Keep learning. Keep growing. 🚀
-
-              </p>
-
-            </div>
+            <p style="text-align:center;color:#475569;font-size:12px">
+              © 2026 AI Interview Copilot
+            </p>
 
           </div>
 
         </div>
+      `,
+    });
 
-        `,
-      });
-
-    console.log(
-      "✅ WELCOME EMAIL SENT"
-    );
-
-    console.log(response);
-
+    console.log("✅ Reset email sent successfully");
     return response;
 
   } catch (error) {
+    console.log("❌ Reset Email Error:", error.message);
 
-    console.log(
-      "❌ EMAIL ERROR:"
-    );
-
-    console.log(
-      error.message || error
-    );
-
-    throw error;
+    // IMPORTANT: do not crash backend
+    return null;
   }
 };
 
-/* =========================
-   EXPORT
-========================= */
-
-module.exports = sendWelcomeEmail;
+module.exports = sendResetEmail;

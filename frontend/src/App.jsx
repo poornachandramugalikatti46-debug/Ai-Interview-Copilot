@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  useNavigate,
+  Navigate,
+} from "react-router-dom";
 
 /* AUTH */
 import Auth from "./Auth";
@@ -24,173 +29,43 @@ import NotificationSettings from "./pages/settings/NotificationSettings";
 import HelpFeedback from "./pages/settings/HelpFeedback";
 import AppUpdates from "./pages/settings/AppUpdates";
 
-/* PASSWORD PAGES */
+/* PASSWORD */
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 
 function App() {
-
   const navigate = useNavigate();
 
   const [loggedIn, setLoggedIn] = useState(false);
-
   const [adminMode, setAdminMode] = useState(false);
-
-  const [currentPage, setCurrentPage] =
-    useState("dashboard");
-
   const [darkMode, setDarkMode] = useState(true);
 
-  /* =========================
-     CHECK LOGIN
-  ========================= */
-
+  /* ================= CHECK LOGIN ================= */
   useEffect(() => {
-
     const token = localStorage.getItem("token");
 
-    const googleUser =
-      localStorage.getItem("googleUser");
-
-    if (token || googleUser) {
+    if (token) {
       setLoggedIn(true);
     }
-
   }, []);
 
-  /* =========================
-     LOGOUT
-  ========================= */
-
+  /* ================= LOGOUT ================= */
   const logout = () => {
-
     localStorage.clear();
 
     setLoggedIn(false);
-
     setAdminMode(false);
-
-    setCurrentPage("dashboard");
 
     navigate("/");
   };
 
-  /* =========================
-     PAGE ROUTER
-  ========================= */
-
-  const renderPage = () => {
-
-    /* ADMIN */
-
-    if (adminMode) {
-      return <AdminDashboard />;
-    }
-
-    /* INTERVIEW PAGES */
-
-    if (currentPage === "technical") {
-      return (
-        <TechnicalInterview
-          setCurrentPage={setCurrentPage}
-        />
-      );
-    }
-
-    if (currentPage === "hr") {
-      return (
-        <HRInterview
-          setCurrentPage={setCurrentPage}
-        />
-      );
-    }
-
-    if (currentPage === "mock") {
-      return (
-        <MockInterview
-          setCurrentPage={setCurrentPage}
-        />
-      );
-    }
-
-    if (currentPage === "resumeInterview") {
-      return (
-        <ResumeInterview
-          setCurrentPage={setCurrentPage}
-        />
-      );
-    }
-
-    /* NORMAL PAGES */
-
-    switch (currentPage) {
-
-      case "dashboard":
-        return (
-          <Dashboard
-            setLoggedIn={setLoggedIn}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-          />
-        );
-
-      case "analytics":
-        return (
-          <Analytics
-            setCurrentPage={setCurrentPage}
-          />
-        );
-
-      case "settings":
-        return (
-          <SettingsPage
-            setCurrentPage={setCurrentPage}
-          />
-        );
-
-      case "account":
-        return <AccountPreferences />;
-
-      case "security":
-        return <SecuritySettings />;
-
-      case "privacy":
-        return <PrivacySettings />;
-
-      case "notifications":
-        return <NotificationSettings />;
-
-      case "help":
-        return <HelpFeedback />;
-
-      case "updates":
-        return <AppUpdates />;
-
-      default:
-        return (
-          <Dashboard
-            setLoggedIn={setLoggedIn}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-          />
-        );
-    }
-  };
-
-  /* =========================
-     AUTH ROUTES
-  ========================= */
-
+  /* ================= AUTH ROUTES ================= */
   if (!loggedIn) {
-
     return (
       <Routes>
-
         <Route
           path="/"
-          element={
-            <Auth setLoggedIn={setLoggedIn} />
-          }
+          element={<Auth setLoggedIn={setLoggedIn} />}
         />
 
         <Route
@@ -203,62 +78,44 @@ function App() {
           element={<ResetPassword />}
         />
 
+        {/* FIX 404 */}
+        <Route
+          path="*"
+          element={<Navigate to="/" />}
+        />
       </Routes>
     );
   }
 
-  /* =========================
-     MAIN APP UI
-  ========================= */
-
+  /* ================= MAIN APP ================= */
   return (
-
     <div
       style={{
         ...styles.app,
-
         background: darkMode
           ? "linear-gradient(to bottom right,#020617,#0f172a,#111827)"
           : "#f1f5f9",
-
-        color: darkMode
-          ? "white"
-          : "#0f172a",
+        color: darkMode ? "white" : "#0f172a",
       }}
     >
-
       {/* TOP BAR */}
-
       <div style={styles.topBar}>
-
         <div style={styles.brand}>
           🚀 AI Interview Copilot
         </div>
 
         <div style={styles.topActions}>
-
-          {/* THEME */}
-
           <button
-            onClick={() =>
-              setDarkMode(!darkMode)
-            }
+            onClick={() => setDarkMode(!darkMode)}
             style={styles.themeBtn}
           >
-            {darkMode
-              ? "🌞 Light"
-              : "🌙 Dark"}
+            {darkMode ? "🌞 Light" : "🌙 Dark"}
           </button>
 
-          {/* ADMIN */}
-
           <button
-            onClick={() =>
-              setAdminMode(!adminMode)
-            }
+            onClick={() => setAdminMode(!adminMode)}
             style={{
               ...styles.adminBtn,
-
               background: adminMode
                 ? "linear-gradient(135deg,#ef4444,#dc2626)"
                 : "linear-gradient(135deg,#7c3aed,#3b82f6)",
@@ -269,29 +126,12 @@ function App() {
               : "⚙ Admin"}
           </button>
 
-          {/* SETTINGS */}
-
           <button
-            onClick={() =>
-              setCurrentPage("settings")
-            }
-            style={styles.settingsBtn}
-          >
-            ⚙ Settings
-          </button>
-
-          {/* DASHBOARD */}
-
-          <button
-            onClick={() =>
-              setCurrentPage("dashboard")
-            }
+            onClick={() => navigate("/dashboard")}
             style={styles.dashboardBtn}
           >
             🏠 Dashboard
           </button>
-
-          {/* LOGOUT */}
 
           <button
             onClick={logout}
@@ -299,32 +139,110 @@ function App() {
           >
             🚪 Logout
           </button>
-
         </div>
       </div>
 
       {/* PAGE CONTENT */}
-
       <div style={styles.pageContainer}>
-        {renderPage()}
-      </div>
+        <Routes>
+          {/* DEFAULT */}
+          <Route
+            path="/"
+            element={<Navigate to="/dashboard" />}
+          />
 
+          {/* DASHBOARD */}
+          <Route
+            path="/dashboard"
+            element={
+              adminMode
+                ? <AdminDashboard />
+                : <Dashboard />
+            }
+          />
+
+          {/* ANALYTICS */}
+          <Route
+            path="/analytics"
+            element={<Analytics />}
+          />
+
+          {/* INTERVIEWS */}
+          <Route
+            path="/technical"
+            element={<TechnicalInterview />}
+          />
+
+          <Route
+            path="/hr"
+            element={<HRInterview />}
+          />
+
+          <Route
+            path="/mock"
+            element={<MockInterview />}
+          />
+
+          <Route
+            path="/resume"
+            element={<ResumeInterview />}
+          />
+
+          {/* SETTINGS */}
+          <Route
+            path="/settings"
+            element={<SettingsPage />}
+          />
+
+          <Route
+            path="/account"
+            element={<AccountPreferences />}
+          />
+
+          <Route
+            path="/security"
+            element={<SecuritySettings />}
+          />
+
+          <Route
+            path="/privacy"
+            element={<PrivacySettings />}
+          />
+
+          <Route
+            path="/notifications"
+            element={<NotificationSettings />}
+          />
+
+          <Route
+            path="/help"
+            element={<HelpFeedback />}
+          />
+
+          <Route
+            path="/updates"
+            element={<AppUpdates />}
+          />
+
+          {/* FIX 404 */}
+          <Route
+            path="*"
+            element={<Navigate to="/dashboard" />}
+          />
+        </Routes>
+      </div>
     </div>
   );
 }
 
 export default App;
 
-/* =========================
-   STYLES
-========================= */
+/* ================= STYLES ================= */
 
 const styles = {
-
   app: {
     minHeight: "100vh",
-    fontFamily: "Arial, sans-serif",
-    transition: "0.3s",
+    fontFamily: "Arial",
   },
 
   topBar: {
@@ -337,9 +255,9 @@ const styles = {
     justifyContent: "space-between",
     alignItems: "center",
     padding: "0 25px",
-    zIndex: 999,
     background: "rgba(2,6,23,0.75)",
     backdropFilter: "blur(14px)",
+    zIndex: 999,
   },
 
   brand: {
@@ -353,52 +271,46 @@ const styles = {
   },
 
   themeBtn: {
-    padding: "10px",
+    padding: "10px 14px",
     border: "none",
     borderRadius: "10px",
     background: "#3b82f6",
     color: "white",
     cursor: "pointer",
+    fontWeight: "bold",
   },
 
   adminBtn: {
-    padding: "10px",
+    padding: "10px 14px",
     border: "none",
     borderRadius: "10px",
     color: "white",
     cursor: "pointer",
-  },
-
-  settingsBtn: {
-    padding: "10px",
-    border: "none",
-    borderRadius: "10px",
-    background: "#10b981",
-    color: "white",
-    cursor: "pointer",
+    fontWeight: "bold",
   },
 
   dashboardBtn: {
-    padding: "10px",
+    padding: "10px 14px",
     border: "none",
     borderRadius: "10px",
     background: "#f59e0b",
     color: "white",
     cursor: "pointer",
+    fontWeight: "bold",
   },
 
   logoutBtn: {
-    padding: "10px",
+    padding: "10px 14px",
     border: "none",
     borderRadius: "10px",
     background: "#ef4444",
     color: "white",
     cursor: "pointer",
+    fontWeight: "bold",
   },
 
   pageContainer: {
     paddingTop: "90px",
     minHeight: "100vh",
   },
-
 };

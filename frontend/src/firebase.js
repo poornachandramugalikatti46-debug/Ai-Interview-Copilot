@@ -1,27 +1,28 @@
 import { initializeApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { getAnalytics } from "firebase/analytics";
 
-import { getAuth } from "firebase/auth";
-
+// Firebase config (yours)
 const firebaseConfig = {
-
-  apiKey: "AIzaSyCTOFHDQluakA6P5uWVJ15I3LNhIc-R1f4",
-
-  authDomain: "ai-interview-copilot-a5235.firebaseapp.com",
-
-  projectId: "ai-interview-copilot-a5235",
-
-  storageBucket: "ai-interview-copilot-a5235.firebasestorage.app",
-
-  messagingSenderId: "128675103714",
-
-  appId: "1:128675103714:web:d4565422cb4a36fec0efbb",
-
-  measurementId: "G-MCFHH9FP59"
-
+  apiKey: "AIzaSyDuvVIxAtbuNC8SBsAAUtwbda-aYUbVCcM",
+  authDomain: "ai-interview-copilot-6b81e.firebaseapp.com",
+  projectId: "ai-interview-copilot-6b81e",
+  storageBucket: "ai-interview-copilot-6b81e.appspot.com",
+  messagingSenderId: "1087431125092",
+  appId: "1:1087431125092:web:a9713a61161d1d55f6d771",
+  measurementId: "G-CT47NR3G0V"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
+getAnalytics(app);
 
-/* FIREBASE AUTH */
+// Auth setup
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-export const auth = getAuth(app);
+// ✅ THIS IS THE FIX (EXPORT FUNCTION)
+export const signInWithGoogle = async () => {
+  const result = await signInWithPopup(auth, provider);
+  return result.user;
+};

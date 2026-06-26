@@ -5,8 +5,8 @@ import ResumeAnalyzer from "./ResumeAnalyzer";
 import SettingsPage from "./pages/settings/SettingsPage";
 import Analytics from "./pages/Analytics";
 
-// Pages
-import TechnicalInterview from "./pages/technical/TechnicalInterview";
+// Pages (FIXED IMPORT - default export)
+import TechnicalInterview from "/src/pages/technical/TechnicalInterview.jsx";
 import HRInterview from "./pages/hr/HRInterview";
 import MockInterview from "./pages/mock/MockInterview";
 import ResumeInterview from "./pages/resume/ResumeInterview";
@@ -22,7 +22,6 @@ export default function Dashboard({
   /* =========================
      POPUP ROUTES
   ========================= */
-
   if (openChat) {
     return <Chatbot setOpenChat={setOpenChat} />;
   }
@@ -34,7 +33,6 @@ export default function Dashboard({
   /* =========================
      PAGE ROUTES
   ========================= */
-
   if (currentPage === "settings") {
     return <SettingsPage />;
   }
@@ -62,14 +60,12 @@ export default function Dashboard({
   /* =========================
      DASHBOARD UI
   ========================= */
-
   return (
     <div style={styles.container}>
       {/* SIDEBAR */}
       <div style={styles.sidebar}>
         <h2 style={styles.logo}>🤖 AI Copilot</h2>
 
-        {/* DASHBOARD */}
         <button
           style={styles.activeBtn}
           onClick={() => setCurrentPage("dashboard")}
@@ -77,7 +73,6 @@ export default function Dashboard({
           🏠 Dashboard
         </button>
 
-        {/* CHATBOT */}
         <button
           style={styles.menuBtn}
           onClick={() => setOpenChat(true)}
@@ -85,7 +80,6 @@ export default function Dashboard({
           🎤 Chatbot
         </button>
 
-        {/* ANALYTICS */}
         <button
           style={styles.menuBtn}
           onClick={() => setCurrentPage("analytics")}
@@ -93,7 +87,6 @@ export default function Dashboard({
           📊 Analytics
         </button>
 
-        {/* RESUME ANALYZER */}
         <button
           style={styles.menuBtn}
           onClick={() => setOpenResume(true)}
@@ -101,7 +94,6 @@ export default function Dashboard({
           📄 Resume Analyzer
         </button>
 
-        {/* SETTINGS */}
         <button
           style={styles.menuBtn}
           onClick={() => setCurrentPage("settings")}
@@ -109,7 +101,6 @@ export default function Dashboard({
           ⚙ Settings
         </button>
 
-        {/* LOGOUT */}
         <button
           style={styles.logout}
           onClick={() => setLoggedIn(false)}
@@ -120,14 +111,10 @@ export default function Dashboard({
 
       {/* MAIN AREA */}
       <div style={styles.main}>
-
         {/* TOPBAR */}
         <div style={styles.topbar}>
           <div>
-            <h1 style={styles.heading}>
-              Welcome Back 👋
-            </h1>
-
+            <h1 style={styles.heading}>Welcome Back 👋</h1>
             <p style={styles.subtitle}>
               AI Interview Copilot Dashboard
             </p>
@@ -148,8 +135,6 @@ export default function Dashboard({
 
           {/* FEATURE GRID */}
           <div style={styles.featureGrid}>
-
-            {/* TECHNICAL */}
             <div
               style={styles.featureCard}
               onClick={() => setCurrentPage("technical")}
@@ -157,13 +142,11 @@ export default function Dashboard({
               <h3 style={styles.cardTitle}>
                 🧠 Technical Interview
               </h3>
-
               <p style={styles.cardText}>
                 DSA, Coding & System Design Questions
               </p>
             </div>
 
-            {/* HR */}
             <div
               style={styles.featureCard}
               onClick={() => setCurrentPage("hr")}
@@ -171,13 +154,11 @@ export default function Dashboard({
               <h3 style={styles.cardTitle}>
                 👔 HR Interview
               </h3>
-
               <p style={styles.cardText}>
                 Communication & Behavioral Questions
               </p>
             </div>
 
-            {/* MOCK */}
             <div
               style={styles.featureCard}
               onClick={() => setCurrentPage("mock")}
@@ -185,13 +166,11 @@ export default function Dashboard({
               <h3 style={styles.cardTitle}>
                 🧩 Mock Interview
               </h3>
-
               <p style={styles.cardText}>
                 Real Interview Simulation Experience
               </p>
             </div>
 
-            {/* RESUME */}
             <div
               style={styles.featureCard}
               onClick={() => setCurrentPage("resumeInterview")}
@@ -199,12 +178,10 @@ export default function Dashboard({
               <h3 style={styles.cardTitle}>
                 📄 Resume Interview
               </h3>
-
               <p style={styles.cardText}>
                 AI Questions Based on Resume
               </p>
             </div>
-
           </div>
         </div>
       </div>
@@ -215,7 +192,6 @@ export default function Dashboard({
 /* =========================
    STYLES
 ========================= */
-
 const styles = {
   container: {
     display: "flex",
@@ -225,7 +201,6 @@ const styles = {
     fontFamily: "Arial",
   },
 
-  /* SIDEBAR */
   sidebar: {
     width: "260px",
     background: "#111827",
@@ -275,7 +250,6 @@ const styles = {
     fontWeight: "bold",
   },
 
-  /* MAIN */
   main: {
     flex: 1,
     padding: "30px",
@@ -310,7 +284,6 @@ const styles = {
     fontSize: "20px",
   },
 
-  /* HERO */
   heroCard: {
     background: "linear-gradient(90deg,#7c3aed,#2563eb)",
     padding: "35px",
@@ -329,7 +302,6 @@ const styles = {
     marginBottom: "30px",
   },
 
-  /* FEATURE GRID */
   featureGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(2, 1fr)",
@@ -337,7 +309,6 @@ const styles = {
     marginTop: "20px",
   },
 
-  /* FEATURE CARD */
   featureCard: {
     background: "rgba(255,255,255,0.12)",
     padding: "25px",

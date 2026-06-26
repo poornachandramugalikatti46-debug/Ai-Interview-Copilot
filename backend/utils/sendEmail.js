@@ -1,255 +1,89 @@
 const { Resend } = require("resend");
 
 /* =========================
-   RESEND CONFIG
+   RESEND INIT (SAFE)
 ========================= */
 
-const resend = new Resend(
-  process.env.RESEND_API_KEY
-);
+const apiKey = process.env.RESEND_API_KEY;
+
+let resend = null;
+
+if (apiKey) {
+  resend = new Resend(apiKey);
+} else {
+  console.warn("⚠️ RESEND_API_KEY missing — email system disabled");
+}
 
 /* =========================
-   WELCOME EMAIL
+   SEND WELCOME EMAIL
 ========================= */
 
-const sendWelcomeEmail = async (
-  userEmail,
-  userName
-) => {
-
+const sendWelcomeEmail = async (userEmail, userName) => {
   try {
+    console.log("📩 Welcome Email Triggered");
+    console.log("TO:", userEmail);
 
-    console.log(
-      "📩 Sending Welcome Email..."
-    );
-
-    console.log(
-      "TO:",
-      userEmail
-    );
-
-    /* CHECK API KEY */
-
-    if (
-      !process.env.RESEND_API_KEY
-    ) {
-
-      throw new Error(
-        "❌ RESEND_API_KEY Missing"
-      );
-
+    // SAFE EXIT IF NO RESEND
+    if (!resend) {
+      console.log("⚠️ Skipping email (Resend not configured)");
+      return null;
     }
 
-    /* SEND EMAIL */
+    if (!userEmail || !userName) {
+      console.log("⚠️ Missing email or username");
+      return null;
+    }
 
-    const response =
-      await resend.emails.send({
+    const response = await resend.emails.send({
+      from: "AI Interview Copilot <onboarding@resend.dev>",
+      to: userEmail,
+      subject: "🚀 Welcome to AI Interview Copilot",
+      html: `
+        <div style="font-family:Arial,sans-serif;background:#020617;padding:30px;color:white">
 
-        from:
-          "AI Interview Copilot <onboarding@resend.dev>",
+          <div style="max-width:600px;margin:auto;background:#0f172a;padding:30px;border-radius:16px">
 
-        to:
-          userEmail,
+            <h1 style="text-align:center;color:#38bdf8">
+              🚀 AI Interview Copilot
+            </h1>
 
-        subject:
-          "🎉 Welcome to AI Interview Copilot",
+            <h2 style="text-align:center;margin-top:20px">
+              Welcome ${userName} 👋
+            </h2>
 
-        html: `
+            <p style="text-align:center;color:#cbd5e1;font-size:16px">
+              Your account is successfully created 🎉
+            </p>
 
-        <div style="
-          background:#020617;
-          padding:40px 20px;
-          font-family:Arial,sans-serif;
-        ">
+            <p style="text-align:center;color:#94a3b8;font-size:14px;line-height:1.6">
+              Practice AI mock interviews, improve resume, and prepare for placements with smart AI assistance.
+            </p>
 
-          <div style="
-            max-width:650px;
-            margin:auto;
-            background:#0f172a;
-            border-radius:24px;
-            overflow:hidden;
-            border:1px solid rgba(255,255,255,0.08);
-          ">
-
-            <!-- HEADER -->
-
-            <div style="
-              background:linear-gradient(90deg,#7c3aed,#06b6d4);
-              padding:40px 20px;
-              text-align:center;
-            ">
-
-              <h1 style="
-                color:white;
-                margin:0;
-                font-size:34px;
-              ">
-                🚀 AI Interview Copilot
-              </h1>
-
-              <p style="
-                color:white;
-                margin-top:12px;
-                font-size:17px;
-              ">
-                Smart AI Interview Preparation Platform
-              </p>
-
+            <div style="text-align:center;margin-top:30px">
+              <a href="http://localhost:5173"
+                style="padding:14px 28px;background:linear-gradient(90deg,#06b6d4,#3b82f6);
+                color:white;text-decoration:none;border-radius:10px;font-weight:bold">
+                Start Practicing
+              </a>
             </div>
 
-            <!-- CONTENT -->
-
-            <div style="
-              padding:40px;
-              color:white;
-            ">
-
-              <h2 style="
-                color:#06b6d4;
-                margin-bottom:20px;
-                font-size:28px;
-              ">
-                Welcome ${userName} 👋
-              </h2>
-
-              <p style="
-                font-size:17px;
-                line-height:30px;
-                color:#e2e8f0;
-              ">
-                Your account has been created successfully 🎉
-              </p>
-
-              <p style="
-                font-size:16px;
-                line-height:28px;
-                color:#cbd5e1;
-              ">
-                Welcome to <strong>AI Interview Copilot</strong>,
-                your smart platform for interview preparation,
-                resume analysis, placement preparation,
-                and AI-powered mock interviews.
-              </p>
-
-              <!-- FEATURE BOX -->
-
-              <div style="
-                margin-top:30px;
-                background:#111827;
-                border-radius:16px;
-                padding:25px;
-              ">
-
-                <h3 style="
-                  color:#38bdf8;
-                  margin-top:0;
-                ">
-                  🚀 Features You Can Use
-                </h3>
-
-                <p>✅ AI Mock Interviews</p>
-
-                <p>✅ Resume ATS Analysis</p>
-
-                <p>✅ Placement Preparation</p>
-
-                <p>✅ Technical Interview Questions</p>
-
-                <p>✅ HR Interview Practice</p>
-
-                <p>✅ Career Guidance</p>
-
-              </div>
-
-              <!-- START BUTTON -->
-
-              <div style="
-                text-align:center;
-                margin-top:40px;
-              ">
-
-                <a href="http://localhost:5173"
-                  style="
-                    background:linear-gradient(90deg,#06b6d4,#3b82f6);
-                    color:white;
-                    text-decoration:none;
-                    padding:16px 32px;
-                    border-radius:12px;
-                    font-size:18px;
-                    font-weight:bold;
-                    display:inline-block;
-                  "
-                >
-                  🚀 Start Preparing
-                </a>
-
-              </div>
-
-              <!-- MESSAGE -->
-
-              <p style="
-                margin-top:40px;
-                color:#94a3b8;
-                line-height:28px;
-                font-size:15px;
-              ">
-                We are excited to help you crack your dream job
-                and improve your interview skills with AI 🚀
-              </p>
-
-            </div>
-
-            <!-- FOOTER -->
-
-            <div style="
-              background:#020617;
-              padding:20px;
-              text-align:center;
-            ">
-
-              <p style="
-                color:#64748b;
-                margin:0;
-                font-size:13px;
-              ">
-                © 2026 AI Interview Copilot ❤️
-              </p>
-
-            </div>
+            <p style="text-align:center;margin-top:30px;color:#64748b;font-size:12px">
+              © 2026 AI Interview Copilot. All rights reserved.
+            </p>
 
           </div>
 
         </div>
+      `,
+    });
 
-        `,
-      });
-
-    console.log(
-      "✅ WELCOME EMAIL SENT SUCCESSFULLY"
-    );
-
-    console.log(response);
-
+    console.log("✅ Welcome email sent");
     return response;
 
   } catch (error) {
-
-    console.log(
-      "❌ EMAIL ERROR:"
-    );
-
-    console.log(
-      error.message || error
-    );
-
-    throw error;
-
+    console.log("❌ Welcome Email Error:", error.message);
+    return null; // NEVER crash backend
   }
 };
 
-/* =========================
-   EXPORT
-========================= */
-
-module.exports =
-  sendWelcomeEmail;
+module.exports = sendWelcomeEmail;

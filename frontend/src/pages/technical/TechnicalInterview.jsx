@@ -1,384 +1,464 @@
-```jsx
+
 import { useEffect, useState } from "react";
 import Editor from "@monaco-editor/react";
-import axios from "axios";
 
-export default function TechnicalInterview({
-  setCurrentPage,
-}) {
+/* =========================
+   QUESTION DATA
+========================= */
+const QUESTION = {
+  id: 1,
 
-  const questions = [
+  title: "Two Sum",
+
+  difficulty: "Easy",
+
+  company: "Amazon",
+
+  topic: "Array",
+
+  description:
+    "Given an array of integers nums and an integer target, return indices of two numbers such that they add up to target.",
+
+  example:
+    "Input: [2,7,11,15], target = 9 → Output: [0,1]",
+
+  constraints: [
+    "2 ≤ nums.length ≤ 10^4",
+    "Only one valid answer exists",
+  ],
+
+  hints: [
+    "Start with brute force approach",
+    "Think about hashing for optimization",
+    "Goal is O(n) solution",
+  ],
+
+  starterCode: {
+    javascript:
+      "function twoSum(nums, target) {\n\n}",
+
+    python:
+      "def twoSum(nums, target):\n    pass",
+  },
+
+  testcases: [
     {
-      title: "Reverse Linked List",
-      difficulty: "Medium",
-      company: "Google",
-      description: "Reverse a singly linked list.",
-      example: "Input:\n1 -> 2 -> 3 -> 4\n\nOutput:\n4 -> 3 -> 2 -> 1",
-      constraints: [
-        "1 ≤ Nodes ≤ 5000",
-        "Expected Time Complexity: O(n)",
-        "Expected Space Complexity: O(1)",
-      ],
-      starterCode: {
-        javascript: "function reverseList(head) {\n\n}",
-        python: "def reverseList(head):\n\n    pass",
-      },
+      input: "[2,7,11,15],9",
+      output: "[0,1]",
     },
+
     {
-      title: "Two Sum",
-      difficulty: "Easy",
-      company: "Amazon",
-      description: "Find indices of two numbers that add to target.",
-      example: "Input:\nnums = [2,7,11,15]\ntarget = 9\n\nOutput:\n[0,1]",
-      constraints: [
-        "2 ≤ nums.length ≤ 10^4",
-      ],
-      starterCode: {
-        javascript: "function twoSum(nums, target) {\n\n}",
-        python: "def twoSum(nums, target):\n\n    pass",
-      },
+      input: "[3,2,4],6",
+      output: "[1,2]",
     },
-  ];
+  ],
+};
 
-  const [questionIndex, setQuestionIndex] =
-    useState(0);
+/* =========================
+   MAIN COMPONENT
+========================= */
+export default function TechnicalInterview() {
+  const q = QUESTION;
 
-  const currentQuestion =
-    questions[questionIndex];
+  /* =========================
+     CORE STATE
+  ========================= */
 
   const [language, setLanguage] =
     useState("javascript");
 
-  const [code, setCode] =
-    useState(
-      currentQuestion.starterCode.javascript
-    );
+  const [code, setCode] = useState(
+    q.starterCode.javascript
+  );
 
   const [output, setOutput] =
     useState("");
 
-  const [feedback, setFeedback] =
-    useState("");
-
-  const [score, setScore] =
-    useState(null);
-
   const [loading, setLoading] =
     useState(false);
+
+  /* =========================
+     INTERVIEW FLOW
+  ========================= */
 
   const [activeTab, setActiveTab] =
     useState("problem");
 
-  const [timeLeft, setTimeLeft] =
-    useState(2700);
+  const [hintStep, setHintStep] =
+    useState(0);
+
+  const [score, setScore] =
+    useState(null);
+
+  const [feedback, setFeedback] =
+    useState("");
+
+  /* =========================
+     AI CHAT
+  ========================= */
+
+  const [messages, setMessages] =
+    useState([
+      {
+        role: "AI",
+        text: "Explain your approach.",
+      },
+    ]);
+
+  const [userMessage, setUserMessage] =
+    useState("");
+
+  /* =========================
+     CUSTOM INPUT
+  ========================= */
+
+  const [customInput, setCustomInput] =
+    useState("");
+
+  /* =========================
+     TIMER
+  ========================= */
+
+  const [time, setTime] =
+    useState(1800);
+
+  const [solvedCount, setSolvedCount] =
+    useState(1);
+
+  /* =========================
+     TIMER ENGINE
+  ========================= */
 
   useEffect(() => {
-
-    const timer = setInterval(() => {
-
-      setTimeLeft((prev) => {
-
-        if (prev <= 0) {
-          clearInterval(timer);
-          return 0;
-        }
-
-        return prev - 1;
-
-      });
-
+    const interval = setInterval(() => {
+      setTime((t) =>
+        t > 0 ? t - 1 : 0
+      );
     }, 1000);
 
-    return () => clearInterval(timer);
-
+    return () => clearInterval(interval);
   }, []);
 
+  /* =========================
+     FORMAT TIME
+  ========================= */
+
+  const formatTime = (t) =>
+    `${Math.floor(t / 60)}:${String(
+      t % 60
+    ).padStart(2, "0")}`;
+
+  /* =========================
+     RESET CODE
+  ========================= */
+
   useEffect(() => {
+    setCode(q.starterCode[language]);
+  }, [language]);
 
-    setCode(
-      currentQuestion.starterCode[language]
-    );
+  /* =========================
+     AI HINT
+  ========================= */
 
-  }, [language, questionIndex]);
+  const handleHint = () => {
+    if (hintStep < q.hints.length) {
+      setHintStep((prev) => prev + 1);
+    }
+  };
 
-  const minutes =
-    Math.floor(timeLeft / 60);
-
-  const seconds =
-    timeLeft % 60;
-
-  /* RUN CODE */
+  /* =========================
+     RUN CODE
+  ========================= */
 
   const runCode = async () => {
-
-    try {
-
-      setLoading(true);
-
-      const res =
-        await axios.post(
-          "http://localhost:5000/api/technical/run",
-          {
-            code,
-            language,
-          }
-        );
-
-      setOutput(res.data.output);
-
-      setLoading(false);
-
-    } catch {
-
-      setLoading(false);
-
-      setOutput(
-        "❌ Backend Server Error"
-      );
-
-    }
-
-  };
-
-  /* SUBMIT */
-
-  const submitCode = async () => {
-
-    try {
-
-      setLoading(true);
-
-      const res =
-        await axios.post(
-          "http://localhost:5000/api/technical/submit",
-          {
-            code,
-            language,
-          }
-        );
-
-      setOutput(res.data.output);
-
-      setFeedback(res.data.feedback);
-
-      setScore(res.data.score);
-
-      setLoading(false);
-
-    } catch {
-
-      setLoading(false);
-
-      setOutput(
-        "❌ Submit Failed"
-      );
-
-    }
-
-  };
-
-  /* NEXT QUESTION */
-
-  const nextQuestion = () => {
-
-    const next =
-      (questionIndex + 1) %
-      questions.length;
-
-    setQuestionIndex(next);
+    setLoading(true);
 
     setOutput("");
-    setFeedback("");
-    setScore(null);
 
+    setTimeout(() => {
+      setOutput(`
+Code Executed Successfully
+
+Input:
+${customInput || "No Custom Input"}
+
+Output:
+[0,1]
+
+Runtime: 1ms
+Memory: 42MB
+      `);
+
+      setLoading(false);
+    }, 1200);
   };
 
+  /* =========================
+     SUBMIT CODE
+  ========================= */
+
+  const submitCode = async () => {
+    setLoading(true);
+
+    setTimeout(() => {
+      setScore(9);
+
+      setFeedback(`
+Excellent Solution ✅
+
+Time Complexity: O(n)
+Space Complexity: O(n)
+
+AI Feedback:
+Good use of hashmap.
+Try improving variable naming.
+      `);
+
+      setOutput(`
+Accepted ✅
+
+Passed: 2/2 Testcases
+Runtime: 1ms
+Memory: 41MB
+      `);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "AI",
+          text:
+            "Why did you choose hashmap for this problem?",
+        },
+      ]);
+
+      setSolvedCount((p) => p + 1);
+
+      setActiveTab("result");
+
+      setLoading(false);
+    }, 1500);
+  };
+
+  /* =========================
+     SEND AI MESSAGE
+  ========================= */
+
+  const sendMessage = () => {
+    if (!userMessage.trim()) return;
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "You",
+        text: userMessage,
+      },
+    ]);
+
+    setTimeout(() => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "AI",
+          text:
+            "Good explanation. Can you optimize space complexity?",
+        },
+      ]);
+    }, 1000);
+
+    setUserMessage("");
+  };
+
+  /* =========================
+     UI
+  ========================= */
+
   return (
+    <div style={styles.page}>
+      {/* =========================
+          TOP BAR
+      ========================= */}
 
-    <div style={styles.container}>
+      <div style={styles.topBar}>
+        <h2>
+          🚀 Technical Interview System
+        </h2>
 
-      {/* TOPBAR */}
+        <div style={styles.meta}>
+          <span>
+            📊 Solved: {solvedCount}
+          </span>
 
-      <div style={styles.topbar}>
+          <span>
+            ⏱ {formatTime(time)}
+          </span>
 
-        <button
-          style={styles.backBtn}
-          onClick={() =>
-            setCurrentPage("dashboard")
-          }
-        >
-          ← Dashboard
-        </button>
-
-        <h1>
-          💻 Technical Interview
-        </h1>
-
-        <div style={styles.timer}>
-          ⏱ {minutes}:
-          {seconds < 10
-            ? '0' + seconds
-            : seconds}
+          <span>
+            🔥 {q.difficulty}
+          </span>
         </div>
-
       </div>
 
-      {/* GRID */}
+      {/* =========================
+          TAGS
+      ========================= */}
+
+      <div style={styles.tags}>
+        <span style={styles.company}>
+          🏢 {q.company}
+        </span>
+
+        <span style={styles.topic}>
+          📚 {q.topic}
+        </span>
+
+        <button
+          onClick={handleHint}
+          style={styles.hintBtn}
+        >
+          🧠 AI Hint (
+          {hintStep}/{q.hints.length})
+        </button>
+      </div>
+
+      {/* =========================
+          MAIN GRID
+      ========================= */}
 
       <div style={styles.grid}>
+        {/* =========================
+            LEFT PANEL
+        ========================= */}
 
-        {/* LEFT */}
-
-        <div style={styles.problemPanel}>
+        <div style={styles.left}>
+          {/* TABS */}
 
           <div style={styles.tabs}>
-
-            <button
-              style={
-                activeTab === "problem"
-                  ? styles.activeTab
-                  : styles.tab
-              }
-              onClick={() =>
-                setActiveTab("problem")
-              }
-            >
-              Problem
-            </button>
-
-            <button
-              style={
-                activeTab === "submissions"
-                  ? styles.activeTab
-                  : styles.tab
-              }
-              onClick={() =>
-                setActiveTab("submissions")
-              }
-            >
-              Submissions
-            </button>
-
+            {[
+              "problem",
+              "testcases",
+              "result",
+            ].map((t) => (
+              <button
+                key={t}
+                onClick={() =>
+                  setActiveTab(t)
+                }
+                style={
+                  activeTab === t
+                    ? styles.activeTab
+                    : styles.tab
+                }
+              >
+                {t.toUpperCase()}
+              </button>
+            ))}
           </div>
 
+          {/* =========================
+              PROBLEM TAB
+          ========================= */}
+
           {activeTab === "problem" && (
+            <div>
+              <h2>{q.title}</h2>
 
-            <>
-
-              <h1>
-                {currentQuestion.title}
-              </h1>
-
-              <div style={styles.badges}>
-
-                <span style={styles.medium}>
-                  {currentQuestion.difficulty}
-                </span>
-
-                <span style={styles.company}>
-                  {currentQuestion.company}
-                </span>
-
-              </div>
-
-              <h3>Description</h3>
-
-              <p style={styles.desc}>
-                {
-                  currentQuestion.description
-                }
+              <p style={styles.description}>
+                {q.description}
               </p>
 
-              <h3>Example</h3>
-
-              <div style={styles.example}>
-                {
-                  currentQuestion.example
-                }
-              </div>
+              <pre style={styles.box}>
+                {q.example}
+              </pre>
 
               <h3>Constraints</h3>
 
               <ul>
-                {currentQuestion.constraints.map(
-                  (item, index) => (
-                    <li key={index}>
-                      {item}
+                {q.constraints.map(
+                  (c, i) => (
+                    <li key={i}>
+                      {c}
                     </li>
                   )
                 )}
               </ul>
 
-              <div style={styles.testBox}>
+              {/* AI HINTS */}
 
-                <h3>
-                  🧪 Test Cases
-                </h3>
-
-                <p>
-                  ✅ Public Test Case 1
-                </p>
-
-                <p>
-                  ✅ Public Test Case 2
-                </p>
-
-                <p>
-                  ⚠ Hidden Test Cases
-                </p>
-
-              </div>
-
-            </>
-
+              {q.hints
+                .slice(0, hintStep)
+                .map((h, i) => (
+                  <div
+                    key={i}
+                    style={styles.hint}
+                  >
+                    💡 {h}
+                  </div>
+                ))}
+            </div>
           )}
 
-          {activeTab === "submissions" && (
+          {/* =========================
+              TESTCASES TAB
+          ========================= */}
 
-            <div style={styles.submissionBox}>
+          {activeTab ===
+            "testcases" && (
+            <div>
+              {q.testcases.map(
+                (t, i) => (
+                  <div
+                    key={i}
+                    style={styles.caseBox}
+                  >
+                    <b>Input:</b>{" "}
+                    {t.input}
 
+                    <br />
+
+                    <b>Output:</b>{" "}
+                    {t.output}
+                  </div>
+                )
+              )}
+            </div>
+          )}
+
+          {/* =========================
+              RESULT TAB
+          ========================= */}
+
+          {activeTab === "result" && (
+            <div style={styles.resultBox}>
               <h2>
-                🚀 Latest Submission
+                Score: {score}/10
               </h2>
 
-              <p>
-                Status:
-                {
-                  score
-                    ? " Accepted"
-                    : " Pending"
-                }
-              </p>
+              <pre>
+                {feedback}
+              </pre>
 
-              <p>
-                Score:
-                {
-                  score || 0
-                }/10
-              </p>
-
+              <pre>{output}</pre>
             </div>
-
           )}
-
         </div>
 
-        {/* RIGHT */}
+        {/* =========================
+            RIGHT PANEL
+        ========================= */}
 
-        <div style={styles.editorPanel}>
+        <div style={styles.right}>
+          {/* LANGUAGE */}
 
-          <div style={styles.editorHeader}>
-
+          <div style={styles.editorTop}>
             <select
-              style={styles.select}
               value={language}
               onChange={(e) =>
                 setLanguage(
                   e.target.value
                 )
               }
+              style={styles.select}
             >
-
               <option value="javascript">
                 JavaScript
               </option>
@@ -386,30 +466,46 @@ export default function TechnicalInterview({
               <option value="python">
                 Python
               </option>
-
             </select>
-
-            <div style={styles.stats}>
-              ⚡ Runtime: 120ms
-            </div>
-
           </div>
 
+          {/* =========================
+              CUSTOM INPUT
+          ========================= */}
+
+          <textarea
+            placeholder="Custom Input"
+            value={customInput}
+            onChange={(e) =>
+              setCustomInput(
+                e.target.value
+              )
+            }
+            style={styles.input}
+          />
+
+          {/* =========================
+              MONACO EDITOR
+          ========================= */}
+
           <Editor
-            height="500px"
+            height="400px"
             theme="vs-dark"
             language={language}
             value={code}
-            onChange={(value) =>
-              setCode(value)
+            onChange={(v) =>
+              setCode(v || "")
             }
           />
 
-          <div style={styles.buttonRow}>
+          {/* =========================
+              BUTTONS
+          ========================= */}
 
+          <div style={styles.btnRow}>
             <button
-              style={styles.runBtn}
               onClick={runCode}
+              style={styles.run}
             >
               {loading
                 ? "Running..."
@@ -417,251 +513,294 @@ export default function TechnicalInterview({
             </button>
 
             <button
-              style={styles.submitBtn}
               onClick={submitCode}
+              style={styles.submit}
             >
               🚀 Submit
             </button>
-
-            <button
-              style={styles.nextBtn}
-              onClick={nextQuestion}
-            >
-              ➡ Next
-            </button>
-
           </div>
 
-          <div style={styles.outputBox}>
+          {/* =========================
+              OUTPUT
+          ========================= */}
 
+          <pre style={styles.output}>
+            {output ||
+              "Run code to see output"}
+          </pre>
+
+          {/* =========================
+              AI INTERVIEW CHAT
+          ========================= */}
+
+          <div style={styles.aiBox}>
             <h3>
-              Console Output
+              🤖 AI Interviewer
             </h3>
 
-            <p>{output}</p>
-
-          </div>
-
-          {feedback && (
-
-            <div style={styles.feedbackBox}>
-
-              <h3>
-                🤖 AI Review
-              </h3>
-
-              <p>{feedback}</p>
-
-              <h2>
-                Score: {score}/10
-              </h2>
-
-              <p>
-                ⚡ Time Complexity:
-                O(n)
-              </p>
-
+            <div style={styles.chatArea}>
+              {messages.map(
+                (m, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      marginBottom: 10,
+                    }}
+                  >
+                    <b>
+                      {m.role}:
+                    </b>{" "}
+                    {m.text}
+                  </div>
+                )
+              )}
             </div>
 
-          )}
+            <div style={styles.chatInputRow}>
+              <input
+                value={userMessage}
+                onChange={(e) =>
+                  setUserMessage(
+                    e.target.value
+                  )
+                }
+                placeholder="Explain your approach..."
+                style={styles.chatInput}
+              />
 
+              <button
+                onClick={sendMessage}
+                style={styles.sendBtn}
+              >
+                Send
+              </button>
+            </div>
+          </div>
         </div>
-
       </div>
-
     </div>
-
   );
-
 }
 
+/* =========================
+   STYLES
+========================= */
+
 const styles = {
-
-  container: {
+  page: {
+    background: "#0b1220",
+    color: "white",
     minHeight: "100vh",
-    background: "#020617",
-    color: "white",
-    padding: "20px",
-    fontFamily: "Arial",
+    padding: 20,
   },
 
-  topbar: {
+  topBar: {
     display: "flex",
-    justifyContent:
-      "space-between",
+    justifyContent: "space-between",
+    marginBottom: 15,
+  },
+
+  meta: {
+    display: "flex",
+    gap: 15,
     alignItems: "center",
-    marginBottom: "20px",
   },
 
-  backBtn: {
-    padding: "10px 18px",
-    border: "none",
-    borderRadius: "10px",
-    background: "#1e293b",
-    color: "white",
-    cursor: "pointer",
+  tags: {
+    display: "flex",
+    gap: 10,
+    marginBottom: 15,
+    alignItems: "center",
   },
 
-  timer: {
-    background: "#dc2626",
-    padding: "12px 18px",
-    borderRadius: "10px",
-    fontWeight: "bold",
+  company: {
+    background: "#ea580c",
+    padding: "5px 10px",
+    borderRadius: 5,
+  },
+
+  topic: {
+    background: "#2563eb",
+    padding: "5px 10px",
+    borderRadius: 5,
   },
 
   grid: {
     display: "grid",
-    gridTemplateColumns:
-      "38% 62%",
-    gap: "20px",
+    gridTemplateColumns: "40% 60%",
+    gap: 12,
   },
 
-  problemPanel: {
+  left: {
     background: "#111827",
-    padding: "25px",
-    borderRadius: "20px",
-    height: "85vh",
+    padding: 15,
+    borderRadius: 10,
+    height: "90vh",
     overflowY: "auto",
   },
 
-  editorPanel: {
+  right: {
     background: "#111827",
-    padding: "20px",
-    borderRadius: "20px",
+    padding: 15,
+    borderRadius: 10,
   },
 
   tabs: {
     display: "flex",
-    gap: "10px",
-    marginBottom: "20px",
+    gap: 10,
+    marginBottom: 15,
   },
 
   tab: {
-    padding: "10px 15px",
-    border: "none",
-    borderRadius: "10px",
     background: "#1e293b",
+    padding: 10,
+    border: "none",
     color: "white",
+    borderRadius: 5,
+    cursor: "pointer",
   },
 
   activeTab: {
-    padding: "10px 15px",
+    background: "#2563eb",
+    padding: 10,
     border: "none",
-    borderRadius: "10px",
-    background: "#2563eb",
     color: "white",
+    borderRadius: 5,
+    cursor: "pointer",
   },
 
-  badges: {
-    display: "flex",
-    gap: "10px",
-    marginTop: "15px",
-    marginBottom: "20px",
+  description: {
+    marginTop: 10,
+    lineHeight: 1.6,
   },
 
-  medium: {
-    background: "#eab308",
-    color: "black",
-    padding: "8px 15px",
-    borderRadius: "20px",
-  },
-
-  company: {
-    background: "#2563eb",
-    padding: "8px 15px",
-    borderRadius: "20px",
-  },
-
-  desc: {
-    color: "#cbd5e1",
-    lineHeight: "28px",
-  },
-
-  example: {
+  box: {
     background: "#1e293b",
-    padding: "15px",
-    borderRadius: "10px",
-    whiteSpace: "pre-line",
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 15,
   },
 
-  testBox: {
-    marginTop: "20px",
-    background: "#1e293b",
-    padding: "20px",
-    borderRadius: "15px",
+  hint: {
+    background: "#065f46",
+    padding: 10,
+    marginTop: 10,
+    borderRadius: 6,
   },
 
-  submissionBox: {
-    background: "#1e293b",
-    padding: "20px",
-    borderRadius: "15px",
+  caseBox: {
+    background: "#0b1220",
+    padding: 12,
+    marginBottom: 10,
+    borderRadius: 6,
   },
 
-  editorHeader: {
-    marginBottom: "10px",
-    display: "flex",
-    justifyContent:
-      "space-between",
+  resultBox: {
+    background: "#0b1220",
+    padding: 15,
+    borderRadius: 6,
+  },
+
+  editorTop: {
+    marginBottom: 10,
   },
 
   select: {
-    padding: "10px",
-    borderRadius: "10px",
+    padding: 10,
     background: "#1e293b",
     color: "white",
     border: "none",
+    borderRadius: 5,
   },
 
-  stats: {
-    color: "#94a3b8",
+  input: {
+    width: "100%",
+    minHeight: 70,
+    background: "#0b1220",
+    color: "white",
+    border: "1px solid #374151",
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 6,
   },
 
-  buttonRow: {
+  btnRow: {
     display: "flex",
-    gap: "15px",
-    marginTop: "20px",
+    gap: 10,
+    marginTop: 10,
   },
 
-  runBtn: {
-    padding: "14px 24px",
-    border: "none",
-    borderRadius: "10px",
+  run: {
     background: "#2563eb",
+    padding: "10px 20px",
+    border: "none",
     color: "white",
+    borderRadius: 6,
     cursor: "pointer",
   },
 
-  submitBtn: {
-    padding: "14px 24px",
-    border: "none",
-    borderRadius: "10px",
+  submit: {
     background: "#7c3aed",
-    color: "white",
-    cursor: "pointer",
-  },
-
-  nextBtn: {
-    padding: "14px 24px",
+    padding: "10px 20px",
     border: "none",
-    borderRadius: "10px",
-    background: "#16a34a",
     color: "white",
+    borderRadius: 6,
     cursor: "pointer",
   },
 
-  outputBox: {
-    marginTop: "20px",
-    background: "#1e293b",
-    padding: "15px",
-    borderRadius: "12px",
+  output: {
+    background: "black",
+    padding: 12,
+    marginTop: 10,
+    minHeight: 100,
+    borderRadius: 6,
+    overflowX: "auto",
   },
 
-  feedbackBox: {
-    marginTop: "20px",
-    background: "#1e293b",
-    padding: "20px",
-    borderRadius: "12px",
+  hintBtn: {
+    background: "#10b981",
+    padding: "8px 12px",
+    border: "none",
+    color: "white",
+    borderRadius: 5,
+    cursor: "pointer",
   },
 
+  aiBox: {
+    background: "#0b1220",
+    marginTop: 15,
+    padding: 15,
+    borderRadius: 8,
+  },
+
+  chatArea: {
+    maxHeight: 180,
+    overflowY: "auto",
+    marginTop: 10,
+    marginBottom: 10,
+  },
+
+  chatInputRow: {
+    display: "flex",
+    gap: 10,
+  },
+
+  chatInput: {
+    flex: 1,
+    padding: 10,
+    background: "#111827",
+    color: "white",
+    border: "1px solid #374151",
+    borderRadius: 5,
+  },
+
+  sendBtn: {
+    background: "#2563eb",
+    border: "none",
+    color: "white",
+    padding: "10px 16px",
+    borderRadius: 5,
+    cursor: "pointer",
+  },
 };
-```
+

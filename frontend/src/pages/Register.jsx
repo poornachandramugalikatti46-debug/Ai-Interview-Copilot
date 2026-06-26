@@ -1,14 +1,43 @@
 import { useState } from "react";
+import axios from "axios";
 
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
-    alert("Registration Successful");
+    try {
+      setLoading(true);
+
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/register",
+        {
+          fullname: name,
+          email,
+          password,
+          role: "student",
+          experience: "fresher"
+        }
+      );
+
+      console.log("REGISTER SUCCESS:", res.data);
+      alert("Registration Successful ✅");
+
+      setName("");
+      setEmail("");
+      setPassword("");
+
+    } catch (err) {
+      console.log("REGISTER ERROR:", err.response?.data || err.message);
+      alert(err.response?.data?.message || "Registration Failed ❌");
+
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,7 +69,9 @@ export default function Register() {
           required
         />
 
-        <button type="submit">Register</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Registering..." : "Register"}
+        </button>
       </form>
     </div>
   );
