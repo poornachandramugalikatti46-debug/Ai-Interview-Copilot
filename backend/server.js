@@ -16,9 +16,10 @@ app.use(helmet());
 /* ================= CORS ================= */
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: [
+      process.env.CLIENT_URL || "http://localhost:5173",
+    ],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
 
@@ -27,27 +28,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 /* ================= LOGGING ================= */
-if (process.env.NODE_ENV !== "production") {
-  app.use(morgan("dev"));
-}
+app.use(morgan("dev"));
 
-/* ================= ROUTES ================= */
-app.use("/api/auth", authRoutes);
-
-/* ================= HEALTH CHECK ================= */
+/* ================= ROOT ROUTE ================= */
 app.get("/", (req, res) => {
-  res.json({
+  res.status(200).json({
     success: true,
-    message: "AI Interview Copilot Backend Running 🚀",
-    status: "OK",
+    message: "🚀 AI Interview Copilot Backend Running",
+    environment: process.env.NODE_ENV || "development",
   });
 });
+
+/* ================= API ROUTES ================= */
+app.use("/api/auth", authRoutes);
 
 /* ================= 404 HANDLER ================= */
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    message: "Route not found",
+    message: "❌ Route not found",
   });
 });
 
@@ -58,19 +57,23 @@ app.use((err, req, res, next) => {
   res.status(500).json({
     success: false,
     message: "Internal Server Error",
+    error:
+      process.env.NODE_ENV === "development"
+        ? err.message
+        : undefined,
   });
 });
 
-/* ================= DATABASE + SERVER START ================= */
-const PORT = process.env.PORT || 5000;
-
+/* ================= DATABASE CONNECTION ================= */
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("✅ MongoDB Connected");
 
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    const PORT = process.env.PORT || 5000;
+
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`🚀 Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
