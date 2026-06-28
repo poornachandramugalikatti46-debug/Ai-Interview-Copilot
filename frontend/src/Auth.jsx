@@ -2,7 +2,13 @@ import { useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 
-const API = `${import.meta.env.VITE_API_URL}/api/auth`;
+/* ================= API ================= */
+
+const API_BASE =
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:5000";
+
+const API = `${API_BASE}/api/auth`;
 
 export default function Auth({ setLoggedIn }) {
   const [mode, setMode] = useState("login");
@@ -15,7 +21,8 @@ export default function Auth({ setLoggedIn }) {
     password: "",
   });
 
-  // ================= INPUT =================
+  /* ================= INPUT ================= */
+
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -23,15 +30,26 @@ export default function Auth({ setLoggedIn }) {
     });
   };
 
-  // ================= LOGIN =================
+  /* ================= LOGIN ================= */
+
   const login = async () => {
     try {
       setLoading(true);
 
-      const res = await axios.post(`${API}/login`, {
-        email: form.email.trim(),
-        password: form.password,
-      });
+      console.log("LOGIN API:", `${API}/login`);
+
+      const res = await axios.post(
+        `${API}/login`,
+        {
+          email: form.email.trim(),
+          password: form.password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       localStorage.setItem("token", res.data.token);
 
@@ -45,36 +63,46 @@ export default function Auth({ setLoggedIn }) {
       setLoggedIn(true);
 
     } catch (err) {
-      console.log(
-        "LOGIN ERROR:",
-        err.response?.data || err.message
-      );
+
+      console.log("LOGIN ERROR:", err);
 
       alert(
-        err.response?.data?.message || "Invalid credentials"
+        err.response?.data?.message ||
+        err.message ||
+        "Login failed"
       );
+
     } finally {
       setLoading(false);
     }
   };
 
-  // ================= REGISTER =================
+  /* ================= REGISTER ================= */
+
   const register = async () => {
     try {
       setLoading(true);
 
-      const res = await axios.post(`${API}/register`, {
-        fullname: form.fullname.trim(),
-        email: form.email.trim(),
-        password: form.password,
-      });
+      console.log("REGISTER API:", `${API}/register`);
+
+      const res = await axios.post(
+        `${API}/register`,
+        {
+          fullname: form.fullname.trim(),
+          email: form.email.trim(),
+          password: form.password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       alert("Registered Successfully 🎉");
 
-      // switch to login
       setMode("login");
 
-      // auto fill email
       setForm({
         fullname: "",
         email: form.email,
@@ -82,20 +110,22 @@ export default function Auth({ setLoggedIn }) {
       });
 
     } catch (err) {
-      console.log(
-        "REGISTER ERROR:",
-        err.response?.data || err.message
-      );
+
+      console.log("REGISTER ERROR:", err);
 
       alert(
-        err.response?.data?.message || "Register failed"
+        err.response?.data?.message ||
+        err.message ||
+        "Register failed"
       );
+
     } finally {
       setLoading(false);
     }
   };
 
-  // ================= SUBMIT =================
+  /* ================= SUBMIT ================= */
+
   const handleSubmit = () => {
 
     if (!form.email || !form.password) {
@@ -103,7 +133,10 @@ export default function Auth({ setLoggedIn }) {
       return;
     }
 
-    if (mode === "register" && !form.fullname) {
+    if (
+      mode === "register" &&
+      !form.fullname
+    ) {
       alert("Full Name required");
       return;
     }
@@ -114,7 +147,7 @@ export default function Auth({ setLoggedIn }) {
       register();
     }
   };
-
+  
   return (
     <div className="container">
 
