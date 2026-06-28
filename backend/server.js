@@ -17,8 +17,10 @@ app.use(helmet());
 app.use(
   cors({
     origin: [
-      process.env.CLIENT_URL || "http://localhost:5173",
+      "https://ai-interview-copilot-frontend-ccwr.onrender.com",
+      "http://localhost:5173",
     ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
