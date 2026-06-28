@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 
-const API = "http://localhost:5000/api/auth";
+const API = `${import.meta.env.VITE_API_URL}/api/auth`;
 
 export default function Auth({ setLoggedIn }) {
   const [mode, setMode] = useState("login");
