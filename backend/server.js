@@ -7,6 +7,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 
 const authRoutes = require("./routes/auth");
+const authMiddleware = require("./middleware/authMiddleware");
 
 const app = express();
 
@@ -45,6 +46,14 @@ app.get("/health", (req, res) => {
   res.json({ status: "OK" });
 });
 
+/* ================= PROTECTED ROUTE ================= */
+app.get("/api/protected", authMiddleware, (req, res) => {
+  res.json({
+    success: true,
+    message: "You accessed protected route 🔐",
+    user: req.user,
+  });
+});
 /* ================= API ROUTES ================= */
 app.use("/api/auth", authRoutes);
 
