@@ -3,23 +3,32 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 
 /* ================= REGISTER ================= */
+
 router.post("/register", async (req, res) => {
   try {
+
+    console.log("REGISTER ROUTE HIT");
+
     const { fullname, email, password } = req.body;
 
-    // SIMPLE DEMO AUTH
-    if (!email || !password) {
+    /* VALIDATION */
+
+    if (!fullname || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Email and password required",
+        message: "All fields are required",
       });
     }
 
+    /* CREATE TOKEN */
+
     const token = jwt.sign(
       { email },
-      "secret",
+      process.env.JWT_SECRET || "secret",
       { expiresIn: "7d" }
     );
+
+    /* RESPONSE */
 
     res.status(201).json({
       success: true,
@@ -32,21 +41,28 @@ router.post("/register", async (req, res) => {
     });
 
   } catch (err) {
-    console.log(err);
+
+    console.log("REGISTER ERROR:", err);
 
     res.status(500).json({
       success: false,
       message: "Server error",
     });
+
   }
 });
 
 /* ================= LOGIN ================= */
+
 router.post("/login", async (req, res) => {
   try {
+
+    console.log("LOGIN ROUTE HIT");
+
     const { email, password } = req.body;
 
-    // ACCEPT ANY LOGIN
+    /* VALIDATION */
+
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -54,13 +70,17 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    /* CREATE TOKEN */
+
     const token = jwt.sign(
       { email },
-      "secret",
+      process.env.JWT_SECRET || "secret",
       { expiresIn: "7d" }
     );
 
-    res.json({
+    /* RESPONSE */
+
+    res.status(200).json({
       success: true,
       message: "Login successful 🚀",
       token,
@@ -70,13 +90,24 @@ router.post("/login", async (req, res) => {
     });
 
   } catch (err) {
-    console.log(err);
+
+    console.log("LOGIN ERROR:", err);
 
     res.status(500).json({
       success: false,
       message: "Server error",
     });
+
   }
+});
+
+/* ================= TEST ROUTE ================= */
+
+router.get("/test", (req, res) => {
+  res.json({
+    success: true,
+    message: "Auth routes working ✅",
+  });
 });
 
 module.exports = router;
