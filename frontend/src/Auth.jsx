@@ -3,12 +3,7 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 
 /* ================= API ================= */
-
-const API_BASE =
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:5000";
-
-const API = `${API_BASE}/api/auth`;
+const API = "https://ai-interview-copilot-zf93.onrender.com";
 
 export default function Auth({ setLoggedIn }) {
   const [mode, setMode] = useState("login");
@@ -22,7 +17,6 @@ export default function Auth({ setLoggedIn }) {
   });
 
   /* ================= INPUT ================= */
-
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -31,136 +25,102 @@ export default function Auth({ setLoggedIn }) {
   };
 
   /* ================= LOGIN ================= */
-
   const login = async () => {
     try {
       setLoading(true);
 
-      console.log("LOGIN API:", `${API}/login`);
-
       const res = await axios.post(
-        `${API}/login`,
+        `${API}/api/auth/login`,
         {
           email: form.email.trim(),
           password: form.password,
         },
         {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
         }
       );
 
       localStorage.setItem("token", res.data.token);
-
-      localStorage.setItem(
-        "user",
-        JSON.stringify(res.data.user)
-      );
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
       alert("Login Successful 🚀");
-
       setLoggedIn(true);
-
     } catch (err) {
-
       console.log("LOGIN ERROR:", err);
 
       alert(
         err.response?.data?.message ||
-        err.message ||
-        "Login failed"
+          err.message ||
+          "Login failed"
       );
-
     } finally {
       setLoading(false);
     }
   };
 
   /* ================= REGISTER ================= */
-
   const register = async () => {
     try {
       setLoading(true);
 
-      console.log("REGISTER API:", `${API}/register`);
-
       const res = await axios.post(
-        `${API}/register`,
+        `${API}/api/auth/register`,
         {
           fullname: form.fullname.trim(),
           email: form.email.trim(),
           password: form.password,
         },
         {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
         }
       );
 
       alert("Registered Successfully 🎉");
 
       setMode("login");
-
       setForm({
         fullname: "",
         email: form.email,
         password: "",
       });
-
     } catch (err) {
-
       console.log("REGISTER ERROR:", err);
 
       alert(
         err.response?.data?.message ||
-        err.message ||
-        "Register failed"
+          err.message ||
+          "Register failed"
       );
-
     } finally {
       setLoading(false);
     }
   };
 
   /* ================= SUBMIT ================= */
-
   const handleSubmit = () => {
-
     if (!form.email || !form.password) {
       alert("Email & Password required");
       return;
     }
 
-    if (
-      mode === "register" &&
-      !form.fullname
-    ) {
+    if (mode === "register" && !form.fullname) {
       alert("Full Name required");
       return;
     }
 
-    if (mode === "login") {
-      login();
-    } else {
-      register();
-    }
+    if (mode === "login") login();
+    else register();
   };
-  
+
   return (
     <div className="container">
-
-      {/* BACKGROUND */}
       <div className="bg"></div>
 
-      {/* CARD */}
       <motion.div
         className="card"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
       >
-
         {/* LOGO */}
         <motion.div
           className="logo"
@@ -181,44 +141,33 @@ export default function Auth({ setLoggedIn }) {
         </motion.div>
 
         <h1>AI Interview Copilot</h1>
-
-        <p>
-          Practice smarter. Crack interviews faster.
-        </p>
+        <p>Practice smarter. Crack interviews faster.</p>
 
         {/* TOGGLE */}
         <div className="toggle">
-
           <button
-            className={
-              mode === "login" ? "active" : ""
-            }
+            className={mode === "login" ? "active" : ""}
             onClick={() => setMode("login")}
           >
             Login
           </button>
 
           <button
-            className={
-              mode === "register" ? "active" : ""
-            }
+            className={mode === "register" ? "active" : ""}
             onClick={() => setMode("register")}
           >
             Register
           </button>
-
         </div>
 
         {/* FORM */}
         <AnimatePresence mode="wait">
-
           <motion.div
             key={mode}
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -30 }}
           >
-
             {mode === "register" && (
               <input
                 type="text"
@@ -238,13 +187,8 @@ export default function Auth({ setLoggedIn }) {
             />
 
             <div className="password-box">
-
               <input
-                type={
-                  showPassword
-                    ? "text"
-                    : "password"
-                }
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Password"
                 value={form.password}
@@ -258,7 +202,6 @@ export default function Auth({ setLoggedIn }) {
               >
                 {showPassword ? "🙈" : "👁️"}
               </span>
-
             </div>
 
             <button
@@ -272,203 +215,142 @@ export default function Auth({ setLoggedIn }) {
                 ? "Login"
                 : "Create Account"}
             </button>
-
           </motion.div>
-
         </AnimatePresence>
-
       </motion.div>
 
       {/* STYLE */}
       <style>{`
-
-        *{
-          margin:0;
-          padding:0;
-          box-sizing:border-box;
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
         }
 
-        body{
-          overflow:hidden;
-          font-family:Arial;
+        body {
+          overflow: hidden;
+          font-family: Arial;
         }
 
-        .container{
-          width:100%;
-          height:100vh;
-          display:flex;
-          justify-content:center;
-          align-items:center;
-          position:relative;
-          overflow:hidden;
-          background:
-          radial-gradient(circle at top,
-          #0f172a,
-          #020617);
+        .container {
+          width: 100%;
+          height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          position: relative;
+          background: radial-gradient(circle at top, #0f172a, #020617);
         }
 
-        .bg{
-          position:absolute;
-          width:200%;
-          height:200%;
-          background-image:
-          radial-gradient(#ffffff11 1px, transparent 1px);
-          background-size:30px 30px;
-          animation:move 25s linear infinite;
+        .bg {
+          position: absolute;
+          width: 200%;
+          height: 200%;
+          background-image: radial-gradient(#ffffff11 1px, transparent 1px);
+          background-size: 30px 30px;
+          animation: move 25s linear infinite;
         }
 
-        @keyframes move{
-          from{
-            transform:translateY(0px);
-          }
-
-          to{
-            transform:translateY(-200px);
-          }
+        @keyframes move {
+          from { transform: translateY(0); }
+          to { transform: translateY(-200px); }
         }
 
-        .card{
-          width:400px;
-          padding:35px;
-          border-radius:24px;
-          background:rgba(255,255,255,0.06);
-          backdrop-filter:blur(25px);
-          border:1px solid rgba(255,255,255,0.08);
-          color:white;
-          text-align:center;
-          z-index:10;
-
-          box-shadow:
-          0 10px 40px rgba(0,0,0,0.5);
+        .card {
+          width: 400px;
+          padding: 35px;
+          border-radius: 24px;
+          background: rgba(255,255,255,0.06);
+          backdrop-filter: blur(25px);
+          border: 1px solid rgba(255,255,255,0.08);
+          color: white;
+          text-align: center;
+          z-index: 10;
         }
 
-        .logo{
-          width:90px;
-          height:90px;
-          margin:auto;
-          margin-bottom:18px;
-
-          border-radius:24px;
-
-          background:
-          linear-gradient(
-            135deg,
-            #2563eb,
-            #38bdf8
-          );
-
-          display:flex;
-          align-items:center;
-          justify-content:center;
-
-          font-size:40px;
+        .logo {
+          width: 90px;
+          height: 90px;
+          margin: auto;
+          margin-bottom: 18px;
+          border-radius: 24px;
+          background: linear-gradient(135deg, #2563eb, #38bdf8);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 40px;
         }
 
-        h1{
-          font-size:30px;
-          margin-bottom:10px;
+        h1 {
+          font-size: 30px;
+          margin-bottom: 10px;
         }
 
-        p{
-          color:#94a3b8;
-          margin-bottom:25px;
-          font-size:14px;
+        p {
+          color: #94a3b8;
+          margin-bottom: 25px;
+          font-size: 14px;
         }
 
-        .toggle{
-          display:flex;
-          background:#0f172a;
-          border-radius:14px;
-          overflow:hidden;
-          margin-bottom:20px;
+        .toggle {
+          display: flex;
+          background: #0f172a;
+          border-radius: 14px;
+          overflow: hidden;
+          margin-bottom: 20px;
         }
 
-        .toggle button{
-          flex:1;
-          padding:13px;
-          border:none;
-          background:transparent;
-          color:#94a3b8;
-          cursor:pointer;
-          font-size:15px;
-          transition:0.3s;
+        .toggle button {
+          flex: 1;
+          padding: 13px;
+          border: none;
+          background: transparent;
+          color: #94a3b8;
+          cursor: pointer;
         }
 
-        .toggle .active{
-          background:#2563eb;
-          color:white;
-          font-weight:bold;
+        .toggle .active {
+          background: #2563eb;
+          color: white;
+          font-weight: bold;
         }
 
-        input{
-          width:100%;
-          padding:14px;
-          margin-bottom:14px;
-
-          border:none;
-          border-radius:14px;
-
-          background:#0b1220;
-
-          color:white;
-
-          outline:none;
-
-          font-size:14px;
-
-          border:1px solid #1e293b;
+        input {
+          width: 100%;
+          padding: 14px;
+          margin-bottom: 14px;
+          border-radius: 14px;
+          background: #0b1220;
+          color: white;
+          border: 1px solid #1e293b;
+          outline: none;
         }
 
-        input:focus{
-          border-color:#2563eb;
+        .password-box {
+          position: relative;
         }
 
-        .password-box{
-          position:relative;
+        .password-box span {
+          position: absolute;
+          right: 14px;
+          top: 40%;
+          cursor: pointer;
         }
 
-        .password-box span{
-          position:absolute;
-          right:14px;
-          top:40%;
-          transform:translateY(-50%);
-          cursor:pointer;
+        .btn {
+          width: 100%;
+          padding: 14px;
+          border: none;
+          border-radius: 14px;
+          background: linear-gradient(135deg, #2563eb, #38bdf8);
+          color: white;
+          font-weight: bold;
+          cursor: pointer;
         }
 
-        .btn{
-          width:100%;
-          padding:14px;
-
-          border:none;
-          border-radius:14px;
-
-          background:
-          linear-gradient(
-            135deg,
-            #2563eb,
-            #38bdf8
-          );
-
-          color:white;
-
-          font-size:15px;
-          font-weight:bold;
-
-          cursor:pointer;
-
-          transition:0.3s;
+        .btn:disabled {
+          opacity: 0.6;
         }
-
-        .btn:hover{
-          transform:translateY(-2px);
-          opacity:0.95;
-        }
-
-        .btn:disabled{
-          opacity:0.7;
-          cursor:not-allowed;
-        }
-
       `}</style>
     </div>
   );
