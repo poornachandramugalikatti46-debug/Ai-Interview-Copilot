@@ -1,14 +1,18 @@
 const mongoose = require("mongoose");
 
-const ChatSchema = new mongoose.Schema({
+const chatSchema = new mongoose.Schema({
   userId: String,
+  title: {
+    type: String,
+    default: "New Chat"
+  },
   messages: [
     {
-      role: String,
+      role: String, // "user" | "assistant"
       content: String,
-    },
-  ],
-  createdAt: { type: Date, default: Date.now },
-});
+      time: { type: Date, default: Date.now }
+    }
+  ]
+}, { timestamps: true });
 
-module.exports = mongoose.model("Chat", ChatSchema);
+module.exports = mongoose.model("Chat", chatSchema);

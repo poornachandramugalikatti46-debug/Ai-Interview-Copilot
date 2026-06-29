@@ -44,29 +44,10 @@ const userSchema = new mongoose.Schema(
     ========================= */
 
     memory: {
-      strengths: [
-        {
-          type: String,
-        },
-      ],
-
-      weaknesses: [
-        {
-          type: String,
-        },
-      ],
-
-      interests: [
-        {
-          type: String,
-        },
-      ],
-
-      preferredTopics: [
-        {
-          type: String,
-        },
-      ],
+      strengths: [String],
+      weaknesses: [String],
+      interests: [String],
+      preferredTopics: [String],
 
       interviewStyle: {
         type: String,
@@ -97,7 +78,7 @@ const userSchema = new mongoose.Schema(
     ],
 
     /* =========================
-       RESET PASSWORD 🔐
+       SECURITY 🔐
     ========================= */
 
     resetToken: {
@@ -109,10 +90,6 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
-
-    /* =========================
-       LOGIN TRACKING (optional)
-    ========================= */
 
     lastLogin: {
       type: Date,

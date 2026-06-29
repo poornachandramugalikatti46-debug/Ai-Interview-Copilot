@@ -25,7 +25,7 @@ export default function ResumeAnalyzer({ setOpenResume }) {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:5000/api/resume/analyze",
+        "http://localhost:5001/api/resume/analyze",
         formData,
         {
           headers: {

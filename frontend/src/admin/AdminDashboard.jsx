@@ -26,7 +26,7 @@ export default function AdminDashboard() {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        "http://localhost:5000/api/admin/stats",
+        "http://localhost:5001/api/admin/stats",
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -42,7 +42,7 @@ export default function AdminDashboard() {
       const token = localStorage.getItem("token");
 
       await axios.delete(
-        `http://localhost:5000/api/admin/delete-user/${id}`,
+        `http://localhost:5001/api/admin/delete-user/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 

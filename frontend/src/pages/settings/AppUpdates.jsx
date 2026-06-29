@@ -21,7 +21,7 @@ export default function AppUpdates() {
   useEffect(() => {
 
     fetch(
-      "http://localhost:5000/api/settings"
+      "http://localhost:5001/api/settings"
     )
 
       .then((res) => res.json())
@@ -57,7 +57,7 @@ export default function AppUpdates() {
     async () => {
 
       const res = await fetch(
-        "http://localhost:5000/api/settings",
+        "http://localhost:5001/api/settings",
         {
           method: "POST",
 

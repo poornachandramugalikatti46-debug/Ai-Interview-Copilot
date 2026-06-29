@@ -1,9 +1,8 @@
-```jsx
 import { useEffect, useState } from "react";
 import Editor from "@monaco-editor/react";
 import axios from "axios";
 
-export default function TechnicalInterview({
+function TechnicalInterview({
   setCurrentPage,
 }) {
 
@@ -12,30 +11,48 @@ export default function TechnicalInterview({
       title: "Reverse Linked List",
       difficulty: "Medium",
       company: "Google",
-      description: "Reverse a singly linked list.",
-      example: "Input:\n1 -> 2 -> 3 -> 4\n\nOutput:\n4 -> 3 -> 2 -> 1",
+      description:
+        "Reverse a singly linked list.",
+
+      example:
+        "Input:\n1 -> 2 -> 3 -> 4\n\nOutput:\n4 -> 3 -> 2 -> 1",
+
       constraints: [
         "1 ≤ Nodes ≤ 5000",
         "Expected Time Complexity: O(n)",
         "Expected Space Complexity: O(1)",
       ],
+
       starterCode: {
-        javascript: "function reverseList(head) {\n\n}",
-        python: "def reverseList(head):\n\n    pass",
+        javascript:
+          "function reverseList(head) {\n\n}",
+
+        python:
+          "def reverseList(head):\n\n    pass",
       },
     },
+
     {
       title: "Two Sum",
       difficulty: "Easy",
       company: "Amazon",
-      description: "Find indices of two numbers that add to target.",
-      example: "Input:\nnums = [2,7,11,15]\ntarget = 9\n\nOutput:\n[0,1]",
+
+      description:
+        "Find indices of two numbers that add to target.",
+
+      example:
+        "Input:\nnums = [2,7,11,15]\ntarget = 9\n\nOutput:\n[0,1]",
+
       constraints: [
         "2 ≤ nums.length ≤ 10^4",
       ],
+
       starterCode: {
-        javascript: "function twoSum(nums, target) {\n\n}",
-        python: "def twoSum(nums, target):\n\n    pass",
+        javascript:
+          "function twoSum(nums, target) {\n\n}",
+
+        python:
+          "def twoSum(nums, target):\n\n    pass",
       },
     },
   ];
@@ -51,7 +68,8 @@ export default function TechnicalInterview({
 
   const [code, setCode] =
     useState(
-      currentQuestion.starterCode.javascript
+      currentQuestion.starterCode
+        .javascript
     );
 
   const [output, setOutput] =
@@ -72,6 +90,8 @@ export default function TechnicalInterview({
   const [timeLeft, setTimeLeft] =
     useState(2700);
 
+  /* TIMER */
+
   useEffect(() => {
 
     const timer = setInterval(() => {
@@ -79,7 +99,9 @@ export default function TechnicalInterview({
       setTimeLeft((prev) => {
 
         if (prev <= 0) {
+
           clearInterval(timer);
+
           return 0;
         }
 
@@ -89,14 +111,19 @@ export default function TechnicalInterview({
 
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () =>
+      clearInterval(timer);
 
   }, []);
+
+  /* CHANGE CODE */
 
   useEffect(() => {
 
     setCode(
-      currentQuestion.starterCode[language]
+      currentQuestion.starterCode[
+        language
+      ]
     );
 
   }, [language, questionIndex]);
@@ -117,7 +144,7 @@ export default function TechnicalInterview({
 
       const res =
         await axios.post(
-          "http://localhost:5000/api/technical/run",
+          "http://localhost:5001/api/technical/run",
           {
             code,
             language,
@@ -135,9 +162,7 @@ export default function TechnicalInterview({
       setOutput(
         "❌ Backend Server Error"
       );
-
     }
-
   };
 
   /* SUBMIT */
@@ -150,7 +175,7 @@ export default function TechnicalInterview({
 
       const res =
         await axios.post(
-          "http://localhost:5000/api/technical/submit",
+          "http://localhost:5001/api/technical/submit",
           {
             code,
             language,
@@ -159,7 +184,9 @@ export default function TechnicalInterview({
 
       setOutput(res.data.output);
 
-      setFeedback(res.data.feedback);
+      setFeedback(
+        res.data.feedback
+      );
 
       setScore(res.data.score);
 
@@ -172,9 +199,7 @@ export default function TechnicalInterview({
       setOutput(
         "❌ Submit Failed"
       );
-
     }
-
   };
 
   /* NEXT QUESTION */
@@ -188,9 +213,10 @@ export default function TechnicalInterview({
     setQuestionIndex(next);
 
     setOutput("");
-    setFeedback("");
-    setScore(null);
 
+    setFeedback("");
+
+    setScore(null);
   };
 
   return (
@@ -204,7 +230,9 @@ export default function TechnicalInterview({
         <button
           style={styles.backBtn}
           onClick={() =>
-            setCurrentPage("dashboard")
+            setCurrentPage(
+              "dashboard"
+            )
           }
         >
           ← Dashboard
@@ -217,19 +245,21 @@ export default function TechnicalInterview({
         <div style={styles.timer}>
           ⏱ {minutes}:
           {seconds < 10
-            ? '0' + seconds
+            ? "0" + seconds
             : seconds}
         </div>
 
       </div>
 
-      {/* GRID */}
+      {/* MAIN GRID */}
 
       <div style={styles.grid}>
 
-        {/* LEFT */}
+        {/* LEFT PANEL */}
 
-        <div style={styles.problemPanel}>
+        <div
+          style={styles.problemPanel}
+        >
 
           <div style={styles.tabs}>
 
@@ -240,7 +270,9 @@ export default function TechnicalInterview({
                   : styles.tab
               }
               onClick={() =>
-                setActiveTab("problem")
+                setActiveTab(
+                  "problem"
+                )
               }
             >
               Problem
@@ -248,12 +280,15 @@ export default function TechnicalInterview({
 
             <button
               style={
-                activeTab === "submissions"
+                activeTab ===
+                "submissions"
                   ? styles.activeTab
                   : styles.tab
               }
               onClick={() =>
-                setActiveTab("submissions")
+                setActiveTab(
+                  "submissions"
+                )
               }
             >
               Submissions
@@ -261,27 +296,44 @@ export default function TechnicalInterview({
 
           </div>
 
-          {activeTab === "problem" && (
+          {/* PROBLEM TAB */}
+
+          {activeTab ===
+            "problem" && (
 
             <>
 
               <h1>
-                {currentQuestion.title}
+                {
+                  currentQuestion.title
+                }
               </h1>
 
-              <div style={styles.badges}>
+              <div
+                style={styles.badges}
+              >
 
-                <span style={styles.medium}>
-                  {currentQuestion.difficulty}
+                <span
+                  style={styles.medium}
+                >
+                  {
+                    currentQuestion.difficulty
+                  }
                 </span>
 
-                <span style={styles.company}>
-                  {currentQuestion.company}
+                <span
+                  style={styles.company}
+                >
+                  {
+                    currentQuestion.company
+                  }
                 </span>
 
               </div>
 
-              <h3>Description</h3>
+              <h3>
+                Description
+              </h3>
 
               <p style={styles.desc}>
                 {
@@ -289,27 +341,40 @@ export default function TechnicalInterview({
                 }
               </p>
 
-              <h3>Example</h3>
+              <h3>
+                Example
+              </h3>
 
-              <div style={styles.example}>
+              <div
+                style={styles.example}
+              >
                 {
                   currentQuestion.example
                 }
               </div>
 
-              <h3>Constraints</h3>
+              <h3>
+                Constraints
+              </h3>
 
               <ul>
+
                 {currentQuestion.constraints.map(
-                  (item, index) => (
+                  (
+                    item,
+                    index
+                  ) => (
                     <li key={index}>
                       {item}
                     </li>
                   )
                 )}
+
               </ul>
 
-              <div style={styles.testBox}>
+              <div
+                style={styles.testBox}
+              >
 
                 <h3>
                   🧪 Test Cases
@@ -333,9 +398,16 @@ export default function TechnicalInterview({
 
           )}
 
-          {activeTab === "submissions" && (
+          {/* SUBMISSION TAB */}
 
-            <div style={styles.submissionBox}>
+          {activeTab ===
+            "submissions" && (
+
+            <div
+              style={
+                styles.submissionBox
+              }
+            >
 
               <h2>
                 🚀 Latest Submission
@@ -343,18 +415,14 @@ export default function TechnicalInterview({
 
               <p>
                 Status:
-                {
-                  score
-                    ? " Accepted"
-                    : " Pending"
-                }
+                {score
+                  ? " Accepted"
+                  : " Pending"}
               </p>
 
               <p>
                 Score:
-                {
-                  score || 0
-                }/10
+                {score || 0}/10
               </p>
 
             </div>
@@ -363,11 +431,17 @@ export default function TechnicalInterview({
 
         </div>
 
-        {/* RIGHT */}
+        {/* RIGHT PANEL */}
 
-        <div style={styles.editorPanel}>
+        <div
+          style={styles.editorPanel}
+        >
 
-          <div style={styles.editorHeader}>
+          <div
+            style={
+              styles.editorHeader
+            }
+          >
 
             <select
               style={styles.select}
@@ -395,6 +469,8 @@ export default function TechnicalInterview({
 
           </div>
 
+          {/* MONACO EDITOR */}
+
           <Editor
             height="500px"
             theme="vs-dark"
@@ -405,7 +481,11 @@ export default function TechnicalInterview({
             }
           />
 
-          <div style={styles.buttonRow}>
+          {/* BUTTONS */}
+
+          <div
+            style={styles.buttonRow}
+          >
 
             <button
               style={styles.runBtn}
@@ -417,7 +497,9 @@ export default function TechnicalInterview({
             </button>
 
             <button
-              style={styles.submitBtn}
+              style={
+                styles.submitBtn
+              }
               onClick={submitCode}
             >
               🚀 Submit
@@ -432,7 +514,11 @@ export default function TechnicalInterview({
 
           </div>
 
-          <div style={styles.outputBox}>
+          {/* OUTPUT */}
+
+          <div
+            style={styles.outputBox}
+          >
 
             <h3>
               Console Output
@@ -442,9 +528,15 @@ export default function TechnicalInterview({
 
           </div>
 
+          {/* AI FEEDBACK */}
+
           {feedback && (
 
-            <div style={styles.feedbackBox}>
+            <div
+              style={
+                styles.feedbackBox
+              }
+            >
 
               <h3>
                 🤖 AI Review
@@ -472,8 +564,13 @@ export default function TechnicalInterview({
     </div>
 
   );
-
 }
+
+export default TechnicalInterview;
+
+/* =========================
+   STYLES
+========================= */
 
 const styles = {
 
@@ -664,4 +761,3 @@ const styles = {
   },
 
 };
-```

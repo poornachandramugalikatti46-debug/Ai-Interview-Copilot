@@ -7,27 +7,27 @@ const crypto = require("crypto");
 
 const User = require("../models/User");
 
-/* EMAIL UTIL */
 const sendWelcomeEmail = require("../utils/sendEmail");
 const sendResetEmail = require("../utils/sendResetEmail");
 
 /* =========================
    REGISTER
 ========================= */
+
 router.post("/register", async (req, res) => {
   try {
-    const { fullname, email, role, experience, password } = req.body;
+    const { fullname, email, password, role, experience } = req.body;
 
     if (!fullname || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Please fill all fields ❌",
+        message: "All fields required ❌",
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    const exists = await User.findOne({ email });
 
-    if (existingUser) {
+    if (exists) {
       return res.status(400).json({
         success: false,
         message: "User already exists ❌",
@@ -39,24 +39,22 @@ router.post("/register", async (req, res) => {
     const user = await User.create({
       fullname,
       email,
+      password: hashedPassword,
       role,
       experience,
-      password: hashedPassword,
     });
 
-    // send welcome email (do not block response)
-    sendWelcomeEmail(user.email, user.fullname).catch(console.error);
+    sendWelcomeEmail(user.email, user.fullname).catch(() => {});
 
-    return res.status(201).json({
+    res.status(201).json({
       success: true,
-      message: "Registration Successful ✅",
+      message: "Registered successfully ✅",
       user,
     });
   } catch (err) {
-    console.log(err);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
-      message: "Server Error ❌",
+      message: err.message,
     });
   }
 });
@@ -64,6 +62,7 @@ router.post("/register", async (req, res) => {
 /* =========================
    LOGIN
 ========================= */
+
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -82,47 +81,40 @@ router.post("/login", async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        message: "Invalid password ❌",
+        message: "Invalid credentials ❌",
       });
     }
 
     const token = jwt.sign(
       {
-        id: user._id,
-        email: user.email,
+        userId: user._id,
         role: user.role,
       },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    return res.status(200).json({
+    res.json({
       success: true,
-      message: "Login Successful ✅",
+      message: "Login successful ✅",
       token,
       user,
     });
   } catch (err) {
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
-      message: "Server Error ❌",
+      message: err.message,
     });
   }
 });
 
 /* =========================
-   FORGOT PASSWORD (FIXED)
+   FORGOT PASSWORD
 ========================= */
+
 router.post("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "Email required ❌",
-      });
-    }
 
     const user = await User.findOne({ email });
 
@@ -133,56 +125,43 @@ router.post("/forgot-password", async (req, res) => {
       });
     }
 
-    // 1. generate raw token
     const resetToken = crypto.randomBytes(32).toString("hex");
 
-    // 2. hash token (store in DB)
     const hashedToken = crypto
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
 
-    // 3. save to DB
     user.resetToken = hashedToken;
-    user.resetTokenExpire = Date.now() + 15 * 60 * 1000; // 15 min
+    user.resetTokenExpire = Date.now() + 15 * 60 * 1000;
 
     await user.save();
 
-    // 4. frontend reset link
     const resetLink = `http://localhost:5173/reset-password/${resetToken}`;
 
-    // 5. send email
     await sendResetEmail(user.email, user.fullname, resetLink);
 
-    return res.json({
+    res.json({
       success: true,
       message: "Reset email sent ✅",
     });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
+  } catch (err) {
+    res.status(500).json({
       success: false,
-      message: "Forgot Password Failed ❌",
+      message: err.message,
     });
   }
 });
 
 /* =========================
-   RESET PASSWORD (FIXED + SAFE)
+   RESET PASSWORD
 ========================= */
+
 router.post("/reset-password/:token", async (req, res) => {
   try {
     const { token } = req.params;
     const { password } = req.body;
 
-    if (!password) {
-      return res.status(400).json({
-        success: false,
-        message: "Password required ❌",
-      });
-    }
-
-    // hash incoming token
     const hashedToken = crypto
       .createHash("sha256")
       .update(token)
@@ -196,50 +175,38 @@ router.post("/reset-password/:token", async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "Token expired or invalid ❌",
+        message: "Token invalid or expired ❌",
       });
     }
 
-    // hash new password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = await bcrypt.hash(password, 10);
 
-    user.password = hashedPassword;
-
-    // clear reset fields
     user.resetToken = undefined;
     user.resetTokenExpire = undefined;
 
     await user.save();
 
-    return res.json({
+    res.json({
       success: true,
       message: "Password reset successful ✅",
     });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
+  } catch (err) {
+    res.status(500).json({
       success: false,
-      message: "Reset Password Failed ❌",
+      message: err.message,
     });
   }
 });
 
 /* =========================
-   CHANGE PASSWORD DIRECTLY
+   CHANGE PASSWORD (LOGGED IN USER)
 ========================= */
 
-router.post("/forgot-password", async (req, res) => {
+router.post("/change-password", async (req, res) => {
   try {
-    const { email, newPassword } = req.body;
+    const { userId, oldPassword, newPassword } = req.body;
 
-    if (!email || !newPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "Fill all fields ❌",
-      });
-    }
-
-    const user = await User.findOne({ email });
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
@@ -248,27 +215,29 @@ router.post("/forgot-password", async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(
-      newPassword,
-      10
-    );
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
 
-    user.password = hashedPassword;
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Old password incorrect ❌",
+      });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
 
     await user.save();
 
-    return res.json({
+    res.json({
       success: true,
       message: "Password changed successfully ✅",
     });
-
-  } catch (error) {
-
-    return res.status(500).json({
+  } catch (err) {
+    res.status(500).json({
       success: false,
-      message: "Server Error ❌",
+      message: err.message,
     });
-
   }
 });
+
 module.exports = router;

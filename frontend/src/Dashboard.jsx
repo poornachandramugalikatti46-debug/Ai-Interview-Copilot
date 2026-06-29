@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import Chatbot from "./Chatbot";
+import Chatbot from "./components/Chatbot";
 import ResumeAnalyzer from "./ResumeAnalyzer";
 import SettingsPage from "./pages/settings/SettingsPage";
 import Analytics from "./pages/Analytics";
@@ -82,7 +82,7 @@ export default function Dashboard({
           style={styles.menuBtn}
           onClick={() => setOpenChat(true)}
         >
-          🎤 Chatbot
+          🤖 Chatbot
         </button>
 
         {/* ANALYTICS */}

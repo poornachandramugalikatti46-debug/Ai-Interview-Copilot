@@ -1,266 +1,190 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
+import { socket } from "../socket";
 
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
   BarChart,
   Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
 } from "recharts";
 
-export default function Analytics({ setCurrentPage }) {
-  const [data, setData] = useState(null);
-  const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+import { motion } from "framer-motion";
 
-  const userId = "demo-user-1";
+export default function WeeklyChart() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  /* ✅ FETCH ANALYTICS */
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      console.log("Fetching analytics...");
-
-      const res = await axios.get(
-        `http://localhost:5000/api/analytics/history/${userId}`
-      );
-
-      const result = res.data || [];
-
-      setHistory(result);
-
-      if (result.length > 0) {
-        setData(result[result.length - 1]);
-      } else {
-        setData(null);
-      }
-    } catch (err) {
-      console.log(err);
-      setError("Failed to load analytics (check backend)");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /* ⚡ GENERATE AI ANALYTICS */
-  const generateAI = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      console.log("Generating AI analytics...");
-
-      await axios.post("http://localhost:5000/api/analytics/generate", {
-        userId,
-        resumeText: "sample resume text",
-      });
-
-      await fetchData(); // refresh after generation
-    } catch (err) {
-      console.log(err);
-      setError("AI generation failed (check backend API)");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /* 🔄 AUTO REFRESH */
+  /* =========================
+     LOAD INITIAL DATA
+  ========================= */
   useEffect(() => {
-    fetchData();
+    fetchInitial();
 
-    const interval = setInterval(() => {
-      fetchData();
-    }, 10000); // safer refresh
+    // REAL-TIME SOCKET
+    socket.on("weekly-update", (liveData) => {
+      setData(liveData || []);
+      setLoading(false);
+    });
 
-    return () => clearInterval(interval);
+    return () => socket.off("weekly-update");
   }, []);
 
-  /* 📊 BAR CHART DATA */
-  const barData = data
-    ? [
-        { name: "ATS", value: data.atsScore || 0 },
-        { name: "Interview", value: data.interviewScore || 0 },
-        { name: "Resume", value: data.resumeStrength || 0 },
-        { name: "Job Ready", value: data.jobReadiness || 0 },
-      ]
-    : [];
+  const fetchInitial = async () => {
+    try {
+      const res = await api.get("/analytics/weekly-time");
+
+      const map = {
+        Sun: 0,
+        Mon: 0,
+        Tue: 0,
+        Wed: 0,
+        Thu: 0,
+        Fri: 0,
+        Sat: 0,
+      };
+
+      (res.data || []).forEach((d) => {
+        if (map[d.day] !== undefined) {
+          map[d.day] = d.hours;
+        }
+      });
+
+      setData([
+        { day: "Sun", hours: map.Sun },
+        { day: "Mon", hours: map.Mon },
+        { day: "Tue", hours: map.Tue },
+        { day: "Wed", hours: map.Wed },
+        { day: "Thu", hours: map.Thu },
+        { day: "Fri", hours: map.Fri },
+        { day: "Sat", hours: map.Sat },
+      ]);
+
+      setLoading(false);
+    } catch (err) {
+      console.log(err.message);
+      setLoading(false);
+    }
+  };
+
+  /* =========================
+     LOADING UI
+  ========================= */
+  if (loading) {
+    return (
+      <div style={styles.loader}>
+        <motion.div
+          style={styles.spinner}
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+        />
+        <p>Loading Weekly Analytics...</p>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.page}>
-      <h1>📊 AI Real-Time Analytics Dashboard</h1>
 
-      {/* BUTTONS */}
-      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-        <button onClick={generateAI} style={styles.btn}>
-          ⚡ Generate AI Analytics
-        </button>
-
-        <button onClick={fetchData} style={styles.btn2}>
-          🔄 Refresh
-        </button>
-      </div>
-
-      {/* ERROR */}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {/* LOADING */}
-      {loading && <p>Loading analytics...</p>}
-
-      {/* CARDS */}
-      {data && (
-        <div style={styles.grid}>
-          <div style={styles.card}>
-            <h3>ATS Score</h3>
-            <h1>{data.atsScore}%</h1>
-          </div>
-
-          <div style={styles.card}>
-            <h3>Interview Score</h3>
-            <h1>{data.interviewScore}%</h1>
-          </div>
-
-          <div style={styles.card}>
-            <h3>Resume Strength</h3>
-            <h1>{data.resumeStrength}%</h1>
-          </div>
-
-          <div style={styles.card}>
-            <h3>Job Readiness</h3>
-            <h1>{data.jobReadiness}%</h1>
-          </div>
-        </div>
-      )}
-
-      {/* 📈 LINE CHART */}
-      <div style={styles.chartBox}>
-        <h2>📈 Live Performance Trend</h2>
-
-        <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={history}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="createdAt"
-              tickFormatter={(value) =>
-                new Date(value).toLocaleTimeString()
-              }
-            />
-            <YAxis />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="interviewScore"
-              stroke="#7c3aed"
-              isAnimationActive={true}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* 📊 BAR CHART */}
-      {data && (
-        <div style={styles.chartBox}>
-          <h2>📊 Score Comparison</h2>
-
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={barData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" fill="#22c55e" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {/* 🤖 FEEDBACK */}
-      {data && (
-        <div style={styles.feedback}>
-          <h2>🤖 AI Feedback</h2>
-          <p>{data.feedback || "No feedback available"}</p>
-        </div>
-      )}
-
-      {/* BACK BUTTON */}
-      <button
-        onClick={() => setCurrentPage("dashboard")}
-        style={styles.back}
+      {/* HEADER */}
+      <motion.div
+        initial={{ opacity: 0, y: -15 }}
+        animate={{ opacity: 1, y: 0 }}
+        style={styles.header}
       >
-        ⬅ Back
-      </button>
+        <h1>📊 Weekly Practice Analytics</h1>
+        <p>Real-time SaaS dashboard (WebSocket + Animation)</p>
+      </motion.div>
+
+      {/* CARD */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        style={styles.card}
+      >
+
+        <ResponsiveContainer width="100%" height={360}>
+          <BarChart data={data}>
+            <XAxis dataKey="day" stroke="#94a3b8" />
+            <YAxis stroke="#94a3b8" />
+            <Tooltip
+              contentStyle={{
+                background: "#0f172a",
+                border: "1px solid #1e293b",
+                borderRadius: "10px",
+                color: "white",
+              }}
+            />
+
+            {/* REAL CLEAN BAR ANIMATION */}
+            <Bar dataKey="hours" radius={[10, 10, 0, 0]}>
+              {data.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill="#6366f1"
+                  style={{
+                    filter:
+                      "drop-shadow(0px 6px 14px rgba(99,102,241,0.6))",
+                    transition: "all 0.3s ease",
+                  }}
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+
+      </motion.div>
     </div>
   );
 }
 
-/* 🎨 STYLES */
+/* =========================
+   ULTRA SAAS STYLES
+========================= */
+
 const styles = {
   page: {
-    padding: "30px",
-    background: "#020617",
     minHeight: "100vh",
+    padding: "30px",
+    background: "radial-gradient(circle at top, #0b1220, #020617)",
     color: "white",
-    fontFamily: "Arial",
+    fontFamily: "Segoe UI",
   },
 
-  btn: {
-    padding: "10px 15px",
-    border: "none",
-    borderRadius: "10px",
-    background: "#7c3aed",
-    color: "white",
-    cursor: "pointer",
-  },
-
-  btn2: {
-    padding: "10px 15px",
-    border: "none",
-    borderRadius: "10px",
-    background: "#0ea5e9",
-    color: "white",
-    cursor: "pointer",
-  },
-
-  grid: {
-    marginTop: "20px",
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))",
-    gap: "15px",
+  header: {
+    textAlign: "center",
+    marginBottom: "20px",
   },
 
   card: {
-    background: "#111827",
+    maxWidth: "900px",
+    margin: "0 auto",
     padding: "20px",
-    borderRadius: "12px",
+    borderRadius: "18px",
+    background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    backdropFilter: "blur(16px)",
+    boxShadow: "0 10px 40px rgba(0,0,0,0.6)",
   },
 
-  chartBox: {
-    marginTop: "30px",
-    background: "#111827",
-    padding: "20px",
-    borderRadius: "12px",
-  },
-
-  feedback: {
-    marginTop: "20px",
-    padding: "20px",
-    background: "#111827",
-    borderRadius: "12px",
-  },
-
-  back: {
-    marginTop: "20px",
-    padding: "10px 15px",
-    background: "#ef4444",
-    border: "none",
-    borderRadius: "10px",
+  loader: {
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    background: "#0b1220",
     color: "white",
-    cursor: "pointer",
+  },
+
+  spinner: {
+    width: "45px",
+    height: "45px",
+    border: "4px solid #333",
+    borderTop: "4px solid #6366f1",
+    borderRadius: "50%",
   },
 };

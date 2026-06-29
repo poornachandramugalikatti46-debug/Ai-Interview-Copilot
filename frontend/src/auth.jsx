@@ -30,7 +30,7 @@ export default function Auth({ setLoggedIn }) {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        "http://localhost:5001/api/auth/register",
         {
           fullname: form.fullname,
           email: form.email,
@@ -57,7 +57,7 @@ export default function Auth({ setLoggedIn }) {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        "http://localhost:5001/api/auth/login",
         {
           email: form.email,
           password: form.password,
@@ -125,7 +125,7 @@ export default function Auth({ setLoggedIn }) {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:5000/api/auth/forgot-password",
+        "http://localhost:5001/api/auth/forgot-password",
         {
           email: form.email,
           newPassword: form.newPassword,

@@ -8,6 +8,7 @@ import Auth from "./Auth";
 import Dashboard from "./Dashboard";
 import AdminDashboard from "./admin/AdminDashboard";
 import Analytics from "./pages/Analytics";
+import Chatbot from "./components/Chatbot";
 
 /* INTERVIEW PAGES */
 import TechnicalInterview from "./pages/technical/TechnicalInterview";
@@ -32,7 +33,7 @@ function App() {
 
   const navigate = useNavigate();
 
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(true);
 
   const [adminMode, setAdminMode] = useState(false);
 
@@ -137,6 +138,15 @@ function App() {
       case "analytics":
         return (
           <Analytics
+            setCurrentPage={setCurrentPage}
+          />
+        );
+
+      /* CHATBOT PAGE */
+
+      case "chatbot":
+        return (
+          <Chatbot
             setCurrentPage={setCurrentPage}
           />
         );
@@ -280,6 +290,17 @@ function App() {
             ⚙ Settings
           </button>
 
+          {/* CHATBOT */}
+
+          <button
+            onClick={() =>
+              setCurrentPage("chatbot")
+            }
+            style={styles.chatbotBtn}
+          >
+            🤖 AI Chat
+          </button>
+
           {/* DASHBOARD */}
 
           <button
@@ -374,6 +395,15 @@ const styles = {
     border: "none",
     borderRadius: "10px",
     background: "#10b981",
+    color: "white",
+    cursor: "pointer",
+  },
+
+  chatbotBtn: {
+    padding: "10px",
+    border: "none",
+    borderRadius: "10px",
+    background: "#06b6d4",
     color: "white",
     cursor: "pointer",
   },

@@ -51,7 +51,7 @@ export default function AccountPreferences() {
   useEffect(() => {
 
     fetch(
-      "http://localhost:5000/api/settings"
+      "http://localhost:5001/api/settings"
     )
 
       .then((res) => res.json())

@@ -45,7 +45,7 @@ export default function AIChat() {
       const id = localStorage.getItem("sessionId");
 
       const res = await axios.post(
-        "http://localhost:5000/api/ai/chat",
+        "http://localhost:5001/api/ai/chat",
         {
           sessionId: id,   // ✅ ALWAYS SENT
           message: userText,
