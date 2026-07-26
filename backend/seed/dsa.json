@@ -1,0 +1,102 @@
+{
+  "title": "Two Sum",
+  "slug": "two-sum",
+  "role": "DSA",
+  "topic": "Arrays",
+  "difficulty": "Easy",
+  "language": [
+    "JavaScript",
+    "Python",
+    "Java",
+    "C++"
+  ],
+  "description": "Given an array of integers nums and an integer target, return the indices of the two numbers such that they add up to target. Assume that each input has exactly one solution, and you may not use the same element twice. Return the answer in any order.",
+  "examples": [
+    {
+      "input": "nums = [2,7,11,15], target = 9",
+      "output": "[0,1]",
+      "explanation": "nums[0] + nums[1] = 2 + 7 = 9"
+    },
+    {
+      "input": "nums = [3,2,4], target = 6",
+      "output": "[1,2]",
+      "explanation": "nums[1] + nums[2] = 2 + 4 = 6"
+    },
+    {
+      "input": "nums = [3,3], target = 6",
+      "output": "[0,1]",
+      "explanation": "Both values are 3."
+    }
+  ],
+  "constraints": [
+    "2 <= nums.length <= 10000",
+    "-1000000000 <= nums[i] <= 1000000000",
+    "-1000000000 <= target <= 1000000000",
+    "Exactly one valid answer exists."
+  ],
+  "hint": "Use a HashMap to store visited numbers.",
+  "starterCode": {
+    "javascript": "function twoSum(nums, target) {\n    // Write your code here\n}\n\nmodule.exports = twoSum;",
+    "python": "def twoSum(nums, target):\n    pass",
+    "java": "class Solution {\n    public int[] twoSum(int[] nums, int target) {\n\n    }\n}",
+    "cpp": "#include <vector>\n#include <unordered_map>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n\n    }\n};"
+  },
+  "solution": {
+    "javascript": "function twoSum(nums, target) {\n    const map = new Map();\n\n    for (let i = 0; i < nums.length; i++) {\n        const complement = target - nums[i];\n\n        if (map.has(complement)) {\n            return [map.get(complement), i];\n        }\n\n        map.set(nums[i], i);\n    }\n}\n\nmodule.exports = twoSum;",
+    "python": "def twoSum(nums, target):\n    mp = {}\n    for i, n in enumerate(nums):\n        diff = target - n\n        if diff in mp:\n            return [mp[diff], i]\n        mp[n] = i",
+    "java": "class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        java.util.HashMap<Integer,Integer> map = new java.util.HashMap<>();\n\n        for(int i=0;i<nums.length;i++){\n            int diff = target - nums[i];\n\n            if(map.containsKey(diff)){\n                return new int[]{map.get(diff),i};\n            }\n\n            map.put(nums[i],i);\n        }\n\n        return new int[]{};\n    }\n}",
+    "cpp": "class Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        unordered_map<int,int> mp;\n\n        for(int i=0;i<nums.size();i++){\n            int diff = target - nums[i];\n\n            if(mp.count(diff))\n                return {mp[diff],i};\n\n            mp[nums[i]] = i;\n        }\n\n        return {};\n    }\n};"
+  },
+  "testCases": [
+    {
+      "input": "[2,7,11,15]\n9",
+      "expectedOutput": "[0,1]",
+      "isHidden": false,
+      "points": 20
+    },
+    {
+      "input": "[3,2,4]\n6",
+      "expectedOutput": "[1,2]",
+      "isHidden": false,
+      "points": 20
+    },
+    {
+      "input": "[3,3]\n6",
+      "expectedOutput": "[0,1]",
+      "isHidden": false,
+      "points": 20
+    },
+    {
+      "input": "[1,5,8,9]\n13",
+      "expectedOutput": "[1,2]",
+      "isHidden": true,
+      "points": 20
+    },
+    {
+      "input": "[10,-2,4,8]\n2",
+      "expectedOutput": "[1,2]",
+      "isHidden": true,
+      "points": 20
+    }
+  ],
+  "timeComplexity": "O(n)",
+  "spaceComplexity": "O(n)",
+  "marks": 100,
+  "estimatedTime": 15,
+  "companies": [
+    "Google",
+    "Amazon",
+    "Microsoft",
+    "Meta",
+    "Adobe"
+  ],
+  "tags": [
+    "Array",
+    "HashMap"
+  ],
+  "acceptanceRate": 54.2,
+  "totalSubmissions": 0,
+  "successfulSubmissions": 0,
+  "isPremium": false,
+  "isActive": true
+}

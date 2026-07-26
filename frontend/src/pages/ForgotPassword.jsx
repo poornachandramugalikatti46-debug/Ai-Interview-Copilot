@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
 
 export default function ForgotPassword() {
@@ -7,23 +7,18 @@ export default function ForgotPassword() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
-  const [password, setPassword] =
-    useState("");
-
-  const [message, setMessage] =
-    useState("");
+  const [message, setMessage] = useState("");
 
   const handleReset = async () => {
-
     try {
+      if (!email) {
+        setMessage("Please enter your email address.");
+        return;
+      }
 
-      const res = await axios.post(
-        "http://localhost:5001/api/auth/forgot-password",
-        {
-          email,
-          newPassword: password,
-        }
-      );
+      const res = await api.post("/auth/forgot-password", {
+        email,
+      });
 
       setMessage(res.data.message);
 
@@ -59,21 +54,11 @@ export default function ForgotPassword() {
           style={styles.input}
         />
 
-        <input
-          type="password"
-          placeholder="Enter New Password"
-          value={password}
-          onChange={(e) =>
-            setPassword(e.target.value)
-          }
-          style={styles.input}
-        />
-
         <button
           onClick={handleReset}
           style={styles.button}
         >
-          Update Password
+          Send Reset Email
         </button>
 
         <p style={styles.message}>

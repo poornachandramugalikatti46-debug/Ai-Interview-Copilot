@@ -1,7 +1,8 @@
-const router = require("express").Router();
-const auth = require("../middleware/auth");
+import express from "express";
+import auth from "../middleware/auth.js";
+import Interview from "../models/Interview.js";
 
-const Interview = require("../models/Interview");
+const router = express.Router();
 
 /* =========================
    BASIC USAGE DASHBOARD
@@ -25,4 +26,4 @@ router.get("/stats", auth, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

@@ -1,13 +1,80 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+
+let isConnecting = false;
+let connectionPromise = null;
 
 const connectDB = async () => {
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
+
+  if (connectionPromise) {
+    return connectionPromise;
+  }
+
+  isConnecting = true;
+  connectionPromise = (async () => {
+    try {
+      mongoose.set("strictQuery", true);
+
+      const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/ai_copilot";
+      const conn = await mongoose.connect(mongoUri, {
+        autoIndex: false,
+        maxPoolSize: 20,
+        minPoolSize: 5,
+        serverSelectionTimeoutMS: 10000,
+        socketTimeoutMS: 45000,
+        family: 4,
+      });
+
+      console.log(`
+========================================
+ MongoDB Connected Successfully
+ Host     : ${conn.connection.host}
+ Database : ${conn.connection.name}
+========================================
+`);
+      return conn;
+    } catch (error) {
+      console.error(`
+========================================
+ MongoDB Connection Failed
+========================================
+${error.message}
+`);
+      throw error;
+    }
+  })();
+
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("MongoDB Connected ✅");
-  } catch (err) {
-    console.log(err);
-    process.exit(1);
+    return await connectionPromise;
+  } finally {
+    isConnecting = false;
+    connectionPromise = null;
   }
 };
 
-module.exports = connectDB;
+mongoose.connection.on("connected", () => {
+  console.log("MongoDB connection established.");
+});
+
+mongoose.connection.on("error", (err) => {
+  console.error("MongoDB Error:", err.message);
+});
+
+mongoose.connection.on("disconnected", () => {
+  console.warn("MongoDB disconnected.");
+});
+
+process.on("SIGINT", async () => {
+  try {
+    await mongoose.connection.close();
+    console.log("MongoDB connection closed.");
+    process.exit(0);
+  } catch (err) {
+    console.error("Error closing MongoDB connection:", err.message);
+    process.exit(1);
+  }
+});
+
+export default connectDB;

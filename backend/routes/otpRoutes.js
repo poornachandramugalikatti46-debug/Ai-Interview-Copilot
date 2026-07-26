@@ -1,6 +1,6 @@
-const express = require("express");
-const nodemailer = require("nodemailer");
-const otpGenerator = require("otp-generator");
+import express from "express";
+import nodemailer from "nodemailer";
+import otpGenerator from "otp-generator";
 
 const router = express.Router();
 
@@ -136,4 +136,4 @@ router.post("/verify-otp", (req, res) => {
    EXPORT
 ========================= */
 
-module.exports = router;
+export default router;

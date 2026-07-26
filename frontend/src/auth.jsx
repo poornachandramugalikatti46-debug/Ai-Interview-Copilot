@@ -1,27 +1,61 @@
 import { useState } from "react";
 import axios from "axios";
-import { auth } from "./firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { motion, AnimatePresence } from "framer-motion";
+
+/* ================= API ================= */
+const API = "https://ai-interview-copilot-zf93.onrender.com";
 
 export default function Auth({ setLoggedIn }) {
-  const [isLogin, setIsLogin] = useState(true);
+  const [mode, setMode] = useState("login");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showResetBox, setShowResetBox] = useState(false);
 
   const [form, setForm] = useState({
     fullname: "",
     email: "",
-    role: "candidate",
-    experience: "",
     password: "",
-    newPassword: "",
   });
 
   /* ================= INPUT ================= */
   const handleChange = (e) => {
-    setError("");
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  /* ================= LOGIN ================= */
+  const login = async () => {
+    try {
+      setLoading(true);
+
+      const res = await axios.post(
+        `${API}/api/auth/login`,
+        {
+          email: form.email.trim(),
+          password: form.password,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      alert("Login Successful 🚀");
+      setLoggedIn(true);
+    } catch (err) {
+      console.log("LOGIN ERROR:", err);
+
+      alert(
+        err.response?.data?.message ||
+          err.message ||
+          "Login failed"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   /* ================= REGISTER ================= */
@@ -30,351 +64,294 @@ export default function Auth({ setLoggedIn }) {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:5001/api/auth/register",
+        `${API}/api/auth/register`,
         {
-          fullname: form.fullname,
-          email: form.email,
-          role: form.role,
-          experience: form.experience,
+          fullname: form.fullname.trim(),
+          email: form.email.trim(),
           password: form.password,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
         }
       );
 
-      alert("Registration Successful ✅");
-      setIsLogin(true);
+      alert("Registered Successfully 🎉");
 
+      setMode("login");
+      setForm({
+        fullname: "",
+        email: form.email,
+        password: "",
+      });
     } catch (err) {
-      console.log(err);
-      setError("Registration Failed ❌");
+      console.log("REGISTER ERROR:", err);
+
+      alert(
+        err.response?.data?.message ||
+          err.message ||
+          "Register failed"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  /* ================= LOGIN (FIXED) ================= */
-  const login = async () => {
-    try {
-      setLoading(true);
-
-      const res = await axios.post(
-        "http://localhost:5001/api/auth/login",
-        {
-          email: form.email,
-          password: form.password,
-        }
-      );
-
-      const user = res.data.user;
-
-      // ✅ SAVE TOKEN
-      localStorage.setItem("token", res.data.token);
-
-      // ✅ SAVE FULL USER
-      localStorage.setItem("user", JSON.stringify(user));
-
-      // ✅ IMPORTANT FIX: SAVE USERNAME FOR CHATBOT
-      localStorage.setItem("username", user.fullname);
-
-      alert("Login Successful 🚀");
-
-      setLoggedIn(true);
-
-    } catch (err) {
-      console.log(err);
-      setError("Login Failed ❌");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /* ================= GOOGLE LOGIN (FIXED) ================= */
-  const googleLogin = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-
-      const result = await signInWithPopup(auth, provider);
-
-      const user = result.user;
-
-      localStorage.setItem("googleUser", JSON.stringify(user));
-
-      // ✅ IMPORTANT FIX
-      localStorage.setItem(
-        "username",
-        user.displayName || "User"
-      );
-
-      alert("Google Login Successful ✅");
-
-      setLoggedIn(true);
-
-    } catch (error) {
-      console.log(error);
-      setError("Google Login Failed ❌");
-    }
-  };
-
-  /* ================= RESET PASSWORD ================= */
-  const resetPassword = async () => {
-    if (!form.email || !form.newPassword) {
-      alert("Enter Email and New Password ❌");
+  /* ================= SUBMIT ================= */
+  const handleSubmit = () => {
+    if (!form.email || !form.password) {
+      alert("Email & Password required");
       return;
     }
 
-    try {
-      setLoading(true);
-
-      const res = await axios.post(
-        "http://localhost:5001/api/auth/forgot-password",
-        {
-          email: form.email,
-          newPassword: form.newPassword,
-        }
-      );
-
-      alert(res.data.message || "Password Changed Successfully ✅");
-
-      setShowResetBox(false);
-      setForm({ ...form, newPassword: "" });
-
-    } catch (error) {
-      console.log(error);
-      alert("Password Reset Failed ❌");
-    } finally {
-      setLoading(false);
+    if (mode === "register" && !form.fullname) {
+      alert("Full Name required");
+      return;
     }
+
+    if (mode === "login") login();
+    else register();
   };
 
-  /* ================= UI ================= */
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
+    <div className="container">
+      <div className="bg"></div>
 
-        <h1 style={styles.title}>🚀 AI Interview Copilot</h1>
-        <p style={styles.subtitle}>Smart AI Interview Preparation</p>
+      <motion.div
+        className="card"
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        {/* LOGO */}
+        <motion.div
+          className="logo"
+          animate={{
+            scale: [1, 1.08, 1],
+            boxShadow: [
+              "0 0 20px #2563eb",
+              "0 0 45px #38bdf8",
+              "0 0 20px #2563eb",
+            ],
+          }}
+          transition={{
+            repeat: Infinity,
+            duration: 2,
+          }}
+        >
+          🤖
+        </motion.div>
+
+        <h1>AI Interview Copilot</h1>
+        <p>Practice smarter. Crack interviews faster.</p>
 
         {/* TOGGLE */}
-        {!showResetBox && (
-          <div style={styles.toggle}>
-            <button
-              onClick={() => setIsLogin(true)}
-              style={{
-                ...styles.toggleBtn,
-                background: isLogin ? "#7c3aed" : "transparent",
-              }}
-            >
-              Login
-            </button>
+        <div className="toggle">
+          <button
+            className={mode === "login" ? "active" : ""}
+            onClick={() => setMode("login")}
+          >
+            Login
+          </button>
 
-            <button
-              onClick={() => setIsLogin(false)}
-              style={{
-                ...styles.toggleBtn,
-                background: !isLogin ? "#7c3aed" : "transparent",
-              }}
-            >
-              Register
-            </button>
-          </div>
-        )}
+          <button
+            className={mode === "register" ? "active" : ""}
+            onClick={() => setMode("register")}
+          >
+            Register
+          </button>
+        </div>
 
-        {/* ERROR */}
-        {error && <div style={styles.error}>{error}</div>}
-
-        {/* RESET BOX */}
-        {showResetBox ? (
-          <>
-            <input
-              name="email"
-              placeholder="Enter Email"
-              value={form.email}
-              onChange={handleChange}
-              style={styles.input}
-            />
-
-            <input
-              name="newPassword"
-              placeholder="Enter New Password"
-              type="password"
-              value={form.newPassword}
-              onChange={handleChange}
-              style={styles.input}
-            />
-
-            <button onClick={resetPassword} style={styles.mainBtn}>
-              {loading ? "Please Wait..." : "Change Password"}
-            </button>
-
-            <p
-              style={styles.backText}
-              onClick={() => setShowResetBox(false)}
-            >
-              ← Back To Login
-            </p>
-          </>
-        ) : (
-          <>
-            {/* REGISTER */}
-            {!isLogin && (
-              <>
-                <input
-                  name="fullname"
-                  placeholder="Full Name"
-                  value={form.fullname}
-                  onChange={handleChange}
-                  style={styles.input}
-                />
-
-                <select
-                  name="role"
-                  value={form.role}
-                  onChange={handleChange}
-                  style={styles.input}
-                >
-                  <option value="candidate">Candidate</option>
-                  <option value="recruiter">Recruiter</option>
-                </select>
-
-                <input
-                  name="experience"
-                  placeholder="Experience"
-                  value={form.experience}
-                  onChange={handleChange}
-                  style={styles.input}
-                />
-              </>
+        {/* FORM */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={mode}
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -30 }}
+          >
+            {mode === "register" && (
+              <input
+                type="text"
+                name="fullname"
+                placeholder="Full Name"
+                value={form.fullname}
+                onChange={handleChange}
+              />
             )}
 
-            {/* EMAIL */}
             <input
+              type="email"
               name="email"
-              placeholder="Email"
+              placeholder="Email Address"
               value={form.email}
               onChange={handleChange}
-              style={styles.input}
             />
 
-            {/* PASSWORD */}
-            <input
-              name="password"
-              type="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
-              style={styles.input}
-            />
+            <div className="password-box">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                value={form.password}
+                onChange={handleChange}
+              />
 
-            {/* BUTTON */}
+              <span
+                onClick={() =>
+                  setShowPassword(!showPassword)
+                }
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </span>
+            </div>
+
             <button
-              onClick={isLogin ? login : register}
-              style={styles.mainBtn}
+              className="btn"
+              onClick={handleSubmit}
+              disabled={loading}
             >
-              {loading ? "Please Wait..." : isLogin ? "Login" : "Create Account"}
+              {loading
+                ? "Please wait..."
+                : mode === "login"
+                ? "Login"
+                : "Create Account"}
             </button>
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
 
-            {/* GOOGLE */}
-            <button onClick={googleLogin} style={styles.googleBtn}>
-              Continue with Google
-            </button>
+      {/* STYLE */}
+      <style>{`
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
 
-            {/* FORGOT */}
-            <p
-              style={styles.forgot}
-              onClick={() => setShowResetBox(true)}
-            >
-              Forgot Password?
-            </p>
-          </>
-        )}
-      </div>
+        body {
+          overflow: hidden;
+          font-family: Arial;
+        }
+
+        .container {
+          width: 100%;
+          height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          position: relative;
+          background: radial-gradient(circle at top, #0f172a, #020617);
+        }
+
+        .bg {
+          position: absolute;
+          width: 200%;
+          height: 200%;
+          background-image: radial-gradient(#ffffff11 1px, transparent 1px);
+          background-size: 30px 30px;
+          animation: move 25s linear infinite;
+        }
+
+        @keyframes move {
+          from { transform: translateY(0); }
+          to { transform: translateY(-200px); }
+        }
+
+        .card {
+          width: 400px;
+          padding: 35px;
+          border-radius: 24px;
+          background: rgba(255,255,255,0.06);
+          backdrop-filter: blur(25px);
+          border: 1px solid rgba(255,255,255,0.08);
+          color: white;
+          text-align: center;
+          z-index: 10;
+        }
+
+        .logo {
+          width: 90px;
+          height: 90px;
+          margin: auto;
+          margin-bottom: 18px;
+          border-radius: 24px;
+          background: linear-gradient(135deg, #2563eb, #38bdf8);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 40px;
+        }
+
+        h1 {
+          font-size: 30px;
+          margin-bottom: 10px;
+        }
+
+        p {
+          color: #94a3b8;
+          margin-bottom: 25px;
+          font-size: 14px;
+        }
+
+        .toggle {
+          display: flex;
+          background: #0f172a;
+          border-radius: 14px;
+          overflow: hidden;
+          margin-bottom: 20px;
+        }
+
+        .toggle button {
+          flex: 1;
+          padding: 13px;
+          border: none;
+          background: transparent;
+          color: #94a3b8;
+          cursor: pointer;
+        }
+
+        .toggle .active {
+          background: #2563eb;
+          color: white;
+          font-weight: bold;
+        }
+
+        input {
+          width: 100%;
+          padding: 14px;
+          margin-bottom: 14px;
+          border-radius: 14px;
+          background: #0b1220;
+          color: white;
+          border: 1px solid #1e293b;
+          outline: none;
+        }
+
+        .password-box {
+          position: relative;
+        }
+
+        .password-box span {
+          position: absolute;
+          right: 14px;
+          top: 40%;
+          cursor: pointer;
+        }
+
+        .btn {
+          width: 100%;
+          padding: 14px;
+          border: none;
+          border-radius: 14px;
+          background: linear-gradient(135deg, #2563eb, #38bdf8);
+          color: white;
+          font-weight: bold;
+          cursor: pointer;
+        }
+
+        .btn:disabled {
+          opacity: 0.6;
+        }
+      `}</style>
     </div>
   );
 }
-
-/* ================= STYLES ================= */
-const styles = {
-  page: {
-    minHeight: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "#0f172a",
-  },
-
-  card: {
-    width: "400px",
-    padding: "30px",
-    borderRadius: "20px",
-    background: "#111827",
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-  },
-
-  title: {
-    color: "white",
-    textAlign: "center",
-  },
-
-  subtitle: {
-    color: "#94a3b8",
-    textAlign: "center",
-  },
-
-  toggle: {
-    display: "flex",
-  },
-
-  toggleBtn: {
-    flex: 1,
-    padding: "10px",
-    color: "white",
-    border: "none",
-    cursor: "pointer",
-  },
-
-  input: {
-    padding: "12px",
-    borderRadius: "10px",
-    border: "1px solid #334155",
-    background: "#0b1220",
-    color: "white",
-  },
-
-  mainBtn: {
-    padding: "12px",
-    background: "#7c3aed",
-    color: "white",
-    border: "none",
-    borderRadius: "10px",
-    cursor: "pointer",
-  },
-
-  googleBtn: {
-    padding: "12px",
-    background: "white",
-    color: "black",
-    border: "none",
-    borderRadius: "10px",
-    cursor: "pointer",
-  },
-
-  forgot: {
-    color: "#38bdf8",
-    textAlign: "center",
-    cursor: "pointer",
-  },
-
-  backText: {
-    color: "#38bdf8",
-    textAlign: "center",
-    cursor: "pointer",
-  },
-
-  error: {
-    background: "#7f1d1d",
-    color: "white",
-    padding: "10px",
-    borderRadius: "8px",
-  },
-};

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function ResetPassword() {
 
@@ -8,27 +8,17 @@ export default function ResetPassword() {
   const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
-
-  const email =
-    localStorage.getItem("resetEmail");
+  const { token } = useParams();
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     try {
-
-      const res = await axios.post(
-        "http://localhost:5001/api/auth/change-password",
-        {
-          email,
-          password,
-        }
-      );
+      const res = await api.post(`/auth/reset-password/${token}`, {
+        password,
+      });
 
       setMessage(res.data.message);
-
-      localStorage.removeItem("resetEmail");
 
       setTimeout(() => {
         navigate("/");

@@ -16,9 +16,14 @@ const sendResetEmail = require("../utils/sendResetEmail");
 
 router.post("/register", async (req, res) => {
   try {
-    const { fullname, email, password, role, experience } = req.body;
+    let { fullname, email, password, role, experience } = req.body;
+
+    if (!fullname && req.body.name) {
+      fullname = req.body.name;
+    }
 
     if (!fullname || !email || !password) {
+      console.log("REGISTER MISSING BODY", req.body);
       return res.status(400).json({
         success: false,
         message: "All fields required ❌",
@@ -44,7 +49,9 @@ router.post("/register", async (req, res) => {
       experience,
     });
 
-    sendWelcomeEmail(user.email, user.fullname).catch(() => {});
+    sendWelcomeEmail(user.email, user.fullname).catch((err) => {
+      console.error("Welcome email failed:", err.message || err);
+    });
 
     res.status(201).json({
       success: true,

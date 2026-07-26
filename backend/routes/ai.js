@@ -1,11 +1,12 @@
-const express = require("express");
-const router = express.Router();
-const Groq = require("groq-sdk");
-const Chat = require("../models/Chat");
+import express from "express";
+import Groq from "groq-sdk";
+import Chat from "../models/Chat.js";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+const router = express.Router();
+
+const groq = process.env.GROQ_API_KEY
+  ? new Groq({ apiKey: process.env.GROQ_API_KEY })
+  : null;
 
 const systemPrompt = `
 You are ChatGPT, a helpful AI assistant.
@@ -45,6 +46,13 @@ router.post("/chat", async (req, res) => {
       { role: "user", content: message },
     ];
 
+    if (!groq) {
+      return res.status(503).json({
+        success: false,
+        message: "AI service is unavailable because GROQ_API_KEY is not configured",
+      });
+    }
+
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages,
@@ -82,4 +90,4 @@ router.get("/history/:sessionId", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

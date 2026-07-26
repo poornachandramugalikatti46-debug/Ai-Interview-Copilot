@@ -1,4 +1,4 @@
-module.exports = (...roles) => {
+const role = (...roles) => {
 
   return (req, res, next) => {
 

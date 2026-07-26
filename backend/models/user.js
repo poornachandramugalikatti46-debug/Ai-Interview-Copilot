@@ -1,11 +1,8 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
-    /* =========================
-       BASIC INFO
-    ========================= */
-
     fullname: {
       type: String,
       required: true,
@@ -29,7 +26,7 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["user", "admin"],
+      enum: ["user", "admin", "student", "hr"],
       default: "user",
     },
 
@@ -38,10 +35,6 @@ const userSchema = new mongoose.Schema(
       enum: ["fresher", "junior", "mid", "senior"],
       default: "fresher",
     },
-
-    /* =========================
-       AI MEMORY SYSTEM 🧠
-    ========================= */
 
     memory: {
       strengths: [String],
@@ -61,10 +54,6 @@ const userSchema = new mongoose.Schema(
       },
     },
 
-    /* =========================
-       INTERVIEW TRACKING 📊
-    ========================= */
-
     interviews: [
       {
         topic: String,
@@ -76,10 +65,6 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
-
-    /* =========================
-       SECURITY 🔐
-    ========================= */
 
     resetToken: {
       type: String,
@@ -101,4 +86,26 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("User", userSchema);
+userSchema.index({ email: 1 });
+
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+
+  const salt = await bcrypt.genSalt(12);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+userSchema.methods.toJSON = function () {
+  const user = this.toObject();
+
+  delete user.password;
+  delete user.__v;
+
+  return user;
+};
+
+export default mongoose.model("User", userSchema);

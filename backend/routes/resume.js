@@ -1,16 +1,14 @@
-const express = require("express");
+import express from "express";
+import multer from "multer";
+import fs from "fs";
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
+import Groq from "groq-sdk";
+
 const router = express.Router();
 
-const multer = require("multer");
-const fs = require("fs");
-
-const pdfjsLib = require("pdfjs-dist/legacy/build/pdf.mjs");
-
-const Groq = require("groq-sdk");
-
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+const groq = process.env.GROQ_API_KEY
+  ? new Groq({ apiKey: process.env.GROQ_API_KEY })
+  : null;
 
 /* =========================
    MULTER STORAGE
@@ -120,6 +118,13 @@ router.post(
 
       /* AI ANALYSIS */
 
+      if (!groq) {
+        return res.status(503).json({
+          success: false,
+          message: "Resume analysis service is unavailable because GROQ_API_KEY is not configured",
+        });
+      }
+
       const completion =
         await groq.chat.completions.create({
           model:
@@ -227,4 +232,4 @@ Return:
   }
 );
 
-module.exports = router;
+export default router;

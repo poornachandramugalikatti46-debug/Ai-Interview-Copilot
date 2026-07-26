@@ -4,7 +4,10 @@ import axios from "axios";
    BASE API INSTANCE
 ========================= */
 
-const baseUrl = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}`.replace(/\/$/, "") + "/api";
+const apiOrigin = (import.meta.env.VITE_API_URL || "http://localhost:5004")
+  .replace(/\/$/, "");
+
+const baseUrl = apiOrigin.endsWith("/api") ? apiOrigin : `${apiOrigin}/api`;
 
 const api = axios.create({
   baseURL: baseUrl,

@@ -4,10 +4,13 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const handleRegister = (e) => {
+  
+  const handleRegister = async (e) => {
     e.preventDefault();
 
+    // Simulate user registration (replace with actual API call)
+    const user = { email, fullname: name };
+    
     alert("Registration Successful");
   };
 

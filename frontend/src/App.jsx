@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+﻿import { useState } from "react";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 
 /* AUTH */
 import Auth from "./Auth";
@@ -12,9 +12,12 @@ import Chatbot from "./components/Chatbot";
 
 /* INTERVIEW PAGES */
 import TechnicalInterview from "./pages/technical/TechnicalInterview";
+import InterviewSetup from "./pages/technical/InterviewSetup";
+import InterviewRoom from "./pages/technical/InterviewRoom";
+import InterviewReport from "./pages/technical/InterviewReport";
 import HRInterview from "./pages/hr/HRInterview";
-import MockInterview from "./pages/mock/MockInterview";
 import ResumeInterview from "./pages/resume/ResumeInterview";
+import MockInterview from "./pages/mock/MockInterview";
 
 /* SETTINGS */
 import SettingsPage from "./pages/settings/SettingsPage";
@@ -32,8 +35,13 @@ import ResetPassword from "./pages/ResetPassword";
 function App() {
 
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [loggedIn, setLoggedIn] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(() => {
+    const token = localStorage.getItem("token");
+    const googleUser = localStorage.getItem("googleUser");
+    return Boolean(token || googleUser);
+  });
 
   const [adminMode, setAdminMode] = useState(false);
 
@@ -41,23 +49,6 @@ function App() {
     useState("dashboard");
 
   const [darkMode, setDarkMode] = useState(true);
-
-  /* =========================
-     CHECK LOGIN
-  ========================= */
-
-  useEffect(() => {
-
-    const token = localStorage.getItem("token");
-
-    const googleUser =
-      localStorage.getItem("googleUser");
-
-    if (token || googleUser) {
-      setLoggedIn(true);
-    }
-
-  }, []);
 
   /* =========================
      LOGOUT
@@ -213,6 +204,17 @@ function App() {
           element={<ResetPassword />}
         />
 
+      </Routes>
+    );
+  }
+
+  if (location.pathname.startsWith("/technical")) {
+    return (
+      <Routes>
+        <Route path="/technical" element={<TechnicalInterview setCurrentPage={setCurrentPage} />} />
+        <Route path="/technical/setup" element={<InterviewSetup />} />
+        <Route path="/technical/interview" element={<InterviewRoom />} />
+        <Route path="/technical/report" element={<InterviewReport />} />
       </Routes>
     );
   }

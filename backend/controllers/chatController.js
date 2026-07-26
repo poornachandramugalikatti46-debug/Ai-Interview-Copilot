@@ -1,7 +1,7 @@
-const Chat = require("../models/Chat");
+import Chat from "../models/Chat.js";
 
 // STREAM RESPONSE (SSE)
-exports.streamChat = async (req, res) => {
+export const streamChat = async (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
 
@@ -25,7 +25,7 @@ exports.streamChat = async (req, res) => {
 };
 
 // SAVE CHAT
-exports.saveChat = async (req, res) => {
+export const saveChat = async (req, res) => {
   try {
     const { userId, message, reply } = req.body;
 
@@ -47,7 +47,7 @@ exports.saveChat = async (req, res) => {
 };
 
 // GET CHAT HISTORY
-exports.getChats = async (req, res) => {
+export const getChats = async (req, res) => {
   const chats = await Chat.find();
   res.json(chats);
 };

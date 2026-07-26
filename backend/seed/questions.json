@@ -1,0 +1,269 @@
+[
+  {
+    "title": "Two Sum",
+    "slug": "two-sum",
+    "role": "DSA",
+    "difficulty": "Easy",
+    "company": "Google",
+    "topic": "Arrays",
+    "language": "Python",
+    "description": "Given an array of integers nums and an integer target, return the indices of two numbers whose sum equals the target.",
+    "examples": [
+      {
+        "input": "nums = [2,7,11,15], target = 9",
+        "output": "[0,1]",
+        "explanation": "nums[0] + nums[1] = 9"
+      }
+    ],
+    "constraints": [
+      "2 <= nums.length <= 10000"
+    ],
+    "hint": "Use a HashMap.",
+    "starterCode": {
+      "javascript": "def two_sum(nums, target):\n    pass",
+      "python": "",
+      "java": "",
+      "cpp": "",
+      "c": ""
+    },
+    "solution": {
+      "javascript": "",
+      "python": "",
+      "java": "",
+      "cpp": "",
+      "c": ""
+    },
+    "testCases": [
+      {
+        "input": "[2,7,11,15]\n9",
+        "expectedOutput": "[0,1]",
+        "isHidden": false
+      }
+    ],
+    "timeComplexity": "O(n)",
+    "spaceComplexity": "O(n)",
+    "marks": 10,
+    "estimatedTime": 15,
+    "tags": [
+      "Array",
+      "HashMap"
+    ],
+    "isActive": true
+  },
+  {
+    "title": "Event Delegation",
+    "slug": "event-delegation",
+    "role": "Frontend",
+    "difficulty": "Easy",
+    "company": "Microsoft",
+    "topic": "JavaScript",
+    "language": [
+      "JavaScript"
+    ],
+    "description": "Explain how event delegation works in the browser and why it is useful for handling many similar DOM events.",
+    "examples": [
+      {
+        "input": "Click events on a list of buttons",
+        "output": "Single handler on the parent element handles all clicks",
+        "explanation": "The parent listens for events that bubble up from child elements"
+      }
+    ],
+    "constraints": [
+      "Use a single event listener when possible.",
+      "Explain event bubbling."
+    ],
+    "hint": "Attach the event listener to a common ancestor element.",
+    "starterCode": {
+      "javascript": "function setupDelegation(container) {\n  // TODO\n}",
+      "python": "",
+      "java": "",
+      "cpp": "",
+      "c": ""
+    },
+    "solution": {
+      "javascript": "",
+      "python": "",
+      "java": "",
+      "cpp": "",
+      "c": ""
+    },
+    "testCases": [
+      {
+        "input": "Container with button clicks",
+        "expectedOutput": "Event handler receives bubbled click events",
+        "isHidden": false
+      }
+    ],
+    "timeComplexity": "O(1) per event",
+    "spaceComplexity": "O(1)",
+    "marks": 10,
+    "estimatedTime": 10,
+    "tags": [
+      "JavaScript",
+      "DOM"
+    ],
+    "isActive": true
+  },
+  {
+    "title": "CSS Flexbox Layout",
+    "slug": "css-flexbox-layout",
+    "role": "Frontend",
+    "difficulty": "Easy",
+    "company": "Meta",
+    "topic": "CSS",
+    "language": [
+      "JavaScript"
+    ],
+    "description": "Describe how to use CSS Flexbox to center content both horizontally and vertically within a container.",
+    "examples": [
+      {
+        "input": "A container with child items",
+        "output": "Use justify-content and align-items",
+        "explanation": "Flexbox aligns items along both axes"
+      }
+    ],
+    "constraints": [
+      "Use modern CSS only.",
+      "No grid layout."
+    ],
+    "hint": "Use display:flex on the parent.",
+    "starterCode": {
+      "javascript": "/* CSS */\n.container {\n  display: flex;\n  /* TODO */\n}",
+      "python": "",
+      "java": "",
+      "cpp": "",
+      "c": ""
+    },
+    "solution": {
+      "javascript": "",
+      "python": "",
+      "java": "",
+      "cpp": "",
+      "c": ""
+    },
+    "testCases": [
+      {
+        "input": "Container HTML structure",
+        "expectedOutput": "Centered child content",
+        "isHidden": false
+      }
+    ],
+    "timeComplexity": "O(1)",
+    "spaceComplexity": "O(1)",
+    "marks": 10,
+    "estimatedTime": 10,
+    "tags": [
+      "CSS",
+      "Layout"
+    ],
+    "isActive": true
+  },
+  {
+    "title": "JavaScript Closures",
+    "slug": "javascript-closures",
+    "role": "Frontend",
+    "difficulty": "Easy",
+    "company": "Amazon",
+    "topic": "JavaScript",
+    "language": [
+      "JavaScript"
+    ],
+    "description": "Explain what a closure is in JavaScript and provide an example of how it retains access to variables from its outer scope.",
+    "examples": [
+      {
+        "input": "A function returned from another function",
+        "output": "The inner function remembers outer variables",
+        "explanation": "Closures keep the lexical environment alive"
+      }
+    ],
+    "constraints": [
+      "Include an example.",
+      "Explain variable retention."
+    ],
+    "hint": "Closures capture variables from the parent scope.",
+    "starterCode": {
+      "javascript": "function makeCounter() {\n  let count = 0;\n  return function() {\n    return ++count;\n  };\n}",
+      "python": "",
+      "java": "",
+      "cpp": "",
+      "c": ""
+    },
+    "solution": {
+      "javascript": "",
+      "python": "",
+      "java": "",
+      "cpp": "",
+      "c": ""
+    },
+    "testCases": [
+      {
+        "input": "Call counter twice",
+        "expectedOutput": "1 and then 2",
+        "isHidden": false
+      }
+    ],
+    "timeComplexity": "O(1)",
+    "spaceComplexity": "O(1)",
+    "marks": 10,
+    "estimatedTime": 10,
+    "tags": [
+      "JavaScript",
+      "Functions"
+    ],
+    "isActive": true
+  },
+  {
+    "title": "HTTP Status Codes",
+    "slug": "http-status-codes",
+    "role": "Frontend",
+    "difficulty": "Easy",
+    "company": "Netflix",
+    "topic": "Web",
+    "language": [
+      "JavaScript"
+    ],
+    "description": "List the meaning of HTTP status codes 200, 301, 404, and 500, and explain when each should be used in a REST API response.",
+    "examples": [
+      {
+        "input": "Server sends response code 404",
+        "output": "Not Found",
+        "explanation": "The requested resource does not exist"
+      }
+    ],
+    "constraints": [
+      "Keep answers concise.",
+      "Cover all listed codes."
+    ],
+    "hint": "200 success, 301 redirect, 404 missing, 500 server error.",
+    "starterCode": {
+      "javascript": "",
+      "python": "",
+      "java": "",
+      "cpp": "",
+      "c": ""
+    },
+    "solution": {
+      "javascript": "",
+      "python": "",
+      "java": "",
+      "cpp": "",
+      "c": ""
+    },
+    "testCases": [
+      {
+        "input": "Request non-existent endpoint",
+        "expectedOutput": "404",
+        "isHidden": false
+      }
+    ],
+    "timeComplexity": "O(1)",
+    "spaceComplexity": "O(1)",
+    "marks": 10,
+    "estimatedTime": 10,
+    "tags": [
+      "HTTP",
+      "Web"
+    ],
+    "isActive": true
+  }
+]

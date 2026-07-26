@@ -1,6 +1,8 @@
-const router = require("express").Router();
-const auth = require("../middleware/auth");
-const Template = require("../models/Template");
+import express from "express";
+import auth from "../middleware/auth.js";
+import Template from "../models/Template.js";
+
+const router = express.Router();
 
 /* =========================
    CREATE TEMPLATE (ADMIN / RECRUITER)
@@ -33,4 +35,4 @@ router.get("/", auth, async (req, res) => {
   res.json({ success: true, templates });
 });
 
-module.exports = router;
+export default router;

@@ -1,4 +1,4 @@
-const AnalyticsEvent = require("../models/AnalyticsEvent");
+import AnalyticsEvent from "../models/AnalyticsEvent.js";
 
 const trackEvent = async ({
   userId,
@@ -18,4 +18,4 @@ const trackEvent = async ({
   }
 };
 
-module.exports = trackEvent;
+export default trackEvent;

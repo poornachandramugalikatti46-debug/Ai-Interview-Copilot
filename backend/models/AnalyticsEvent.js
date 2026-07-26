@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const analyticsEventSchema = new mongoose.Schema(
   {
@@ -24,4 +24,4 @@ const analyticsEventSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("AnalyticsEvent", analyticsEventSchema);
+export default mongoose.model("AnalyticsEvent", analyticsEventSchema);
