@@ -17,7 +17,6 @@ import InterviewRoom from "./pages/technical/InterviewRoom";
 import InterviewReport from "./pages/technical/InterviewReport";
 import HRInterview from "./pages/hr/HRInterview";
 import ResumeInterview from "./pages/resume/ResumeInterview";
-import MockInterview from "./pages/mock/MockInterview";
 
 /* SETTINGS */
 import SettingsPage from "./pages/settings/SettingsPage";
@@ -31,6 +30,13 @@ import AppUpdates from "./pages/settings/AppUpdates";
 /* PASSWORD PAGES */
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+
+
+/* MOCKINTERVIEW */
+import MockInterviewHome from "./pages/MockInterview/MockInterviewHome";
+import MockInterviewSetup from "./pages/MockInterview/InterviewSetup";
+import MockInterviewRoom from "./pages/MockInterview/InterviewRoom";
+import MockInterviewReport from "./pages/MockInterview/InterviewReport";
 
 function App() {
 
@@ -88,6 +94,27 @@ function App() {
         />
       );
     }
+    if (currentPage === "technicalSetup") {
+  return (
+    <InterviewSetup
+      setCurrentPage={setCurrentPage}
+    />
+  );
+}
+if (currentPage === "technicalInterview") {
+  return (
+    <InterviewRoom
+      setCurrentPage={setCurrentPage}
+    />
+  );
+}
+if (currentPage === "technicalReport") {
+  return (
+    <InterviewReport
+      setCurrentPage={setCurrentPage}
+    />
+  );
+}
 
     if (currentPage === "hr") {
       return (
@@ -99,7 +126,7 @@ function App() {
 
     if (currentPage === "mock") {
       return (
-        <MockInterview
+        <MockInterviewHome
           setCurrentPage={setCurrentPage}
         />
       );
@@ -208,13 +235,25 @@ function App() {
     );
   }
 
+
   if (location.pathname.startsWith("/technical")) {
     return (
       <Routes>
-        <Route path="/technical" element={<TechnicalInterview setCurrentPage={setCurrentPage} />} />
-        <Route path="/technical/setup" element={<InterviewSetup />} />
-        <Route path="/technical/interview" element={<InterviewRoom />} />
-        <Route path="/technical/report" element={<InterviewReport />} />
+        <Route path="/technical" element={<TechnicalInterview  />} />
+        <Route path="/technical/setup" element={<InterviewSetup setCurrentPage={setCurrentPage} />}/>
+        <Route path="/technical/interview" element={<InterviewRoom setCurrentPage={setCurrentPage} />}/>
+        <Route path="/technical/report" element={<InterviewReport setCurrentPage={setCurrentPage} />}/>
+      </Routes>
+    );
+  }
+
+  if (location.pathname.startsWith("/mock-interview")) {
+    return (
+      <Routes>
+        <Route path="/mock-interview" element={<MockInterviewHome />} />
+        <Route path="/mock-interview/setup" element={<MockInterviewSetup />} />
+        <Route path="/mock-interview/room" element={<MockInterviewRoom />} />
+        <Route path="/mock-interview/report/:id" element={<MockInterviewReport />} />
       </Routes>
     );
   }
@@ -222,7 +261,6 @@ function App() {
   /* =========================
      MAIN APP UI
   ========================= */
-
   return (
 
     <div
@@ -305,15 +343,7 @@ function App() {
 
           {/* DASHBOARD */}
 
-          <button
-            onClick={() =>
-              setCurrentPage("dashboard")
-            }
-            style={styles.dashboardBtn}
-          >
-            🏠 Dashboard
-          </button>
-
+         
           {/* LOGOUT */}
 
           <button
@@ -322,6 +352,15 @@ function App() {
           >
             🚪 Logout
           </button>
+          <button
+  onClick={() => {
+    setCurrentPage("dashboard");
+    navigate("/");
+  }}
+  style={styles.dashboardBtn}
+>
+  🏠 Dashboard
+</button>
 
         </div>
       </div>

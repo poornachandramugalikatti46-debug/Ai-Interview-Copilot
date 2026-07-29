@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import api from "../../services/api";
+import { ArrowLeft } from "lucide-react";
 
 export default function InterviewSetup() {
   const navigate = useNavigate();
@@ -61,6 +62,13 @@ export default function InterviewSetup() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-3xl bg-slate-900 rounded-3xl p-10 border border-slate-800"
       >
+        <button
+  onClick={() => navigate("/technical")}
+  className="flex items-center gap-2 mb-6 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-white transition"
+>
+  <ArrowLeft size={18} />
+  Back
+</button>
         <h1 className="text-4xl font-bold text-center">
           Interview Setup
         </h1>

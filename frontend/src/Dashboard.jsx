@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Chatbot from "./components/Chatbot";
 import ResumeAnalyzer from "./ResumeAnalyzer";
@@ -8,7 +9,7 @@ import Analytics from "./pages/Analytics";
 // Pages
 import TechnicalInterview from "./pages/technical/TechnicalInterview";
 import HRInterview from "./pages/hr/HRInterview";
-import MockInterview from "./pages/mock/MockInterview";
+import MockInterviewHome from "./pages/MockInterview/MockInterviewHome";
 import ResumeInterview from "./pages/resume/ResumeInterview";
 
 export default function Dashboard({
@@ -18,7 +19,7 @@ export default function Dashboard({
 }) {
   const [openChat, setOpenChat] = useState(false);
   const [openResume, setOpenResume] = useState(false);
-
+  const navigate = useNavigate();
   /* =========================
      POPUP ROUTES
   ========================= */
@@ -52,7 +53,7 @@ export default function Dashboard({
   }
 
   if (currentPage === "mock") {
-    return <MockInterview setCurrentPage={setCurrentPage} />;
+    return <MockInterviewHome setCurrentPage={setCurrentPage} />;
   }
 
   if (currentPage === "resumeInterview") {
@@ -152,7 +153,7 @@ export default function Dashboard({
             {/* TECHNICAL */}
             <div
               style={styles.featureCard}
-              onClick={() => setCurrentPage("technical")}
+              onClick={() => navigate("/technical")}
             >
               <h3 style={styles.cardTitle}>
                 🧠 Technical Interview

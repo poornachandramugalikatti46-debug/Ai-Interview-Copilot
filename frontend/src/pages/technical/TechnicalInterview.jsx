@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
 import { Code2, Brain, Trophy, PlayCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 export default function TechnicalInterview() {
-  const navigate = useNavigate();
-
+const navigate = useNavigate();
   const features = [
     {
       icon: <Code2 size={32} />,
@@ -32,6 +32,15 @@ export default function TechnicalInterview() {
         transition={{ duration: 0.6 }}
         className="max-w-6xl mx-auto"
       >
+
+        <button
+  onClick={() => navigate("/")}
+  className="flex items-center gap-2 mb-6 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-white transition"
+>
+  <ArrowLeft size={18} />
+  Back
+</button>
+
         <div className="text-center">
           <h1 className="text-5xl font-extrabold">
             Technical Coding Interview

@@ -6,6 +6,7 @@ import CodeEditor from "../../components/technical/CodeEditor";
 import TestCases from "../../components/technical/TestCases";
 import api from "../../services/api";
 import { runCode, submitCode } from "../../services/judgeApi";
+import { ArrowLeft } from "lucide-react";
 
 export default function InterviewRoom() {
   const { state } = useLocation();
@@ -230,6 +231,15 @@ const handleSubmit = async () => {
     <div className="min-h-screen bg-slate-950 text-white">
       <div className="flex items-center justify-between border-b border-slate-800 px-8 py-4">
         <div>
+
+          <button
+  onClick={() => navigate("/technical/setup")}
+  className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-white transition"
+>
+  <ArrowLeft size={18} />
+  Back
+</button>
+
           <h1 className="text-2xl font-bold">Technical Interview</h1>
           <p className="text-slate-400 text-sm mt-1">
             {initialInterviewState?.role} • {initialInterviewState?.difficulty} • {initialInterviewState?.language}

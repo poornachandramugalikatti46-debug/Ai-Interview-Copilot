@@ -1,6 +1,6 @@
 const fetch = globalThis.fetch || require('node-fetch');
 async function run() {
-  const base = 'http://127.0.0.1:5000';
+  const base = 'http://127.0.0.1:5001';
   const tests = [
     { name: 'questions', method: 'POST', path: '/api/interview/questions', body: { role: 'Backend', experience: 'Mid', question_type: 'Algorithms', num_questions: 3 } },
     { name: 'evaluate', method: 'POST', path: '/api/interview/evaluate', body: { question: 'What is a REST API?', answer: 'A REST API is an interface that uses HTTP methods to access resources.' } },

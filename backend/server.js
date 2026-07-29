@@ -17,10 +17,17 @@ import questionRoutes from "./routes/questionRoutes.js";
 import submissionRoutes from "./routes/submissionRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import aiReviewRoutes from "./routes/aiReviewRoutes.js";
+import mockInterviewRoutes from "./routes/mockInterviewRoutes.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
 const app = express();
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(
   cors({
@@ -44,10 +51,6 @@ app.use("/api/interview", interviewRoutes);
 app.use("/api/judge", judgeRoutes);
 app.use("/api/questions", questionRoutes);
 app.use(
-    "/api/judge",
-    judgeRoutes
-);
-app.use(
     "/api/submissions",
     submissionRoutes
 );
@@ -59,6 +62,8 @@ app.use(
     "/api/ai-review",
     aiReviewRoutes
 );
+app.use("/api/mock", mockInterviewRoutes);
+app.use("/uploads", express.static("uploads"));
 app.get("/", (req, res) => {
   res.json({
     success: true,
@@ -69,7 +74,7 @@ app.get("/", (req, res) => {
 app.use(notFound);
 app.use(errorHandler);
 
-const requestedPort = Number(process.env.PORT) || 5000;
+const requestedPort = Number(process.env.PORT) || 5001;
 
 const startServer = (port) => {
   const server = http.createServer(app);

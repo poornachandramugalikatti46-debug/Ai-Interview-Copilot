@@ -1,7 +1,6 @@
 import express from "express";
 import nodemailer from "nodemailer";
 import otpGenerator from "otp-generator";
-
 const router = express.Router();
 
 /* =========================
