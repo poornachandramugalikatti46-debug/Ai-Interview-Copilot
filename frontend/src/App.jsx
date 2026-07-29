@@ -1,5 +1,5 @@
-﻿import { useState } from "react";
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+﻿import { useEffect, useState } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
 
 /* AUTH */
 import Auth from "./Auth";
@@ -12,10 +12,8 @@ import Chatbot from "./components/Chatbot";
 
 /* INTERVIEW PAGES */
 import TechnicalInterview from "./pages/technical/TechnicalInterview";
-import InterviewSetup from "./pages/technical/InterviewSetup";
-import InterviewRoom from "./pages/technical/InterviewRoom";
-import InterviewReport from "./pages/technical/InterviewReport";
 import HRInterview from "./pages/hr/HRInterview";
+import MockInterview from "./pages/mock/MockInterview";
 import ResumeInterview from "./pages/resume/ResumeInterview";
 
 /* SETTINGS */
@@ -31,23 +29,11 @@ import AppUpdates from "./pages/settings/AppUpdates";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 
-
-/* MOCKINTERVIEW */
-import MockInterviewHome from "./pages/MockInterview/MockInterviewHome";
-import MockInterviewSetup from "./pages/MockInterview/InterviewSetup";
-import MockInterviewRoom from "./pages/MockInterview/InterviewRoom";
-import MockInterviewReport from "./pages/MockInterview/InterviewReport";
-
 function App() {
 
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const [loggedIn, setLoggedIn] = useState(() => {
-    const token = localStorage.getItem("token");
-    const googleUser = localStorage.getItem("googleUser");
-    return Boolean(token || googleUser);
-  });
+  const [loggedIn, setLoggedIn] = useState(true);
 
   const [adminMode, setAdminMode] = useState(false);
 
@@ -55,6 +41,23 @@ function App() {
     useState("dashboard");
 
   const [darkMode, setDarkMode] = useState(true);
+
+  /* =========================
+     CHECK LOGIN
+  ========================= */
+
+  useEffect(() => {
+
+    const token = localStorage.getItem("token");
+
+    const googleUser =
+      localStorage.getItem("googleUser");
+
+    if (token || googleUser) {
+      setLoggedIn(true);
+    }
+
+  }, []);
 
   /* =========================
      LOGOUT
@@ -94,27 +97,6 @@ function App() {
         />
       );
     }
-    if (currentPage === "technicalSetup") {
-  return (
-    <InterviewSetup
-      setCurrentPage={setCurrentPage}
-    />
-  );
-}
-if (currentPage === "technicalInterview") {
-  return (
-    <InterviewRoom
-      setCurrentPage={setCurrentPage}
-    />
-  );
-}
-if (currentPage === "technicalReport") {
-  return (
-    <InterviewReport
-      setCurrentPage={setCurrentPage}
-    />
-  );
-}
 
     if (currentPage === "hr") {
       return (
@@ -126,7 +108,7 @@ if (currentPage === "technicalReport") {
 
     if (currentPage === "mock") {
       return (
-        <MockInterviewHome
+        <MockInterview
           setCurrentPage={setCurrentPage}
         />
       );
@@ -235,32 +217,10 @@ if (currentPage === "technicalReport") {
     );
   }
 
-
-  if (location.pathname.startsWith("/technical")) {
-    return (
-      <Routes>
-        <Route path="/technical" element={<TechnicalInterview  />} />
-        <Route path="/technical/setup" element={<InterviewSetup setCurrentPage={setCurrentPage} />}/>
-        <Route path="/technical/interview" element={<InterviewRoom setCurrentPage={setCurrentPage} />}/>
-        <Route path="/technical/report" element={<InterviewReport setCurrentPage={setCurrentPage} />}/>
-      </Routes>
-    );
-  }
-
-  if (location.pathname.startsWith("/mock-interview")) {
-    return (
-      <Routes>
-        <Route path="/mock-interview" element={<MockInterviewHome />} />
-        <Route path="/mock-interview/setup" element={<MockInterviewSetup />} />
-        <Route path="/mock-interview/room" element={<MockInterviewRoom />} />
-        <Route path="/mock-interview/report/:id" element={<MockInterviewReport />} />
-      </Routes>
-    );
-  }
-
   /* =========================
      MAIN APP UI
   ========================= */
+
   return (
 
     <div
@@ -343,7 +303,15 @@ if (currentPage === "technicalReport") {
 
           {/* DASHBOARD */}
 
-         
+          <button
+            onClick={() =>
+              setCurrentPage("dashboard")
+            }
+            style={styles.dashboardBtn}
+          >
+            🏠 Dashboard
+          </button>
+
           {/* LOGOUT */}
 
           <button
@@ -352,15 +320,6 @@ if (currentPage === "technicalReport") {
           >
             🚪 Logout
           </button>
-          <button
-  onClick={() => {
-    setCurrentPage("dashboard");
-    navigate("/");
-  }}
-  style={styles.dashboardBtn}
->
-  🏠 Dashboard
-</button>
 
         </div>
       </div>
