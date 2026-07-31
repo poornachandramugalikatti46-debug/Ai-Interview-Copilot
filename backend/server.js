@@ -75,7 +75,7 @@ const startServer = (port) => {
   const server = http.createServer(app);
   const io = new Server(server, {
     cors: {
-      origin: "http://ai-interview-copilot-frontend-ccwr.onrender.com",
+      origin: "https://ai-interview-copilot-frontend-ccwr.onrender.com",
       methods: ["GET", "POST"],
       credentials: true,
     },
