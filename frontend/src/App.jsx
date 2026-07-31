@@ -211,7 +211,7 @@ function App() {
   if (location.pathname.startsWith("/technical")) {
     return (
       <Routes>
-        <Route path="/technical" element={<TechnicalInterview setCurrentPage={setCurrentPage} />} />
+        <Route path="/technical" element={<TechnicalInterview setCurrentPage={setCurrentPage}  navigate={navigate}/>} />
         <Route path="/technical/setup" element={<InterviewSetup />} />
         <Route path="/technical/interview" element={<InterviewRoom />} />
         <Route path="/technical/report" element={<InterviewReport />} />

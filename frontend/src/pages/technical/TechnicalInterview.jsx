@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Code2, Brain, Trophy, PlayCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export default function TechnicalInterview() {
+export default function TechnicalInterview({setCurrentPage}) {
   const navigate = useNavigate();
 
   const features = [
@@ -32,25 +32,33 @@ export default function TechnicalInterview() {
         transition={{ duration: 0.6 }}
         className="max-w-6xl mx-auto"
       >
-        <div className="text-center">
-          <h1 className="text-5xl font-extrabold">
-            Technical Coding Interview
-          </h1>
+        <button
+  onClick={() => {
+    setCurrentPage("dashboard");
+    navigate("/");
+  }}
+  className="bg-gray-600 text-white px-4 py-2 rounded"
+>
+  ← Back
+</button>
 
-          <p className="mt-5 text-lg text-slate-400 max-w-3xl mx-auto">
-            Practice real coding interviews with AI. Solve problems, run your
-            code, submit solutions, receive AI reviews, complexity analysis,
-            interview scores, and a complete performance report.
-          </p>
+        <h1 className="text-5xl font-extrabold mt-6">
+          Technical Coding Interview
+        </h1>
 
-          <button
-            onClick={() => navigate("/technical/setup")}
-            className="mt-10 inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-xl text-lg font-semibold transition"
-          >
-            <PlayCircle size={22} />
-            Start Technical Interview
-          </button>
-        </div>
+        <p className="mt-5 text-lg text-slate-400 max-w-3xl mx-auto">
+          Practice real coding interviews with AI. Solve problems, run your
+          code, submit solutions, receive AI reviews, complexity analysis,
+          interview scores, and a complete performance report.
+        </p>
+
+        <button
+          onClick={() => navigate("/technical/setup")}
+          className="mt-10 inline-flex items-center gap-3 bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-xl text-lg font-semibold transition"
+        >
+          <PlayCircle size={22} />
+          Start Technical Interview
+        </button>
 
         {/* Feature Cards */}
         <div className="grid md:grid-cols-3 gap-6 mt-16">
@@ -87,7 +95,7 @@ export default function TechnicalInterview() {
             </div>
 
             <div className="bg-slate-800 rounded-xl p-4">
-              Run & Submit
+              Run &amp; Submit
             </div>
 
             <div className="bg-slate-800 rounded-xl p-4">

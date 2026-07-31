@@ -61,6 +61,12 @@ export default function InterviewSetup() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-3xl bg-slate-900 rounded-3xl p-10 border border-slate-800"
       >
+        <button
+  onClick={() => navigate("/technical")}
+  className="bg-gray-600 text-white px-4 py-2 rounded mb-4"
+>
+  ← Back
+</button>
         <h1 className="text-4xl font-bold text-center">
           Interview Setup
         </h1>

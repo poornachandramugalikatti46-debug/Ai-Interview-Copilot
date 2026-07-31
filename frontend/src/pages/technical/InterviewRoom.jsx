@@ -230,6 +230,12 @@ const handleSubmit = async () => {
     <div className="min-h-screen bg-slate-950 text-white">
       <div className="flex items-center justify-between border-b border-slate-800 px-8 py-4">
         <div>
+          <button
+  onClick={() => navigate("/technical/setup")}
+  className="bg-gray-600 text-white px-4 py-2 rounded mb-4"
+>
+  ← Back
+</button>
           <h1 className="text-2xl font-bold">Technical Interview</h1>
           <p className="text-slate-400 text-sm mt-1">
             {initialInterviewState?.role} • {initialInterviewState?.difficulty} • {initialInterviewState?.language}
