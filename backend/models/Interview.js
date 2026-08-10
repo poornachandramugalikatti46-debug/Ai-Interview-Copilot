@@ -1,71 +1,79 @@
 import mongoose from "mongoose";
 
-const answerSchema = new mongoose.Schema(
+/**
+ * AI Review Schema
+ */
+const aiReviewSchema = new mongoose.Schema(
   {
-    question: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Question",
-      required: true,
-    },
-
-    language: {
-      type: String,
-      required: true,
-    },
-
-    code: {
-      type: String,
-      default: "",
-    },
-
-    output: {
-      type: String,
-      default: "",
-    },
-
-    runtime: {
-      type: String,
-      default: "",
-    },
-
-    memory: {
-      type: String,
-      default: "",
-    },
-
-    passed: {
-      type: Boolean,
-      default: false,
-    },
-
-    passedTestCases: {
+    communication: {
       type: Number,
       default: 0,
     },
-
-    totalTestCases: {
+    grammar: {
       type: Number,
       default: 0,
     },
-
-    score: {
+    confidence: {
       type: Number,
       default: 0,
     },
-
-    aiReview: {
-      strengths: [String],
-      weaknesses: [String],
-      suggestions: [String],
-      feedback: String,
+    relevance: {
+      type: Number,
+      default: 0,
     },
-
-    submittedAt: Date,
+    overall: {
+      type: Number,
+      default: 0,
+    },
+    strengths: {
+      type: [String],
+      default: [],
+    },
+    weaknesses: {
+      type: [String],
+      default: [],
+    },
+    feedback: {
+      type: String,
+      default: "",
+    },
+    betterAnswer: {
+      type: String,
+      default: "",
+    },
   },
   { _id: false }
 );
 
-const interviewSchema = new mongoose.Schema(
+/**
+ * Interview Question Schema
+ */
+const questionSchema = new mongoose.Schema(
+  {
+    questionId: {
+      type: Number,
+      required: true,
+    },
+    question: {
+      type: String,
+      required: true,
+    },
+    answer: {
+      type: String,
+      default: "",
+    },
+    aiReview: {
+      type: aiReviewSchema,
+      default: () => ({}),
+    },
+  },
+  { _id: false }
+);
+
+/**
+ * HR Interview Schema
+ */
+const hrInterviewSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -80,52 +88,38 @@ const interviewSchema = new mongoose.Schema(
 
     difficulty: {
       type: String,
-      required: true,
+      enum: ["Easy", "Medium", "Hard"],
+      default: "Medium",
     },
 
-    language: {
+    experience: {
       type: String,
-      required: true,
-    },
-
-    topic: {
-      type: String,
-      default: "",
-    },
-
-    duration: {
-      type: Number,
-      required: true,
+      default: "Fresher",
     },
 
     totalQuestions: {
       type: Number,
-      required: true,
+      default: 10,
     },
-
-    questions: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Question",
-      },
-    ],
-
-    answers: [answerSchema],
 
     currentQuestion: {
       type: Number,
       default: 0,
     },
 
-    status: {
-      type: String,
-      enum: [
-        "Pending",
-        "Started",
-        "Completed",
-        "Expired",
-      ],
-      default: "Started",
+    questions: {
+      type: [questionSchema],
+      default: [],
+    },
+
+    score: {
+      type: Number,
+      default: 0,
+    },
+
+    completed: {
+      type: Boolean,
+      default: false,
     },
 
     startedAt: {
@@ -133,26 +127,13 @@ const interviewSchema = new mongoose.Schema(
       default: Date.now,
     },
 
-    completedAt: Date,
-
-    totalScore: {
-      type: Number,
-      default: 0,
+    completedAt: {
+      type: Date,
     },
 
-    maxScore: {
+    duration: {
       type: Number,
-      default: 0,
-    },
-
-    percentage: {
-      type: Number,
-      default: 0,
-    },
-
-    timeTaken: {
-      type: Number,
-      default: 0,
+      default: 0, // seconds
     },
   },
   {
@@ -160,4 +141,85 @@ const interviewSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("Interview", interviewSchema);
+/**
+ * Calculate Duration Before Saving
+ */
+hrInterviewSchema.pre("save", function (next) {
+  if (this.completed && !this.completedAt) {
+    this.completedAt = new Date();
+
+    this.duration = Math.floor(
+      (this.completedAt.getTime() - this.startedAt.getTime()) / 1000
+    );
+  }
+
+  next();
+});
+
+/**
+ * Virtual: Average Communication Score
+ */
+hrInterviewSchema.virtual("averageCommunication").get(function () {
+  if (!this.questions.length) return 0;
+
+  const total = this.questions.reduce(
+    (sum, q) => sum + (q.aiReview.communication || 0),
+    0
+  );
+
+  return Math.round(total / this.questions.length);
+});
+
+/**
+ * Virtual: Average Grammar Score
+ */
+hrInterviewSchema.virtual("averageGrammar").get(function () {
+  if (!this.questions.length) return 0;
+
+  const total = this.questions.reduce(
+    (sum, q) => sum + (q.aiReview.grammar || 0),
+    0
+  );
+
+  return Math.round(total / this.questions.length);
+});
+
+/**
+ * Virtual: Average Confidence Score
+ */
+hrInterviewSchema.virtual("averageConfidence").get(function () {
+  if (!this.questions.length) return 0;
+
+  const total = this.questions.reduce(
+    (sum, q) => sum + (q.aiReview.confidence || 0),
+    0
+  );
+
+  return Math.round(total / this.questions.length);
+});
+
+/**
+ * Virtual: Average Relevance Score
+ */
+hrInterviewSchema.virtual("averageRelevance").get(function () {
+  if (!this.questions.length) return 0;
+
+  const total = this.questions.reduce(
+    (sum, q) => sum + (q.aiReview.relevance || 0),
+    0
+  );
+
+  return Math.round(total / this.questions.length);
+});
+
+hrInterviewSchema.set("toJSON", {
+  virtuals: true,
+});
+
+hrInterviewSchema.set("toObject", {
+  virtuals: true,
+});
+
+const InterviewModel = mongoose.models.Interview || mongoose.model("Interview", hrInterviewSchema);
+
+export default InterviewModel;

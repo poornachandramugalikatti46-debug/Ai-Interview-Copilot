@@ -4,6 +4,7 @@ import { Play, Send, RotateCcw } from "lucide-react";
 export default function CodeEditor({
   language = "JavaScript",
   value = "",
+  defaultCode,
   onChange,
   onRun,
   onSubmit,
@@ -47,7 +48,9 @@ int main(){
   };
 
   const resetCode = () => {
-    onReset?.(starterCode[language] || starterCode.JavaScript);
+    onReset?.(
+      defaultCode || starterCode[language] || starterCode.JavaScript
+    );
   };
 
   return (
@@ -91,10 +94,38 @@ int main(){
 
       <Editor
         height="500px"
-        language={language.toLowerCase()}
+        language={
+          (function () {
+            const languageMap = {
+              JavaScript: "javascript",
+              Python: "python",
+              Java: "java",
+              "C++": "cpp",
+              C: "c",
+            };
+            return languageMap[language] || (language || "").toLowerCase() || "javascript";
+          })()
+        }
         theme="vs-dark"
         value={value}
-        onChange={(newValue) => onChange?.(newValue || "")}
+            onChange={(newValue) => onChange?.(newValue || "")}
+            beforeMount={(monaco) => {
+              try {
+                const m = monaco && monaco.default ? monaco.default : monaco;
+                console.log("MONACO beforeMount:", m);
+              } catch (e) {
+                console.error("Error logging monaco beforeMount", e);
+              }
+            }}
+            onMount={(editor, monaco) => {
+              try {
+                const m = monaco && monaco.default ? monaco.default : monaco;
+                console.log("MONACO onMount - editor:", editor);
+                console.log("MONACO onMount - monaco:", m);
+              } catch (e) {
+                console.error("Error logging onMount", e);
+              }
+            }}
         options={{
           fontSize: 16,
           minimap: { enabled: false },

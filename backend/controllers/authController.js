@@ -5,17 +5,18 @@ import User from "../models/User.js";
 export const registerUser = async (req, res) => {
   try {
     const { fullname, email, password, role, experience } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
 
     await import("../config/db.js").then(({ default: connectDB }) => connectDB());
 
-    if (!fullname || !email || !password) {
+    if (!fullname || !normalizedEmail || !password) {
       return res.status(400).json({
         success: false,
         message: "Full name, email, and password are required",
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
       return res.status(409).json({
         success: false,
@@ -23,11 +24,10 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
       fullname,
-      email,
-      password: hashedPassword,
+      email: normalizedEmail,
+      password,
       role: role || "user",
       experience: experience || "fresher",
     });
@@ -55,15 +55,16 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
 
-    if (!email || !password) {
+    if (!normalizedEmail || !password) {
       return res.status(400).json({
         success: false,
         message: "Email and password are required",
       });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       return res.status(401).json({
         success: false,

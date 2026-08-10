@@ -11,20 +11,33 @@ import adminRoutes from "./routes/admin.js";
 import settingsRoutes from "./routes/settings.js";
 import analyticsRoutes from "./routes/analytics.js";
 import interviewRoutes from "./routes/interviewRoutes.js";
+import technicalInterviewRoutes from "./routes/technicalInterviewRoutes.js";
 import judgeRoutes from "./routes/judgeRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import questionRoutes from "./routes/questionRoutes.js";
 import submissionRoutes from "./routes/submissionRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import aiReviewRoutes from "./routes/aiReviewRoutes.js";
-
+import mockInterviewRoutes from "./routes/mockInterviewRoutes.js";
+import hrRoutes from "./routes/hrRoutes.js";
+import path from "path";
 dotenv.config();
 
 const app = express();
 
+const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGINS || "https://ai-interview-copilot-frontend-ccwr.onrender.com,http://localhost:5173").split(",").map(s => s.trim());
+
 app.use(
   cors({
-    origin: "https://ai-interview-copilot-frontend-ccwr.onrender.com",
+    origin: function (origin, callback) {
+      // allow requests with no origin like mobile apps or curl
+      if (!origin) return callback(null, true);
+      if (FRONTEND_ORIGINS.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS policy: This origin is not allowed."));
+      }
+    },
     credentials: true,
   })
 );
@@ -41,6 +54,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/interview", interviewRoutes);
+app.use("/api/technical-interview", technicalInterviewRoutes);
 app.use("/api/judge", judgeRoutes);
 app.use("/api/questions", questionRoutes);
 app.use(
@@ -59,6 +73,12 @@ app.use(
     "/api/ai-review",
     aiReviewRoutes
 );
+app.use("/api/mock", mockInterviewRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/hr", hrRoutes);
+app.use("/uploads", express.static(path.join("uploads")));
+
 app.get("/", (req, res) => {
   res.json({
     success: true,
@@ -75,7 +95,7 @@ const startServer = (port) => {
   const server = http.createServer(app);
   const io = new Server(server, {
     cors: {
-      origin: "https://ai-interview-copilot-frontend-ccwr.onrender.com",
+      origin: FRONTEND_ORIGINS,
       methods: ["GET", "POST"],
       credentials: true,
     },

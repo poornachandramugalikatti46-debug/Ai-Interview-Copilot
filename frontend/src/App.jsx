@@ -11,13 +11,24 @@ import Analytics from "./pages/Analytics";
 import Chatbot from "./components/Chatbot";
 
 /* INTERVIEW PAGES */
-import TechnicalInterview from "./pages/technical/TechnicalInterview";
-import InterviewSetup from "./pages/technical/InterviewSetup";
-import InterviewRoom from "./pages/technical/InterviewRoom";
-import InterviewReport from "./pages/technical/InterviewReport";
-import HRInterview from "./pages/hr/HRInterview";
+import TechnicalInterview from "./pages/technical/TechnicalHome";
+import TechnicalInterviewSetup from "./pages/technical/InterviewSetup";
+import TechnicalInterviewRoom from "./pages/technical/InterviewRoom";
+import InterviewReportTechnical from "./pages/technical/InterviewReport";
 import ResumeInterview from "./pages/resume/ResumeInterview";
+/* MOCK INTERVIEW PAGES */
 import MockInterview from "./pages/mock/MockInterview";
+import MockInterviewHome from "./pages/mock/MockInterviewHome";
+import MockInterviewSetup from "./pages/mock/InterviewSetup";
+import MockInterviewRoom from "./pages/mock/InterviewRoom";
+import InterviewReportMock from "./pages/mock/InterviewReport";
+
+/* HR INTERVIEW PAGES */
+
+import HRSetup from "./pages/hr/HRSetup";
+import HRInterview from "./pages/hr/HRInterview";
+import HRResult from "./pages/hr/HRResult";
+import HRHistory from "./pages/hr/HRHistory";
 
 /* SETTINGS */
 import SettingsPage from "./pages/settings/SettingsPage";
@@ -211,11 +222,34 @@ function App() {
   if (location.pathname.startsWith("/technical")) {
     return (
       <Routes>
-        <Route path="/technical" element={<TechnicalInterview setCurrentPage={setCurrentPage}  navigate={navigate}/>} />
-        <Route path="/technical/setup" element={<InterviewSetup />} />
-        <Route path="/technical/interview" element={<InterviewRoom />} />
-        <Route path="/technical/report" element={<InterviewReport />} />
+        <Route path="/technical" element={<TechnicalInterview setCurrentPage={setCurrentPage} navigate={navigate} />} />
+        <Route path="/technical/setup" element={<TechnicalInterviewSetup />} />
+        <Route path="/technical/interview" element={<TechnicalInterviewRoom />} />
+        <Route path="/technical/report" element={<InterviewReportTechnical />} />
       </Routes>
+    );
+  }
+
+  if (location.pathname.startsWith("/mock-interview")) {
+    return (
+      <Routes>
+        <Route path="/mock-interview" element={<MockInterviewHome />} />
+        <Route path="/mock-interview/setup" element={<MockInterviewSetup />}/>
+        <Route path="/mock-interview/room" element={<MockInterviewRoom />} />
+        <Route path="/mock-interview/report/:id" element={<InterviewReportMock />} />
+      </Routes>
+    );
+  }
+
+  if (location.pathname.startsWith("/hr")) {
+    return (
+      <Routes>  
+      <Route path="/hr/setup" element={<HRSetup />} />
+      <Route path="/hr/interview" element={<HRInterview />} />
+      <Route path="/hr/result" element={<HRResult />} />
+      <Route path="/hr/history" element={<HRHistory />} />
+      <Route path="/hr/result/:id" element={<HRResult />} />
+    </Routes>
     );
   }
 

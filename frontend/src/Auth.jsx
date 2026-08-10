@@ -3,7 +3,7 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 
 /* ================= API ================= */
-const API = "https://ai-interview-copilot-zf93.onrender.com";
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function Auth({ setLoggedIn }) {
   const [mode, setMode] = useState("login");
@@ -32,7 +32,7 @@ export default function Auth({ setLoggedIn }) {
       const res = await axios.post(
         `${API}/api/auth/login`,
         {
-          email: form.email.trim(),
+          email: form.email.trim().toLowerCase(),
           password: form.password,
         },
         {
@@ -67,7 +67,7 @@ export default function Auth({ setLoggedIn }) {
         `${API}/api/auth/register`,
         {
           fullname: form.fullname.trim(),
-          email: form.email.trim(),
+          email: form.email.trim().toLowerCase(),
           password: form.password,
         },
         {

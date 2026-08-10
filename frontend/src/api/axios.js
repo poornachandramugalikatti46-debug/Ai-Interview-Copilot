@@ -4,7 +4,7 @@ import axios from "axios";
    BASE API INSTANCE
 ========================= */
 
-const apiOrigin = (import.meta.env.VITE_API_URL || "http://localhost:5004")
+const apiOrigin = (import.meta.env.VITE_API_URL || "http://localhost:5000")
   .replace(/\/$/, "");
 
 const baseUrl = apiOrigin.endsWith("/api") ? apiOrigin : `${apiOrigin}/api`;
@@ -21,11 +21,14 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
+    console.log("[API] token:", token);
+    console.log("[API] headers before auth:", config.headers);
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    console.log("[API] headers after auth:", config.headers);
     return config;
   },
   (error) => {

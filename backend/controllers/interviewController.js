@@ -19,15 +19,22 @@ export const startInterview = async (req, res) => {
       duration,
     } = req.body;
 
+    console.log('--- startInterview debug ---');
+    console.log('req.body:', req.body);
     const filter = {
       role,
       difficulty,
       isActive: true,
     };
 
-    if (topic) filter.topic = topic;
+    // Treat generic selections like 'Mixed', 'All', or 'Any' as no topic filter
+    if (topic && !["mixed", "all", "any"].includes(String(topic).toLowerCase())) {
+      filter.topic = topic;
+    }
 
     if (language) filter.language = language;
+
+    console.log('filter:', filter, 'count:', count);
 
     const questions = await Question.aggregate([
       { $match: filter },

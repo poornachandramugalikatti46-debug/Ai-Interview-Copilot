@@ -38,6 +38,9 @@ const authMiddleware = (req, res, next) => {
 
 export const protect = async (req, res, next) => {
   try {
+    console.log("========== AUTH DEBUG ==========\n");
+    console.log("Authorization Header:", req.headers.authorization);
+
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -49,15 +52,15 @@ export const protect = async (req, res, next) => {
 
     const token = authHeader.split(" ")[1];
 
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid authorization header",
-      });
-    }
+    console.log("Token:", token);
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
+
+    console.log("Decoded:", decoded);
+
     const user = await User.findById(decoded.id).select("-password");
+
+    console.log("User:", user);
 
     if (!user) {
       return res.status(401).json({
@@ -68,25 +71,13 @@ export const protect = async (req, res, next) => {
 
     req.user = user;
     next();
+
   } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({
-        success: false,
-        message: "Token has expired",
-      });
-    }
+    console.error("AUTH ERROR:", error);
 
-    if (error.name === "JsonWebTokenError") {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid token",
-      });
-    }
-
-    return res.status(500).json({
+    return res.status(401).json({
       success: false,
-      message: "Authentication failed",
-      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+      message: error.message,
     });
   }
 };

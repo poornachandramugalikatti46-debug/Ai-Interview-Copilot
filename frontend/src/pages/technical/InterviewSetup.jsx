@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import api from "../../services/api";
+import { startTechnicalInterview } from "../../services/technicalInterviewApi";
 
 export default function InterviewSetup() {
   const navigate = useNavigate();
@@ -11,41 +11,45 @@ export default function InterviewSetup() {
   const [language, setLanguage] = useState("JavaScript");
   const [duration, setDuration] = useState(30);
   const [questions, setQuestions] = useState(3);
+  const [company, setCompany] = useState("Random");
+  const [topic, setTopic] = useState("Mixed");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleStart = async () => {
+    if (!role || !difficulty || !language) {
+      alert("Please fill all required fields.");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
     try {
-      const response = await api.post("/interview/questions", {
-        role,
-        experience: difficulty,
-        question_type: role,
-        num_questions: questions,
-        company: "",
-      });
-
-      const generatedQuestions = response.data?.questions || [];
-
-      if (!generatedQuestions.length) {
-        throw new Error("No interview questions were returned.");
-      }
-
-      const interviewState = {
+      const res = await startTechnicalInterview({
         role,
         difficulty,
         language,
         duration,
-        questions: generatedQuestions,
-        questionCount: questions,
-      };
+        count: questions,
+        company,
+        topic,
+      });
 
-      sessionStorage.setItem("interviewState", JSON.stringify(interviewState));
+      const interviewId = res.data.interviewId;
+      const interviewQuestions = res.data.questions || [];
 
       navigate("/technical/interview", {
-        state: interviewState,
+        state: {
+          interviewId,
+          role,
+          difficulty,
+          language,
+          duration,
+          company,
+          topic,
+          questions: interviewQuestions,
+        },
       });
     } catch (err) {
       setError(err.response?.data?.message || err.message || "Unable to start the interview right now.");
@@ -131,6 +135,49 @@ export default function InterviewSetup() {
 
         <div className="mt-6">
           <label className="block mb-2 font-semibold">
+            Company
+          </label>
+
+          <select
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+            className="w-full p-4 rounded-xl bg-slate-800"
+          >
+            <option>Random</option>
+            <option>Google</option>
+            <option>Amazon</option>
+            <option>Microsoft</option>
+            <option>Adobe</option>
+            <option>TCS</option>
+            <option>Infosys</option>
+            <option>Accenture</option>
+          </select>
+        </div>
+
+        <div className="mt-6">
+          <label className="block mb-2 font-semibold">
+            Topic
+          </label>
+
+          <select
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            className="w-full p-4 rounded-xl bg-slate-800"
+          >
+            <option>Mixed</option>
+            <option>Arrays</option>
+            <option>Strings</option>
+            <option>Linked List</option>
+            <option>Stack</option>
+            <option>Queue</option>
+            <option>Trees</option>
+            <option>Graphs</option>
+            <option>Dynamic Programming</option>
+          </select>
+        </div>
+
+        <div className="mt-6">
+          <label className="block mb-2 font-semibold">
             Interview Duration
           </label>
 
@@ -163,6 +210,20 @@ export default function InterviewSetup() {
 
         <div className="mt-8 bg-slate-800 rounded-xl p-5">
           <h2 className="text-xl font-bold mb-3">
+            Interview Rules
+          </h2>
+
+          <ul className="list-disc list-inside text-slate-300 space-y-2">
+            <li>Timer starts immediately after the interview begins.</li>
+            <li>You can run your code before submission.</li>
+            <li>Hidden test cases are used for final evaluation.</li>
+            <li>AI code review will be generated after submission.</li>
+            <li>Do not refresh the page during the interview.</li>
+          </ul>
+        </div>
+
+        <div className="mt-8 bg-slate-800 rounded-xl p-5">
+          <h2 className="text-xl font-bold mb-3">
             Interview Summary
           </h2>
 
@@ -170,6 +231,8 @@ export default function InterviewSetup() {
             <p>Role : {role}</p>
             <p>Difficulty : {difficulty}</p>
             <p>Language : {language}</p>
+            <p>Company : {company}</p>
+            <p>Topic : {topic}</p>
             <p>Duration : {duration} Minutes</p>
             <p>Questions : {questions}</p>
           </div>
@@ -182,7 +245,7 @@ export default function InterviewSetup() {
           disabled={loading}
           className="w-full mt-8 bg-blue-600 hover:bg-blue-700 py-4 rounded-xl text-lg font-bold disabled:opacity-60"
         >
-          {loading ? "Loading questions..." : "Start Interview"}
+          {loading ? "Loading questions..." : "🚀 Start Coding Interview"}
         </button>
       </motion.div>
     </div>

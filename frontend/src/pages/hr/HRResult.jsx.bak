@@ -1,0 +1,405 @@
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const API = "http://localhost:5000/api/hr";
+
+export default function HRResult() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [loading, setLoading] = useState(true);
+
+  const [report, setReport] = useState(null);
+
+  useEffect(() => {
+    const loadReport = async () => {
+      try {
+        if (location.state?.report) {
+          setReport(location.state.report);
+          setLoading(false);
+          return;
+        }
+
+        const interviewId = location.state?.interviewId;
+
+        if (!interviewId) {
+          navigate("/dashboard");
+          return;
+        }
+
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(
+          `${API}/report/${interviewId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setReport(res.data);
+
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        alert("Unable to load report.");
+        navigate("/dashboard");
+      }
+    };
+
+    loadReport();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-slate-950 text-white">
+        <div className="text-center">
+
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-500 mx-auto mb-5"></div>
+
+          <h2 className="text-2xl font-bold">
+            Loading Report...
+          </h2>
+
+        </div>
+      </div>
+    );
+  }
+
+  if (!report) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-white">
+
+      <div className="max-w-6xl mx-auto py-10 px-6">
+
+        <h1 className="text-4xl font-bold text-center mb-10">
+          HR Interview Report
+        </h1>
+
+        {/* Overall Score */}
+
+        <div className="bg-slate-900 rounded-2xl p-8 mb-8">
+
+          <h2 className="text-2xl font-bold mb-5">
+            Overall Score
+          </h2>
+
+          <div className="text-center">
+
+            <div className="text-7xl font-bold text-green-400">
+              {report.score}/100
+            </div>
+
+            <p className="text-gray-400 mt-3">
+              AI Evaluation Result
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* Skills */}
+
+        <div className="grid md:grid-cols-2 gap-6">
+
+          <div className="bg-slate-900 rounded-xl p-6">
+
+            <h3 className="font-bold text-xl mb-4">
+              Communication
+            </h3>
+
+            <div className="text-4xl text-blue-400">
+              {report.communication}/20
+            </div>
+
+          </div>
+
+          <div className="bg-slate-900 rounded-xl p-6">
+
+            <h3 className="font-bold text-xl mb-4">
+              Confidence
+            </h3>
+
+            <div className="text-4xl text-green-400">
+              {report.confidence}/20
+            </div>
+
+          </div>
+
+          <div className="bg-slate-900 rounded-xl p-6">
+
+            <h3 className="font-bold text-xl mb-4">
+              Grammar
+            </h3>
+
+            <div className="text-4xl text-yellow-400">
+              {report.grammar}/20
+            </div>
+
+          </div>
+
+          <div className="bg-slate-900 rounded-xl p-6">
+
+            <h3 className="font-bold text-xl mb-4">
+              Relevance
+            </h3>
+
+            <div className="text-4xl text-pink-400">
+              {report.relevance}/20
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* AI Feedback */}
+
+        <div className="bg-slate-900 rounded-xl p-8 mt-8">
+
+          <h2 className="text-2xl font-bold mb-5">
+            AI Feedback
+          </h2>
+
+          <p className="text-gray-300 leading-8">
+            {report.feedback}
+          </p>
+
+        </div>
+
+        {/* Better Answer */}
+
+        <div className="bg-slate-900 rounded-xl p-8 mt-8">
+
+          <h2 className="text-2xl font-bold mb-5">
+            Suggested Better Answer
+          </h2>
+
+          <p className="text-gray-300 leading-8">
+            {report.betterAnswer}
+          </p>
+
+        </div>
+
+        {/* Buttons */}
+
+        <div className="flex flex-wrap justify-center gap-5 mt-10">
+
+          <button
+            onClick={() => navigate("/hr/setup")}
+            className="bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-xl"
+          >
+            Retake Interview
+          </button>
+
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="bg-gray-700 hover:bg-gray-800 px-6 py-3 rounded-xl"
+          >
+            Dashboard
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
+
+      {/* ================= Strengths & Weaknesses ================= */}
+
+      <div className="grid md:grid-cols-2 gap-6 mt-8">
+
+  {/* Strengths */}
+
+  <div className="bg-slate-900 rounded-xl p-6">
+
+    <h2 className="text-2xl font-bold text-green-400 mb-5">
+      💪 Strengths
+    </h2>
+
+    <ul className="space-y-3">
+
+      {(report.strengths || []).length > 0 ? (
+        report.strengths.map((item, index) => (
+          <li
+            key={index}
+            className="bg-green-900/20 border border-green-500 p-3 rounded-lg"
+          >
+            ✅ {item}
+          </li>
+        ))
+      ) : (
+        <li>No strengths available.</li>
+      )}
+
+    </ul>
+
+  </div>
+
+  {/* Weaknesses */}
+
+  <div className="bg-slate-900 rounded-xl p-6">
+
+    <h2 className="text-2xl font-bold text-red-400 mb-5">
+      📉 Areas to Improve
+    </h2>
+
+    <ul className="space-y-3">
+
+      {(report.weaknesses || []).length > 0 ? (
+        report.weaknesses.map((item, index) => (
+          <li
+            key={index}
+            className="bg-red-900/20 border border-red-500 p-3 rounded-lg"
+          >
+            ❌ {item}
+          </li>
+        ))
+      ) : (
+        <li>No weaknesses found.</li>
+      )}
+
+    </ul>
+
+  </div>
+
+</div>
+{/* ================= Hiring Recommendation ================= */}
+
+<div className="bg-slate-900 rounded-xl p-8 mt-8">
+
+<h2 className="text-2xl font-bold mb-5">
+Hiring Recommendation
+</h2>
+
+<div className="text-center">
+
+<span
+className={`px-6 py-3 rounded-full text-xl font-bold
+
+${
+report.score >= 85
+? "bg-green-600"
+
+: report.score >= 70
+
+? "bg-yellow-600"
+
+: "bg-red-600"
+}
+`}
+>
+
+{report.score >= 85
+? "Highly Recommended"
+
+: report.score >= 70
+
+? "Recommended"
+
+: "Needs Improvement"}
+
+</span>
+
+<p className="mt-6 text-gray-300">
+
+{report.score >= 85 &&
+"Excellent HR performance. You are interview ready."}
+
+{report.score >= 70 &&
+report.score < 85 &&
+"You performed well. With more practice you'll become even stronger."}
+
+{report.score < 70 &&
+"Continue practicing HR questions and improve your communication."}
+
+</p>
+
+</div>
+
+</div>
+{/* ================= Question Analysis ================= */}
+
+<div className="bg-slate-900 rounded-xl p-8 mt-8">
+
+<h2 className="text-2xl font-bold mb-6">
+
+Question Analysis
+
+</h2>
+
+<div className="space-y-6">
+
+{report.questions?.map((q,index)=>(
+
+<div
+key={index}
+className="border border-slate-700 rounded-xl p-5">
+
+<p className="font-bold text-indigo-400">
+
+Question {index+1}
+
+</p>
+
+<p className="mt-3">
+
+{q.question}
+
+</p>
+
+<div className="mt-4">
+
+<p className="text-green-400 font-semibold">
+
+Your Answer
+
+</p>
+
+<p className="text-gray-300">
+
+{q.answer}
+
+</p>
+
+</div>
+
+<div className="mt-4">
+
+<p className="text-yellow-400 font-semibold">
+
+AI Feedback
+
+</p>
+
+<p className="text-gray-300">
+
+{q.feedback}
+
+</p>
+
+</div>
+
+<div className="mt-4">
+
+<p className="text-blue-400">
+
+Score : {q.score}/10
+
+</p>
+
+</div>
+
+</div>
+
+))}
+
+</div>
+
+</div>

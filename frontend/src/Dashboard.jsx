@@ -1,15 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Chatbot from "./components/Chatbot";
 import ResumeAnalyzer from "./ResumeAnalyzer";
 import SettingsPage from "./pages/settings/SettingsPage";
 import Analytics from "./pages/Analytics";
-
-// Pages
-import TechnicalInterview from "./pages/technical/TechnicalInterview";
-import HRInterview from "./pages/hr/HRInterview";
-import MockInterview from "./pages/mock/MockInterview";
-import ResumeInterview from "./pages/resume/ResumeInterview";
 
 export default function Dashboard({
   setLoggedIn,
@@ -18,6 +13,7 @@ export default function Dashboard({
 }) {
   const [openChat, setOpenChat] = useState(false);
   const [openResume, setOpenResume] = useState(false);
+  const navigate = useNavigate();
 
   /* =========================
      POPUP ROUTES
@@ -35,29 +31,9 @@ export default function Dashboard({
      PAGE ROUTES
   ========================= */
 
-  if (currentPage === "settings") {
-    return <SettingsPage />;
-  }
-
-  if (currentPage === "analytics") {
-    return <Analytics setCurrentPage={setCurrentPage} />;
-  }
-
-  if (currentPage === "technical") {
-    return <TechnicalInterview setCurrentPage={setCurrentPage} />;
-  }
-
-  if (currentPage === "hr") {
-    return <HRInterview setCurrentPage={setCurrentPage} />;
-  }
-
-  if (currentPage === "mock") {
-    return <MockInterview setCurrentPage={setCurrentPage} />;
-  }
-
-  if (currentPage === "resumeInterview") {
-    return <ResumeInterview setCurrentPage={setCurrentPage} />;
-  }
+  /* Dashboard renders only the main UI here.
+     Route-based navigation for technical and mock
+     is handled by React Router in App.jsx. */
 
   /* =========================
      DASHBOARD UI
@@ -152,7 +128,7 @@ export default function Dashboard({
             {/* TECHNICAL */}
             <div
               style={styles.featureCard}
-              onClick={() => setCurrentPage("technical")}
+              onClick={() => navigate("/technical")}
             >
               <h3 style={styles.cardTitle}>
                 🧠 Technical Interview
@@ -162,25 +138,23 @@ export default function Dashboard({
                 DSA, Coding & System Design Questions
               </p>
             </div>
+{/* HR Interview Card */}
+<div
+  onClick={() => navigate("/hr/setup")}
+  className="cursor-pointer rounded-xl bg-white/10 backdrop-blur-md border border-white/10 p-6 shadow-lg hover:bg-white/20 hover:shadow-2xl transition-all duration-300"
+>
+  <h2 className="text-2xl font-bold">🎤 HR Interview</h2>
 
-            {/* HR */}
-            <div
-              style={styles.featureCard}
-              onClick={() => setCurrentPage("hr")}
-            >
-              <h3 style={styles.cardTitle}>
-                👔 HR Interview
-              </h3>
-
-              <p style={styles.cardText}>
-                Communication & Behavioral Questions
-              </p>
-            </div>
+  <p className="mt-2 text-white/80">
+    Practice AI-powered HR interviews with instant feedback,
+    communication analysis, and scoring.
+  </p>
+</div>
 
             {/* MOCK */}
             <div
               style={styles.featureCard}
-              onClick={() => setCurrentPage("mock")}
+              onClick={() => navigate("/mock-interview")}
             >
               <h3 style={styles.cardTitle}>
                 🧩 Mock Interview
@@ -194,7 +168,7 @@ export default function Dashboard({
             {/* RESUME */}
             <div
               style={styles.featureCard}
-              onClick={() => setCurrentPage("resumeInterview")}
+              onClick={() => navigate("/resume-interview")}
             >
               <h3 style={styles.cardTitle}>
                 📄 Resume Interview

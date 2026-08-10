@@ -30,13 +30,13 @@ api.interceptors.request.use(
 // ===============================
 export const runCode = async ({
   question,
-  usercode,
+  userCode,
   language,
 }) => {
   try {
     const res = await api.post("/api/judge/run", {
       question,
-      usercode,
+      userCode,
       language,
     });
 
@@ -59,13 +59,13 @@ export const runCode = async ({
 // ===============================
 export const submitCode = async ({
   question,
-  usercode,
+  userCode,
   language,
 }) => {
   try {
     const res = await api.post("/api/judge/submit", {
       question,
-      usercode,
+      userCode,
       language,
     });
 
