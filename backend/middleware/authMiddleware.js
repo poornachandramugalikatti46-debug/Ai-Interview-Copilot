@@ -22,7 +22,16 @@ const authMiddleware = (req, res, next) => {
     }
 
     const token = parts[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      console.error("JWT_SECRET is missing in backend environment");
+      return res.status(500).json({
+        success: false,
+        message: "JWT_SECRET is not configured",
+      });
+    }
+
+    const decoded = jwt.verify(token, jwtSecret);
 
     req.user = decoded;
     next();
@@ -51,10 +60,19 @@ export const protect = async (req, res, next) => {
     }
 
     const token = authHeader.split(" ")[1];
+    const jwtSecret = process.env.JWT_SECRET;
+
+    if (!jwtSecret) {
+      console.error("JWT_SECRET is missing in backend environment");
+      return res.status(500).json({
+        success: false,
+        message: "JWT_SECRET is not configured",
+      });
+    }
 
     console.log("Token:", token);
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secret");
+    const decoded = jwt.verify(token, jwtSecret);
 
     console.log("Decoded:", decoded);
 

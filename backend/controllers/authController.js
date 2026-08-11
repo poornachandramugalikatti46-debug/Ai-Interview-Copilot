@@ -32,9 +32,18 @@ export const registerUser = async (req, res) => {
       experience: experience || "fresher",
     });
 
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      console.error("JWT_SECRET is missing in backend environment");
+      return res.status(500).json({
+        success: false,
+        message: "JWT_SECRET is not configured",
+      });
+    }
+
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET || "secret123",
+      jwtSecret,
       { expiresIn: "7d" }
     );
 
@@ -80,9 +89,18 @@ export const loginUser = async (req, res) => {
       });
     }
 
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      console.error("JWT_SECRET is missing in backend environment");
+      return res.status(500).json({
+        success: false,
+        message: "JWT_SECRET is not configured",
+      });
+    }
+
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET || "secret123",
+      jwtSecret,
       { expiresIn: "7d" }
     );
 
