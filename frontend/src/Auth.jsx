@@ -3,7 +3,7 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 
 /* ================= API ================= */
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
 export default function Auth({ setLoggedIn }) {
   const [mode, setMode] = useState("login");
