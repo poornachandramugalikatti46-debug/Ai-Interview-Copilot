@@ -21,6 +21,10 @@ const aiReviewSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    professionalism: {
+      type: Number,
+      default: 0,
+    },
     overall: {
       type: Number,
       default: 0,
@@ -41,6 +45,10 @@ const aiReviewSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    hiringRecommendation: {
+      type: String,
+      default: "Maybe",
+    },
   },
   { _id: false }
 );
@@ -57,6 +65,14 @@ const questionSchema = new mongoose.Schema(
     question: {
       type: String,
       required: true,
+    },
+    category: {
+      type: String,
+      default: "",
+    },
+    difficulty: {
+      type: String,
+      default: "",
     },
     answer: {
       type: String,
@@ -144,7 +160,7 @@ const hrInterviewSchema = new mongoose.Schema(
 /**
  * Calculate Duration Before Saving
  */
-hrInterviewSchema.pre("save", function (next) {
+hrInterviewSchema.pre("save", function () {
   if (this.completed && !this.completedAt) {
     this.completedAt = new Date();
 
@@ -152,8 +168,6 @@ hrInterviewSchema.pre("save", function (next) {
       (this.completedAt.getTime() - this.startedAt.getTime()) / 1000
     );
   }
-
-  next();
 });
 
 /**
@@ -163,7 +177,7 @@ hrInterviewSchema.virtual("averageCommunication").get(function () {
   if (!this.questions.length) return 0;
 
   const total = this.questions.reduce(
-    (sum, q) => sum + (q.aiReview.communication || 0),
+    (sum, q) => sum + (q.aiReview?.communication || 0),
     0
   );
 
@@ -177,7 +191,7 @@ hrInterviewSchema.virtual("averageGrammar").get(function () {
   if (!this.questions.length) return 0;
 
   const total = this.questions.reduce(
-    (sum, q) => sum + (q.aiReview.grammar || 0),
+    (sum, q) => sum + (q.aiReview?.grammar || 0),
     0
   );
 
@@ -191,7 +205,7 @@ hrInterviewSchema.virtual("averageConfidence").get(function () {
   if (!this.questions.length) return 0;
 
   const total = this.questions.reduce(
-    (sum, q) => sum + (q.aiReview.confidence || 0),
+    (sum, q) => sum + (q.aiReview?.confidence || 0),
     0
   );
 
@@ -205,7 +219,7 @@ hrInterviewSchema.virtual("averageRelevance").get(function () {
   if (!this.questions.length) return 0;
 
   const total = this.questions.reduce(
-    (sum, q) => sum + (q.aiReview.relevance || 0),
+    (sum, q) => sum + (q.aiReview?.relevance || 0),
     0
   );
 

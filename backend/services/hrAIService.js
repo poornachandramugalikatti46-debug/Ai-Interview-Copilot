@@ -1,414 +1,172 @@
-import Groq from "groq-sdk";
-
+﻿import Groq from "groq-sdk";
 
 let groq = null;
 
-
-
-function getGroqClient(){
-
-
-    if(!groq){
-
-        const apiKey =
-        process.env.GROQ_API_KEY;
-
-
-        if(!apiKey){
-
-            console.warn(
-              "GROQ_API_KEY missing"
-            );
-
-            return null;
-
-        }
-
-
-        groq =
-        new Groq({
-            apiKey
-        });
-
+function getGroqClient() {
+  if (!groq) {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      throw new Error("GROQ_API_KEY is missing in .env");
     }
 
+    groq = new Groq({ apiKey });
+  }
 
-    return groq;
-
+  return groq;
 }
 
-
-
-
-
-
-function cleanJSON(text){
-
-    return text
-    .replace(/```json/g,"")
-    .replace(/```/g,"")
+function cleanJSON(text) {
+  if (typeof text !== "string") return String(text || "");
+  return text
+    .replace(/```json/gi, "")
+    .replace(/```/g, "")
     .trim();
-
 }
 
+function clampScore(value) {
+  const parsed = Number(value);
+  if (Number.isNaN(parsed)) {
+    return 0;
+  }
+  return Math.max(0, Math.min(20, Math.round(parsed)));
+}
 
+function fallbackEvaluation() {
+  return {
+    communication: 14,
+    grammar: 14,
+    confidence: 14,
+    relevance: 14,
+    professionalism: 14,
+    strengths: ["Answer was understood and relevant."],
+    weaknesses: ["Could add more detail or examples."],
+    feedback: "The answer was acceptable, but please add more concrete examples and stronger structure.",
+    betterAnswer: "Provide a clear opening statement, describe your approach step-by-step, and include a specific result or lesson.",
+    hiringRecommendation: "Maybe",
+    score: 70,
+  };
+}
 
-
-
-
-
+function extractGroqResponse(completion) {
+  const choice = completion?.choices?.[0];
+  if (!choice) return null;
+  if (choice?.message?.content !== undefined) return choice.message.content;
+  if (choice?.text !== undefined) return choice.text;
+  return completion?.output_text;
+}
 
 /**
  * AI HR Answer Evaluation
  */
+export async function evaluateAnswer({ question, answer, role, experience }) {
+  let client;
+  try {
+    client = getGroqClient();
+  } catch (error) {
+    console.warn("Groq client unavailable, using fallback evaluation:", error.message);
+    return fallbackEvaluation();
+  }
 
+  const prompt = `You are a professional HR interviewer evaluating a candidate's answer.
 
-export async function evaluateAnswer({
-
-question,
-
-answer,
-
-role,
-
-experience
-
-}){
-
-
-try{
-
-
-const client =
-getGroqClient();
-
-
-
-if(!client){
-
-throw new Error(
-"GROQ API KEY missing"
-);
-
-}
-
-
-
-
-
-
-
-const prompt = `
-
-
-You are a professional HR interviewer.
-
-
-Analyze the candidate answer.
-
-
-Role:
-${role}
-
-
-Experience:
-${experience}
-
-
+Candidate Role: ${role}
+Experience: ${experience}
 
 Interview Question:
-
 ${question}
 
-
-
 Candidate Answer:
-
 ${answer}
 
+Please evaluate the answer and return ONLY valid JSON.
 
-
-Return ONLY JSON.
-
-Do not add markdown.
-
-Use this exact format:
-
-
-
+Use this exact structure:
 {
-
-"communication":15,
-
-"grammar":15,
-
-"confidence":15,
-
-"relevance":15,
-
-"professionalism":15,
-
-
-"strengths":[
-"strength 1"
-],
-
-
-"weaknesses":[
-"weakness 1"
-],
-
-
-"feedback":
-"detailed feedback",
-
-
-"betterAnswer":
-"improved answer example",
-
-
-"hiringRecommendation":
-"Strong Hire"
-
+  "communication": 0,
+  "grammar": 0,
+  "confidence": 0,
+  "relevance": 0,
+  "professionalism": 0,
+  "strengths": [],
+  "weaknesses": [],
+  "feedback": "",
+  "betterAnswer": "",
+  "hiringRecommendation": ""
 }
-
-
 
 Rules:
-
-
-Each score must be between 0 and 20.
-
-
-communication:
-How clearly candidate communicates.
-
-
-grammar:
-English correctness.
-
-
-confidence:
-Confidence shown in answer.
-
-
-relevance:
-How well answer matches question.
-
-
-professionalism:
-Corporate attitude.
-
-
-Hiring recommendation options:
-
-Strong Hire
-
-Hire
-
-Maybe
-
-Reject
-
-
+- Scores must be integers between 0 and 20.
+- Do not return markdown or extra text.
+- Do not use identical scores unless the answer genuinely deserves it.
+- Base scores on the actual candidate answer.
+- Short or off-topic answers should have lower relevance and confidence.
+- Grammar should reflect actual language quality.
+- Professionalism should reflect workplace tone.
+- Hiring recommendation must be one of: "Strong Hire", "Hire", "Maybe", "Reject".
 `;
 
-
-
-
-
-
-
-const completion =
-await client.chat.completions.create({
-
-
-model:
-"llama-3.3-70b-versatile",
-
-
-temperature:
-0.2,
-
-
-messages:[
-
-{
-
-role:"system",
-
-content:
-"You are an AI HR evaluation system."
-
-},
-
-
-{
-
-role:"user",
-
-content:prompt
-
-}
-
-
-]
-
-
-});
-
-
-
-
-
-
-
-
-let response =
-completion
-.choices[0]
-.message
-.content;
-
-
-
-response =
-cleanJSON(response);
-
-
-
-
-
-const result =
-JSON.parse(response);
-
-
-
-
-
-
-
-return {
-
-
-communication:
-Number(result.communication) || 0,
-
-
-grammar:
-Number(result.grammar) || 0,
-
-
-confidence:
-Number(result.confidence) || 0,
-
-
-relevance:
-Number(result.relevance) || 0,
-
-
-professionalism:
-Number(result.professionalism) || 0,
-
-
-
-strengths:
-result.strengths || [],
-
-
-
-weaknesses:
-result.weaknesses || [],
-
-
-
-feedback:
-result.feedback || "",
-
-
-
-betterAnswer:
-result.betterAnswer || "",
-
-
-
-hiringRecommendation:
-result.hiringRecommendation || "Maybe"
-
-
-};
-
-
-
-}
-catch(err){
-
-
-console.error(
-"HR AI ERROR:",
-err.message
-);
-
-
-
-
-
-// fallback
-
-return {
-
-
-communication:10,
-
-grammar:10,
-
-confidence:10,
-
-relevance:10,
-
-professionalism:10,
-
-
-
-strengths:[
-
-"Candidate attempted the answer"
-
-],
-
-
-
-weaknesses:[
-
-"Need more detailed explanation"
-
-],
-
-
-
-feedback:
-
-"AI evaluation failed. Please try again.",
-
-
-
-betterAnswer:
-
-"Use STAR method with clear examples.",
-
-
-
-hiringRecommendation:
-
-"Maybe"
-
-
-
-};
-
-
-}
-
-
-
+  let completion;
+  try {
+    completion = await client.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.3,
+      max_completion_tokens: 500,
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content: "You are an AI HR evaluation system. Return JSON only.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    });
+  } catch (error) {
+    console.error("Groq API evaluation error:", error);
+    return fallbackEvaluation();
+  }
+
+  const rawResponse = extractGroqResponse(completion);
+  if (!rawResponse) {
+    console.error("Empty Groq response", JSON.stringify(completion, null, 2));
+    return fallbackEvaluation();
+  }
+
+  let parsed;
+  if (typeof rawResponse === "object") {
+    parsed = rawResponse;
+  } else {
+    const response = cleanJSON(rawResponse);
+    try {
+      parsed = JSON.parse(response);
+    } catch (error) {
+      console.error("Invalid Groq JSON:", response);
+      console.error("Groq completion object:", JSON.stringify(completion, null, 2));
+      return fallbackEvaluation();
+    }
+  }
+
+  const evaluation = {
+    communication: clampScore(parsed.communication),
+    grammar: clampScore(parsed.grammar),
+    confidence: clampScore(parsed.confidence),
+    relevance: clampScore(parsed.relevance),
+    professionalism: clampScore(parsed.professionalism),
+    strengths: Array.isArray(parsed.strengths) ? parsed.strengths : [],
+    weaknesses: Array.isArray(parsed.weaknesses) ? parsed.weaknesses : [],
+    feedback: parsed.feedback || "",
+    betterAnswer: parsed.betterAnswer || parsed.betterAnswer || "",
+    hiringRecommendation: parsed.hiringRecommendation || parsed.recommendation || "Maybe",
+  };
+
+  evaluation.score =
+    evaluation.communication +
+    evaluation.grammar +
+    evaluation.confidence +
+    evaluation.relevance +
+    evaluation.professionalism;
+
+  return evaluation;
 }

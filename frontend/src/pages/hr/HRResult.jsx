@@ -76,8 +76,10 @@ Authorization:
 
 
 
+const data = res.data.report || res.data.interview || res.data;
+
 setReport(
-res.data.interview
+data
 );
 
 

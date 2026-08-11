@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "category": "Introduction",
+    "difficulty": "Easy",
+    "question": "Tell me about yourself."
+  },
+  {
+    "id": 2,
+    "category": "Communication",
+    "difficulty": "Easy",
+    "question": "Describe a time when you had to explain a technical concept to a non-technical person."
+  },
+  {
+    "id": 3,
+    "category": "Behavioral",
+    "difficulty": "Easy",
+    "question": "Tell me about a challenge you faced at work and how you handled it."
+  },
+  {
+    "id": 4,
+    "category": "Teamwork",
+    "difficulty": "Easy",
+    "question": "Describe a time when you worked successfully in a team."
+  },
+  {
+    "id": 5,
+    "category": "Behavioral",
+    "difficulty": "Easy",
+    "question": "How do you handle criticism or feedback?"
+  },
+  {
+    "id": 6,
+    "category": "Career Growth",
+    "difficulty": "Easy",
+    "question": "What motivated you to pursue this field and what have you learned so far?"
+  },
+  {
+    "id": 7,
+    "category": "Personal",
+    "difficulty": "Easy",
+    "question": "What is your biggest strength and how does it help your work?"
+  },
+  {
+    "id": 8,
+    "category": "Personal",
+    "difficulty": "Easy",
+    "question": "What is one weakness you are currently improving and how?"
+  },
+  {
+    "id": 9,
+    "category": "Career Growth",
+    "difficulty": "Easy",
+    "question": "Where do you see yourself in five years?"
+  },
+  {
+    "id": 10,
+    "category": "Problem Solving",
+    "difficulty": "Medium",
+    "question": "How do you prioritize work when multiple tasks are urgent?"
+  },
+  {
+    "id": 11,
+    "category": "Projects",
+    "difficulty": "Medium",
+    "question": "Tell me about a project you are proud of and your role in it."
+  },
+  {
+    "id": 12,
+    "category": "Behavioral",
+    "difficulty": "Medium",
+    "question": "Tell me about a time you received feedback and how you acted on it."
+  },
+  {
+    "id": 13,
+    "category": "Leadership",
+    "difficulty": "Medium",
+    "question": "Describe a time when you led others to success."
+  },
+  {
+    "id": 14,
+    "category": "Communication",
+    "difficulty": "Medium",
+    "question": "How do you keep your team informed during a challenging project?"
+  },
+  {
+    "id": 15,
+    "category": "Problem Solving",
+    "difficulty": "Medium",
+    "question": "How do you approach solving a problem that has no clear answer?"
+  },
+  {
+    "id": 16,
+    "category": "Experience",
+    "difficulty": "Hard",
+    "question": "How do you approach solving a difficult problem under a tight deadline?"
+  },
+  {
+    "id": 17,
+    "category": "Leadership",
+    "difficulty": "Hard",
+    "question": "Describe a time when you took ownership of a project and led others to success."
+  },
+  {
+    "id": 18,
+    "category": "Adaptability",
+    "difficulty": "Hard",
+    "question": "Describe a time when you had to adapt quickly to changing priorities."
+  },
+  {
+    "id": 19,
+    "category": "Quality",
+    "difficulty": "Hard",
+    "question": "How do you ensure quality and accuracy in your work under pressure?"
+  },
+  {
+    "id": 20,
+    "category": "Judgment",
+    "difficulty": "Hard",
+    "question": "What would you do if you disagreed with your manager on a technical approach?"
+  }
+]

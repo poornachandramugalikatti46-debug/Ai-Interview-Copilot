@@ -103,32 +103,59 @@ export default function HRInterview() {
       const persistedInterview = localStorage.getItem("activeHRInterview");
       const pendingInterviewId = interviewId || (persistedInterview ? JSON.parse(persistedInterview)._id : "");
 
+      console.log("========== SAVE HR ANSWER ==========");
       console.log("Interview ID:", pendingInterviewId);
+      console.log("Current Index:", currentIndex);
+      console.log("Answer:", answer);
+      console.log("Current Question:", currentQuestion);
 
       if (!pendingInterviewId) {
         alert("Interview ID is missing");
-        return;
+        return false;
       }
 
-      const questionId = currentQuestion?.id ?? currentQuestion?.questionId ?? null;
+      if (!currentQuestion) {
+        alert("Current question is missing. Please restart the interview.");
+        return false;
+      }
+
+      const questionId =
+        currentQuestion.questionId ||
+        currentQuestion._id ||
+        currentQuestion.id ||
+        null;
+
+      if (!questionId) {
+        console.error("Question ID is missing", currentQuestion);
+        alert("Unable to save answer because the current question has no ID.");
+        return false;
+      }
+
+      if (!answer || !answer.trim()) {
+        alert("Please enter your answer before continuing.");
+        return false;
+      }
+
       await axios.post(
         `${API}/answer`,
         {
           interviewId: pendingInterviewId,
           questionIndex: currentIndex,
           questionId,
-          question: currentQuestion?.question || "",
-          answer,
+          question: currentQuestion.question || "",
+          answer: answer.trim(),
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setAutoSaveStatus("Saved");
       setTimeout(() => setAutoSaveStatus(""), 2000);
+      return true;
     } catch (err) {
       console.log("Status:", err.response?.status);
       console.log("Response:", err.response?.data);
       console.error("Save Answer Error:", err);
+      return false;
     } finally {
       setSaving(false);
     }
@@ -136,22 +163,28 @@ export default function HRInterview() {
 
   // Navigation handlers
   const handleNext = async () => {
-    await saveCurrentAnswer();
+    const saved = await saveCurrentAnswer();
+    if (!saved) return;
     if (currentIndex < questions.length - 1) setCurrentIndex((i) => i + 1);
   };
 
   const handlePrevious = async () => {
-    await saveCurrentAnswer();
+    const saved = await saveCurrentAnswer();
+    if (!saved) return;
     if (currentIndex > 0) setCurrentIndex((i) => i - 1);
   };
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
+    const saved = await saveCurrentAnswer();
+    if (!saved) return;
     if (currentIndex < questions.length - 1) setCurrentIndex((i) => i + 1);
   };
 
   const handleFinish = async () => {
     try {
-      await saveCurrentAnswer();
+      const saved = await saveCurrentAnswer();
+      if (!saved) return;
+
       const token = localStorage.getItem("token");
       const persistedInterview = localStorage.getItem("activeHRInterview");
       const pendingInterviewId = interviewId || (persistedInterview ? JSON.parse(persistedInterview)._id : "");

@@ -1,4 +1,4 @@
-import hrQuestions from "../data/hrQuestions.json" with { type: "json" };
+﻿import hrQuestions from "../data/hrQuestions.json" with { type: "json" };
 
 /**
  * Shuffle array using Fisher-Yates algorithm
@@ -8,7 +8,6 @@ function shuffle(array) {
 
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
 
@@ -20,161 +19,24 @@ function shuffle(array) {
  */
 function normalizeDifficulty(level) {
   if (!level) return "Medium";
-
-  const map = {
+  return {
     easy: "Easy",
     medium: "Medium",
     hard: "Hard",
-  };
-
-  return map[level.toLowerCase()] || "Medium";
-}
-
-/**
- * Role Categories Mapping
- */
-const ROLE_CATEGORIES = {
-  "Frontend Developer": [
-    "Introduction",
-    "Projects",
-    "Communication",
-    "Teamwork",
-    "Problem Solving",
-    "Behavioral",
-  ],
-
-  "Backend Developer": [
-    "Projects",
-    "Problem Solving",
-    "Leadership",
-    "Behavioral",
-    "Communication",
-  ],
-
-  "Full Stack Developer": [
-    "Projects",
-    "Behavioral",
-    "Leadership",
-    "Problem Solving",
-    "Teamwork",
-    "Communication",
-  ],
-
-  "Data Analyst": [
-    "Problem Solving",
-    "Behavioral",
-    "Projects",
-    "Communication",
-  ],
-
-  "UI/UX Designer": [
-    "Projects",
-    "Communication",
-    "Innovation",
-    "Behavioral",
-  ],
-
-  "Software Engineer": [
-    "Projects",
-    "Leadership",
-    "Behavioral",
-    "Problem Solving",
-    "Communication",
-  ],
-};
-
-/**
- * Experience Categories
- */
-function getExperienceCategories(experience) {
-  switch (experience) {
-    case "Fresher":
-      return [
-        "Freshers",
-        "Campus Placement",
-        "Internship",
-        "Learning Mindset",
-      ];
-
-    case "1-3 Years":
-      return [
-        "Projects",
-        "Behavioral",
-        "Problem Solving",
-        "Career Growth",
-      ];
-
-    case "3-5 Years":
-      return [
-        "Leadership",
-        "Managerial",
-        "Case Study",
-        "Decision Making",
-      ];
-
-    default:
-      return [
-        "Leadership",
-        "Executive HR",
-        "Case Study",
-      ];
-  }
+  }[String(level).toLowerCase()] || "Medium";
 }
 
 /**
  * Generate Interview Questions
  */
-export function generateQuestions({
-  role,
-  difficulty,
-  experience,
-  totalQuestions = 10,
-}) {
-  difficulty = normalizeDifficulty(difficulty);
+export function generateQuestions({ role, difficulty, experience, totalQuestions = 10 }) {
+  const count = Math.max(1, Number(totalQuestions) || 10);
+  const normalizedDifficulty = normalizeDifficulty(difficulty);
 
-  let pool = [...hrQuestions];
+  const primaryPool = hrQuestions.filter((q) => q.difficulty === normalizedDifficulty);
+  const fallbackPool = hrQuestions.filter((q) => q.difficulty !== normalizedDifficulty);
 
-  // Difficulty Filter
-  pool = pool.filter((q) => q.difficulty === difficulty);
-
-  // Role Filter
-  const roleCategories =
-    ROLE_CATEGORIES[role] || [];
-
-  if (roleCategories.length) {
-    pool = pool.filter((q) =>
-      roleCategories.includes(q.category)
-    );
-  }
-
-  // Experience Filter
-  const expCategories =
-    getExperienceCategories(experience);
-
-  pool = [
-    ...pool,
-    ...hrQuestions.filter((q) =>
-      expCategories.includes(q.category)
-    ),
-  ];
-
-  // Remove duplicate IDs
-  const unique = [];
-
-  const ids = new Set();
-
-  for (const q of pool) {
-    if (!ids.has(q.id)) {
-      ids.add(q.id);
-
-      unique.push(q);
-    }
-  }
-
-  // Shuffle
-  const shuffled = shuffle(unique);
-
-  return shuffled.slice(0, totalQuestions);
+  return shuffle([...primaryPool, ...fallbackPool]).slice(0, Math.min(count, hrQuestions.length));
 }
 
 /**
@@ -188,11 +50,7 @@ export function getRandomQuestions(count = 10) {
  * By Category
  */
 export function getQuestionsByCategory(category) {
-  return hrQuestions.filter(
-    (q) =>
-      q.category.toLowerCase() ===
-      category.toLowerCase()
-  );
+  return hrQuestions.filter((q) => q.category.toLowerCase() === category.toLowerCase());
 }
 
 /**
@@ -200,28 +58,21 @@ export function getQuestionsByCategory(category) {
  */
 export function getQuestionsByDifficulty(level) {
   level = normalizeDifficulty(level);
-
-  return hrQuestions.filter(
-    (q) => q.difficulty === level
-  );
+  return hrQuestions.filter((q) => q.difficulty === level);
 }
 
 /**
  * Single Question
  */
 export function getQuestionById(id) {
-  return hrQuestions.find(
-    (q) => q.id === Number(id)
-  );
+  return hrQuestions.find((q) => q.id === Number(id));
 }
 
 /**
  * Categories List
  */
 export function getAllCategories() {
-  return [
-    ...new Set(hrQuestions.map((q) => q.category)),
-  ].sort();
+  return [...new Set(hrQuestions.map((q) => q.category))].sort();
 }
 
 /**
@@ -240,9 +91,7 @@ export function getQuestionStats() {
     if (q.difficulty === "Easy") stats.easy++;
     if (q.difficulty === "Medium") stats.medium++;
     if (q.difficulty === "Hard") stats.hard++;
-
-    stats.categories[q.category] =
-      (stats.categories[q.category] || 0) + 1;
+    stats.categories[q.category] = (stats.categories[q.category] || 0) + 1;
   });
 
   return stats;
