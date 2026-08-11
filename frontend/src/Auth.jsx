@@ -3,7 +3,7 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 
 /* ================= API ================= */
-const API = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
+import api from "./api/axios";
 
 export default function Auth({ setLoggedIn }) {
   const [mode, setMode] = useState("login");
@@ -29,8 +29,8 @@ export default function Auth({ setLoggedIn }) {
     try {
       setLoading(true);
 
-      const res = await axios.post(
-        `${API}/api/auth/login`,
+      const res = await api.post(
+        `/auth/login`,
         {
           email: form.email.trim().toLowerCase(),
           password: form.password,
@@ -63,8 +63,8 @@ export default function Auth({ setLoggedIn }) {
     try {
       setLoading(true);
 
-      const res = await axios.post(
-        `${API}/api/auth/register`,
+      const res = await api.post(
+        `/auth/register`,
         {
           fullname: form.fullname.trim(),
           email: form.email.trim().toLowerCase(),
