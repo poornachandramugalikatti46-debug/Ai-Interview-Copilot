@@ -2,12 +2,23 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
+// ===============================
+// REGISTER
+// ===============================
 export const registerUser = async (req, res) => {
   try {
-    const { fullname, email, password, role, experience } = req.body;
-    const normalizedEmail = email?.trim().toLowerCase();
+    console.log("========== REGISTER ==========");
+    console.log("BODY:", req.body);
 
-    await import("../config/db.js").then(({ default: connectDB }) => connectDB());
+    const {
+      fullname,
+      email,
+      password,
+      role,
+      experience,
+    } = req.body;
+
+    const normalizedEmail = email?.trim().toLowerCase();
 
     if (!fullname || !normalizedEmail || !password) {
       return res.status(400).json({
@@ -16,7 +27,17 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    const existingUser = await User.findOne({ email: normalizedEmail });
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters",
+      });
+    }
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    });
+
     if (existingUser) {
       return res.status(409).json({
         success: false,
@@ -24,8 +45,11 @@ export const registerUser = async (req, res) => {
       });
     }
 
+    // IMPORTANT:
+    // Do NOT bcrypt.hash here.
+    // User schema pre-save middleware will hash it.
     const user = await User.create({
-      fullname,
+      fullname: fullname.trim(),
       email: normalizedEmail,
       password,
       role: role || "user",
@@ -33,8 +57,9 @@ export const registerUser = async (req, res) => {
     });
 
     const jwtSecret = process.env.JWT_SECRET;
+
     if (!jwtSecret) {
-      console.error("JWT_SECRET is missing in backend environment");
+      console.error("❌ JWT_SECRET missing");
       return res.status(500).json({
         success: false,
         message: "JWT_SECRET is not configured",
@@ -42,10 +67,17 @@ export const registerUser = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      {
+        id: user._id.toString(),
+        role: user.role,
+      },
       jwtSecret,
-      { expiresIn: "7d" }
+      {
+        expiresIn: "7d",
+      }
     );
+
+    console.log("✅ REGISTER SUCCESS:", user.email);
 
     return res.status(201).json({
       success: true,
@@ -54,6 +86,8 @@ export const registerUser = async (req, res) => {
       user,
     });
   } catch (error) {
+    console.error("❌ REGISTER ERROR:", error);
+
     return res.status(500).json({
       success: false,
       message: error.message || "Registration failed",
@@ -61,9 +95,19 @@ export const registerUser = async (req, res) => {
   }
 };
 
+// ===============================
+// LOGIN
+// ===============================
 export const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    console.log("========== LOGIN ==========");
+    console.log("LOGIN BODY:", req.body);
+
+    const {
+      email,
+      password,
+    } = req.body;
+
     const normalizedEmail = email?.trim().toLowerCase();
 
     if (!normalizedEmail || !password) {
@@ -73,25 +117,42 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email: normalizedEmail });
+    console.log("Searching user:", normalizedEmail);
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+    });
+
     if (!user) {
+      console.log("❌ USER NOT FOUND:", normalizedEmail);
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials",
+        message: "Invalid email or password",
       });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    console.log("✅ USER FOUND:", user.email);
+    console.log("Password hash exists:", !!user.password);
+
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
+
+    console.log("Password match:", isMatch);
+
     if (!isMatch) {
+      console.log("❌ PASSWORD DOES NOT MATCH");
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials",
+        message: "Invalid email or password",
       });
     }
 
     const jwtSecret = process.env.JWT_SECRET;
+
     if (!jwtSecret) {
-      console.error("JWT_SECRET is missing in backend environment");
+      console.error("❌ JWT_SECRET missing");
       return res.status(500).json({
         success: false,
         message: "JWT_SECRET is not configured",
@@ -99,18 +160,30 @@ export const loginUser = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      {
+        id: user._id.toString(),
+        role: user.role,
+      },
       jwtSecret,
-      { expiresIn: "7d" }
+      {
+        expiresIn: "7d",
+      }
     );
 
-    return res.json({
+    user.lastLogin = new Date();
+    await user.save();
+
+    console.log("✅ LOGIN SUCCESS:", user.email);
+
+    return res.status(200).json({
       success: true,
       message: "Login successful",
       token,
       user,
     });
   } catch (error) {
+    console.error("❌ LOGIN ERROR:", error);
+
     return res.status(500).json({
       success: false,
       message: error.message || "Login failed",
@@ -118,53 +191,133 @@ export const loginUser = async (req, res) => {
   }
 };
 
+// ===============================
+// CURRENT USER
+// ===============================
 export const getCurrentUser = async (req, res) => {
-  return res.json({
-    success: true,
-    user: req.user,
-  });
-};
-
-export const updateProfile = async (req, res) => {
   try {
-    const { fullname, experience, role } = req.body;
-    const user = await User.findById(req.user.id);
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-
-    if (fullname) user.fullname = fullname;
-    if (experience) user.experience = experience;
-    if (role) user.role = role;
-
-    await user.save();
-
-    return res.json({ success: true, user });
+    return res.json({
+      success: true,
+      user: req.user,
+    });
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message || "Profile update failed" });
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
-export const changePassword = async (req, res) => {
+// ===============================
+// UPDATE PROFILE
+// ===============================
+export const updateProfile = async (req, res) => {
   try {
-    const { currentPassword, newPassword } = req.body;
-    const user = await User.findById(req.user.id);
+    const {
+      fullname,
+      experience,
+      role,
+    } = req.body;
+
+    const user = await User.findById(req.user._id);
 
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
     }
 
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ success: false, message: "Current password is incorrect" });
+    if (fullname) {
+      user.fullname = fullname.trim();
     }
 
-    user.password = await bcrypt.hash(newPassword, 10);
+    if (experience) {
+      user.experience = experience;
+    }
+
+    if (role) {
+      user.role = role;
+    }
+
     await user.save();
 
-    return res.json({ success: true, message: "Password updated successfully" });
+    return res.json({
+      success: true,
+      user,
+    });
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message || "Password change failed" });
+    console.error("UPDATE PROFILE ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ===============================
+// CHANGE PASSWORD
+// ===============================
+export const changePassword = async (req, res) => {
+  try {
+    const {
+      currentPassword,
+      newPassword,
+    } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password and new password are required",
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be at least 6 characters",
+      });
+    }
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Current password is incorrect",
+      });
+    }
+
+    // IMPORTANT:
+    // Just assign the password.
+    // User schema pre-save will hash it.
+    user.password = newPassword;
+
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    console.error("CHANGE PASSWORD ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
