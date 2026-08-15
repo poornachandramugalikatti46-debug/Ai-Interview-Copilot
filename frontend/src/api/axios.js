@@ -1,16 +1,20 @@
 import axios from "axios";
 
+export const getApiOrigin = () => {
+  const raw = (import.meta.env.VITE_API_URL || "http://localhost:5000").trim();
+  return raw.replace(/\/$/, "").replace(/\/api$/, "");
+};
+
+export const getApiBase = () => {
+  return `${getApiOrigin()}/api`;
+};
+
 /* =========================
    BASE API INSTANCE
 ========================= */
 
-const apiOrigin = (import.meta.env.VITE_API_URL || "http://localhost:5000")
-  .replace(/\/$/, "");
-
-const baseUrl = apiOrigin.endsWith("/api") ? apiOrigin : `${apiOrigin}/api`;
-
 const api = axios.create({
-  baseURL: baseUrl,
+  baseURL: getApiBase(),
   withCredentials: true,
 });
 
