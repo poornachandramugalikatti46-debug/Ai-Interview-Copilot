@@ -11,7 +11,6 @@ const API = axios.create({
   },
 });
 
-// Add JWT token to every request
 API.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -26,29 +25,15 @@ API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Handle API responses/errors
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    const status = error.response?.status;
-    const url = error.config?.url || "";
-
-    console.error("[API ERROR]", status, url, error.response?.data);
-
-    const isAuthRoute =
-      url.includes("/auth/login") ||
-      url.includes("/auth/register") ||
-      url.includes("/auth/send-otp") ||
-      url.includes("/auth/forgot-password");
-
-    if (status === 401 && !isAuthRoute) {
-      console.warn("Unauthorized - redirecting to login");
-
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-
-      window.location.href = "/";
-    }
+    console.error(
+      "[API ERROR]",
+      error.response?.status,
+      error.config?.url,
+      error.response?.data
+    );
 
     return Promise.reject(error);
   }
