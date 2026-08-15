@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+import useLivePractice from "../../hooks/useLivePractice";
 import ProgressBar from "./ProgressBar";
 import Timer from "./Timer";
 import QuestionCard from "./QuestionCard";
@@ -11,6 +12,8 @@ import VoiceRecorder from "./VoiceRecorder";
 const API = "http://localhost:5000/api/hr";
 
 export default function HRInterview() {
+  useLivePractice("hr-interview");
+
   const navigate = useNavigate();
   const location = useLocation();
 

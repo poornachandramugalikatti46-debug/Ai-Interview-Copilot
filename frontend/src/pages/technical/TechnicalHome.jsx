@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
 import { Code2, Brain, Trophy, PlayCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import useLivePractice from "../../hooks/useLivePractice";
 
 export default function TechnicalInterview({setCurrentPage}) {
+  useLivePractice("technical-interview");
+
   const navigate = useNavigate();
 
   const features = [

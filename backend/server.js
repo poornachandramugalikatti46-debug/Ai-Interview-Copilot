@@ -1,6 +1,6 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
 import connectDB from "./config/db.js";
@@ -9,7 +9,7 @@ import aiRoutes from "./routes/ai.js";
 import resumeRoutes from "./routes/resume.js";
 import adminRoutes from "./routes/admin.js";
 import settingsRoutes from "./routes/settings.js";
-import analyticsRoutes from "./routes/analytics.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
 import interviewRoutes from "./routes/interviewRoutes.js";
 import technicalInterviewRoutes from "./routes/technicalInterviewRoutes.js";
 import judgeRoutes from "./routes/judgeRoutes.js";
@@ -20,8 +20,10 @@ import reportRoutes from "./routes/reportRoutes.js";
 import aiReviewRoutes from "./routes/aiReviewRoutes.js";
 import mockInterviewRoutes from "./routes/mockInterviewRoutes.js";
 import hrRoutes from "./routes/hrRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
 import path from "path";
-dotenv.config();
+import resumeInterviewRoutes from "./routes/resumeInterviewRoutes.js";
+import { setupAnalyticsSocket } from "./sockets/analyticsSocket.js";
 
 const app = express();
 
@@ -77,7 +79,9 @@ app.use("/api/mock", mockInterviewRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/hr", hrRoutes);
+app.use("/api/chat", chatRoutes);
 app.use("/uploads", express.static(path.join("uploads")));
+app.use("/api/resume-interview", resumeInterviewRoutes);
 
 app.get("/", (req, res) => {
   res.json({
@@ -101,6 +105,8 @@ const startServer = (port) => {
     },
     path: "/socket.io",
   });
+
+  setupAnalyticsSocket(io);
 
   io.on("connection", (socket) => {
     console.log("🔌 Socket connected:", socket.id);

@@ -1,4 +1,4 @@
-import Interview from "../models/Interview.js";
+import TechnicalInterview from "../models/TechnicalInterview.js";
 import InterviewSession from "../models/InterviewSession.js";
 import Question from "../models/Question.js";
 
@@ -17,58 +17,207 @@ export const startInterview = async (req, res) => {
       topic,
       count,
       duration,
+      company,
     } = req.body;
 
-    console.log('--- startInterview debug ---');
-    console.log('req.body:', req.body);
+    console.log("=================================");
+    console.log("🚀 START TECHNICAL INTERVIEW");
+    console.log("=================================");
+    console.log("BODY:", req.body);
+    console.log("USER:", req.user);
+
+    // -----------------------------
+    // VALIDATION
+    // -----------------------------
+    if (!role || !difficulty) {
+      return res.status(400).json({
+        success: false,
+        message: "Role and difficulty are required",
+      });
+    }
+
+    const requested = Number(count) || 5;
+
+    // -----------------------------
+    // BUILD QUESTION FILTER
+    // -----------------------------
     const filter = {
       role,
       difficulty,
       isActive: true,
     };
 
-    // Treat generic selections like 'Mixed', 'All', or 'Any' as no topic filter
-    if (topic && !["mixed", "all", "any"].includes(String(topic).toLowerCase())) {
+    // Mixed / All / Any = don't filter topic
+    if (
+      topic &&
+      !["mixed", "all", "any"].includes(
+        String(topic).toLowerCase()
+      )
+    ) {
       filter.topic = topic;
     }
 
-    if (language) filter.language = language;
+    // Language filter
+    if (language) {
+      filter.language = language;
+    }
 
-    console.log('filter:', filter, 'count:', count);
+    console.log("🔎 QUESTION FILTER:", filter);
+    console.log("🔢 REQUESTED QUESTIONS:", requested);
+
+    // -----------------------------
+    // CHECK AVAILABLE QUESTIONS
+    // -----------------------------
+    let available = await Question.countDocuments(filter);
+
+    console.log("📚 EXACT QUESTIONS FOUND:", available);
+
+    // If exact filter has no questions,
+    // try without language.
+    if (available === 0 && language) {
+      console.log(
+        "⚠️ No exact questions. Trying without language..."
+      );
+
+      delete filter.language;
+
+      available = await Question.countDocuments(filter);
+
+      console.log(
+        "📚 QUESTIONS WITHOUT LANGUAGE FILTER:",
+        available
+      );
+    }
+
+    // Still no questions
+    if (available === 0) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "No questions available for the selected role and difficulty.",
+        filter,
+      });
+    }
+
+    // -----------------------------
+    // SELECT RANDOM QUESTIONS
+    // -----------------------------
+    const sampleSize = Math.min(
+      Math.max(1, requested),
+      available
+    );
+
+    console.log("🎯 SAMPLE SIZE:", sampleSize);
 
     const questions = await Question.aggregate([
-      { $match: filter },
-      { $sample: { size: Number(count) } },
+      {
+        $match: filter,
+      },
+      {
+        $sample: {
+          size: sampleSize,
+        },
+      },
     ]);
+
+    console.log(
+      "✅ QUESTIONS SELECTED:",
+      questions.length
+    );
 
     if (!questions.length) {
       return res.status(404).json({
         success: false,
-        message: "No questions found",
+        message: "Unable to select interview questions.",
       });
     }
 
-    const interview = await Interview.create({
+    // -----------------------------
+    // CREATE INTERVIEW
+    // -----------------------------
+    console.log("📝 Creating interview...");
+
+    const interviewQuestions = questions.map((q, index) => ({
+      questionId: index + 1,
+      questionDbId: q._id,
+      title: q.title || "",
+      question: q.description || q.title || "",
+      description: q.description || "",
+      role: q.role || role,
+      topic: q.topic || "",
+      difficulty: q.difficulty || difficulty,
+      language: q.language || [],
+      examples: q.examples || [],
+      constraints: q.constraints || [],
+      starterCode: q.starterCode || {},
+      testCases: q.testCases || [],
+      solution: q.solution || {},
+      userAnswer: "",
+      submitted: false,
+      score: 0,
+    }));
+
+    const interviewData = {
       user: req.user._id,
       role,
       difficulty,
-      language,
-      topic,
-      duration,
+      language: language || "",
+      topic: topic || "Mixed",
+      duration: Number(duration) || 30,
       totalQuestions: questions.length,
       maxScore: questions.length * 100,
-      questions: questions.map((q) => q._id),
-    });
+      questions: interviewQuestions,
+    };
 
-    res.status(201).json({
+    console.log(
+      "📦 INTERVIEW DATA:",
+      interviewData
+    );
+
+    const interview = await TechnicalInterview.create(
+      interviewData
+    );
+
+    console.log(
+      "🎉 INTERVIEW CREATED:",
+      interview._id
+    );
+
+    // -----------------------------
+    // RESPONSE
+    // -----------------------------
+    return res.status(201).json({
       success: true,
+      message:
+        "Technical interview started successfully",
       interviewId: interview._id,
-      questions,
+      // IMPORTANT:
+      // Return the questions stored inside
+      // the actual interview document.
+      questions: interview.questions,
+      totalQuestions:
+        interview.questions.length,
+      duration:
+        Number(duration) || 30,
+      company:
+        company || "Random",
+      role,
+      difficulty,
+      language,
+      topic: topic || "Mixed",
     });
   } catch (err) {
-    res.status(500).json({
+    console.error("=================================");
+    console.error("❌ START INTERVIEW ERROR");
+    console.error("=================================");
+    console.error(err);
+    console.error("MESSAGE:", err.message);
+    console.error("STACK:", err.stack);
+
+    return res.status(500).json({
       success: false,
       message: err.message,
+      error: err.name,
     });
   }
 };
@@ -81,9 +230,7 @@ GET INTERVIEW
 
 export const getInterview = async (req, res) => {
   try {
-    const interview = await Interview.findById(req.params.id)
-      .populate("questions")
-      .populate("answers.question");
+    const interview = await TechnicalInterview.findById(req.params.id);
 
     if (!interview) {
       return res.status(404).json({
@@ -112,9 +259,9 @@ SAVE CODE
 
 export const saveCode = async (req, res) => {
   try {
-    const { questionId, language, code } = req.body;
+    const { questionId, code } = req.body;
 
-    const interview = await Interview.findById(req.params.id);
+    const interview = await TechnicalInterview.findById(req.params.id);
 
     if (!interview) {
       return res.status(404).json({
@@ -122,19 +269,21 @@ export const saveCode = async (req, res) => {
       });
     }
 
-    const index = interview.answers.findIndex(
-      (a) => a.question.toString() === questionId
+    const index = interview.questions.findIndex(
+      (q) =>
+        q.questionId === Number(questionId) ||
+        q.questionDbId?.toString() === questionId
     );
 
     if (index === -1) {
-      interview.answers.push({
-        question: questionId,
-        language,
-        code,
+      return res.status(404).json({
+        success: false,
+        message: "Question not found in this interview",
       });
-    } else {
-      interview.answers[index].code = code;
     }
+
+    interview.questions[index].userAnswer = code;
+    interview.questions[index].submitted = false;
 
     await interview.save();
 
@@ -158,7 +307,7 @@ NEXT QUESTION
 
 export const nextQuestion = async (req, res) => {
   try {
-    const interview = await Interview.findById(req.params.id);
+    const interview = await TechnicalInterview.findById(req.params.id);
 
     if (!interview) {
       return res.status(404).json({
@@ -192,7 +341,7 @@ PREVIOUS QUESTION
 
 export const previousQuestion = async (req, res) => {
   try {
-    const interview = await Interview.findById(req.params.id);
+    const interview = await TechnicalInterview.findById(req.params.id);
 
     if (!interview) {
       return res.status(404).json({
@@ -226,7 +375,7 @@ FINISH INTERVIEW
 
 export const finishInterview = async (req, res) => {
   try {
-    const interview = await Interview.findById(req.params.id);
+    const interview = await TechnicalInterview.findById(req.params.id);
 
     if (!interview) {
       return res.status(404).json({
@@ -236,18 +385,18 @@ export const finishInterview = async (req, res) => {
 
     let total = 0;
 
-    interview.answers.forEach((a) => {
-      total += a.score;
+    interview.questions.forEach((q) => {
+      total += q.score || 0;
     });
 
-    interview.totalScore = total;
+    interview.score = total;
     interview.percentage =
-      interview.maxScore > 0
-        ? (total / interview.maxScore) * 100
+      interview.totalQuestions > 0
+        ? (total / (interview.totalQuestions * 100)) * 100
         : 0;
 
     interview.completedAt = new Date();
-    interview.status = "Completed";
+    interview.completed = true;
 
     await interview.save();
 

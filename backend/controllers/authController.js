@@ -45,15 +45,21 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    // IMPORTANT:
-    // Do NOT bcrypt.hash here.
-    // User schema pre-save middleware will hash it.
+    // Hash password EXPLICITLY before storing
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    console.log("🔐 PASSWORD HASHED:", hashedPassword.substring(0, 20) + "...");
+
     const user = await User.create({
       fullname: fullname.trim(),
       email: normalizedEmail,
-      password,
+      password: hashedPassword,
       role: role || "user",
       experience: experience || "fresher",
+      gender: req.body.gender || "",
+      education: req.body.education || "",
+      location: req.body.location || "",
+      phone: req.body.phone || "",
     });
 
     const jwtSecret = process.env.JWT_SECRET;
@@ -83,7 +89,18 @@ export const registerUser = async (req, res) => {
       success: true,
       message: "Registered successfully",
       token,
-      user,
+      user: {
+        id: user._id,
+        name: user.fullname,
+        fullname: user.fullname,
+        email: user.email,
+        gender: user.gender || "",
+        education: user.education || "",
+        location: user.location || "",
+        phone: user.phone || "",
+        role: user.role,
+        experience: user.experience,
+      },
     });
   } catch (error) {
     console.error("❌ REGISTER ERROR:", error);
@@ -134,12 +151,23 @@ export const loginUser = async (req, res) => {
     console.log("✅ USER FOUND:", user.email);
     console.log("Password hash exists:", !!user.password);
 
+    console.log(
+      "🔑 PASSWORD FROM DB:",
+      user.password.substring(0, 20) + "..."
+    );
+
     const isMatch = await bcrypt.compare(
       password,
       user.password
     );
 
-    console.log("Password match:", isMatch);
+    console.log("🔐 Password match:", isMatch);
+    console.log(
+      "🔍 Comparing:",
+      password,
+      "vs",
+      user.password.substring(0, 30) + "..."
+    );
 
     if (!isMatch) {
       console.log("❌ PASSWORD DOES NOT MATCH");
@@ -179,7 +207,18 @@ export const loginUser = async (req, res) => {
       success: true,
       message: "Login successful",
       token,
-      user,
+      user: {
+        id: user._id,
+        name: user.fullname,
+        fullname: user.fullname,
+        email: user.email,
+        gender: user.gender || "",
+        education: user.education || "",
+        location: user.location || "",
+        phone: user.phone || "",
+        role: user.role,
+        experience: user.experience,
+      },
     });
   } catch (error) {
     console.error("❌ LOGIN ERROR:", error);
@@ -213,13 +252,23 @@ export const getCurrentUser = async (req, res) => {
 // ===============================
 export const updateProfile = async (req, res) => {
   try {
+    const userId = req.user.id;
+
     const {
       fullname,
+      gender,
+      education,
+      location,
+      phone,
       experience,
       role,
     } = req.body;
 
-    const user = await User.findById(req.user._id);
+    console.log("========== UPDATE PROFILE ==========");
+    console.log("User ID:", userId);
+    console.log("Body:", req.body);
+
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
@@ -228,30 +277,62 @@ export const updateProfile = async (req, res) => {
       });
     }
 
-    if (fullname) {
+    console.log("✅ USER FOUND:", user.email);
+
+    if (fullname !== undefined) {
       user.fullname = fullname.trim();
     }
 
-    if (experience) {
+    if (gender !== undefined) {
+      user.gender = gender;
+    }
+
+    if (education !== undefined) {
+      user.education = education;
+    }
+
+    if (location !== undefined) {
+      user.location = location;
+    }
+
+    if (phone !== undefined) {
+      user.phone = phone;
+    }
+
+    if (experience !== undefined) {
       user.experience = experience;
     }
 
-    if (role) {
+    if (role !== undefined) {
       user.role = role;
     }
 
     await user.save();
 
-    return res.json({
+    console.log("✅ PROFILE UPDATED:", user.email);
+
+    return res.status(200).json({
       success: true,
-      user,
+      message: "Profile updated successfully",
+      user: {
+        id: user._id,
+        name: user.fullname,
+        fullname: user.fullname,
+        email: user.email,
+        gender: user.gender || "",
+        education: user.education || "",
+        location: user.location || "",
+        phone: user.phone || "",
+        role: user.role,
+        experience: user.experience,
+      },
     });
   } catch (error) {
     console.error("UPDATE PROFILE ERROR:", error);
 
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message || "Failed to update profile",
     });
   }
 };

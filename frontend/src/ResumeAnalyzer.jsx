@@ -1,7 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
+import useLivePractice from "./hooks/useLivePractice";
 
 export default function ResumeAnalyzer({ setOpenResume }) {
+  useLivePractice("resume-analyzer");
+
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
@@ -25,7 +28,7 @@ export default function ResumeAnalyzer({ setOpenResume }) {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:5001/api/resume/analyze",
+        "http://localhost:5000/api/resume/analyze",
         formData,
         {
           headers: {
