@@ -20,7 +20,7 @@ import NotificationSettings from "./NotificationSettings";
 import HelpFeedback from "./HelpFeedback";
 import AppUpdates from "./AppUpdates";
 
-export default function SettingsPage() {
+export default function SettingsPage({ setCurrentPage }) {
 
   const [activeTab, setActiveTab] =
     useState("account");
@@ -98,6 +98,13 @@ export default function SettingsPage() {
   return (
 
     <div style={styles.page}>
+
+      <button
+        onClick={() => setCurrentPage("dashboard")}
+        style={styles.backButton}
+      >
+        ← Back
+      </button>
 
       {/* SIDEBAR */}
 
@@ -252,6 +259,7 @@ export default function SettingsPage() {
 const styles = {
 
   page: {
+    position: "relative",
     display: "flex",
 
     minHeight: "100vh",
@@ -263,6 +271,22 @@ const styles = {
 
     fontFamily:
       "'Inter', sans-serif",
+  },
+
+  backButton: {
+    position: "absolute",
+    top: 20,
+    right: 24,
+    zIndex: 2,
+    border: "none",
+    borderRadius: 12,
+    background: "linear-gradient(135deg,#3b82f6,#8b5cf6)",
+    color: "#fff",
+    padding: "10px 16px",
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: "pointer",
+    boxShadow: "0 10px 25px rgba(59,130,246,0.35)",
   },
 
   /* SIDEBAR */

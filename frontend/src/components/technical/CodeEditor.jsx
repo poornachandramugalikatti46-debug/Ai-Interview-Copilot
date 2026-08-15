@@ -1,139 +1,205 @@
-import Editor from "@monaco-editor/react";
-import { Play, Send, RotateCcw } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import Editor, { loader } from "@monaco-editor/react";
+import * as monaco from "monaco-editor";
+
+// Use the same Monaco instance everywhere
+loader.config({ monaco });
+
+const LANGUAGE_MAP = {
+  JavaScript: "javascript",
+  Python: "python",
+  Java: "java",
+  "C++": "cpp",
+  C: "c",
+  SQL: "sql",
+};
+
+const DEFAULT_CODE = {
+  javascript: `// Write your JavaScript solution here
+
+function solution() {
+  // Your code
+}
+`,
+  python: `# Write your Python solution here
+
+def solution():
+    # Your code
+    pass
+`,
+  java: `// Write your Java solution here
+
+class Solution {
+    public static void main(String[] args) {
+        // Your code
+    }
+}
+`,
+  cpp: `// Write your C++ solution here
+
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    // Your code
+    return 0;
+}
+`,
+  c: `// Write your C solution here
+
+#include <stdio.h>
+
+int main() {
+    // Your code
+    return 0;
+}
+`,
+  sql: `-- Write your SQL query here
+
+SELECT *
+FROM table_name;
+`,
+};
 
 export default function CodeEditor({
   language = "JavaScript",
-  value = "",
-  defaultCode,
+  value,
   onChange,
   onRun,
   onSubmit,
   onReset,
   isRunning = false,
   isSubmitting = false,
+  height = "500px",
+  theme = "vs-dark",
+  readOnly = false,
 }) {
-  const starterCode = {
-    JavaScript: `function twoSum(nums, target) {
+  const editorLanguage = useMemo(() => {
+    return LANGUAGE_MAP[language] || "javascript";
+  }, [language]);
 
-    // Write your code here
-
-}`,
-    Python: `def two_sum(nums, target):
-
-    # Write your code here
-
-    pass`,
-    Java: `class Solution {
-
-    public int[] twoSum(int[] nums, int target) {
-
+  const initialValue = useMemo(() => {
+    if (typeof value === "string") {
+      return value;
     }
 
-}`,
-    "C++": `class Solution {
-public:
+    return DEFAULT_CODE[editorLanguage] || "";
+  }, [value, editorLanguage]);
 
-    vector<int> twoSum(vector<int>& nums, int target) {
+  const [code, setCode] = useState(initialValue);
 
+  useEffect(() => {
+    setCode(initialValue);
+  }, [initialValue]);
+
+  const handleChange = (newValue) => {
+    const nextValue = newValue ?? "";
+
+    setCode(nextValue);
+
+    if (onChange) {
+      onChange(nextValue);
     }
-
-};`,
-    C: `#include<stdio.h>
-
-int main(){
-
-    return 0;
-
-}`,
   };
 
-  const resetCode = () => {
-    onReset?.(
-      defaultCode || starterCode[language] || starterCode.JavaScript
+  const handleBeforeMount = (monacoInstance) => {
+    console.log(
+      "✅ Monaco beforeMount:",
+      monacoInstance?.version || "loaded"
+    );
+  };
+
+  const handleMount = (editor, monacoInstance) => {
+    console.log("✅ Monaco Editor mounted");
+
+    editor.focus();
+
+    editor.addCommand(
+      monacoInstance.KeyMod.CtrlCmd |
+        monacoInstance.KeyCode.KeyS,
+      () => {
+        if (onChange) {
+          onChange(editor.getValue());
+        }
+      }
     );
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-      <div className="flex items-center justify-between bg-slate-800 px-5 py-3">
-        <div>
-          <h2 className="font-semibold">Monaco Code Editor</h2>
-          <p className="text-xs text-slate-400">
-            Language : {language}
-          </p>
-        </div>
+    <div
+      style={{
+        width: "100%",
+        height,
+        minHeight: "300px",
+        overflow: "hidden",
+        borderRadius: "8px",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <div style={{ flex: 1 }}>
+        <Editor
+          height="100%"
+          width="100%"
+          language={editorLanguage}
+          theme={theme}
+          value={code}
+          onChange={handleChange}
+          beforeMount={handleBeforeMount}
+          onMount={handleMount}
+          options={{
+            readOnly,
+            automaticLayout: true,
 
-        <div className="flex gap-3">
-          <button
-            onClick={resetCode}
-            className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg"
-          >
-            <RotateCcw size={18} />
-            Reset
-          </button>
+            minimap: {
+              enabled: false,
+            },
 
-          <button
-            onClick={() => onRun?.(value)}
-            disabled={isRunning}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg disabled:opacity-60"
-          >
-            <Play size={18} />
-            {isRunning ? "Running..." : "Run"}
-          </button>
+            fontSize: 14,
+            lineNumbers: "on",
+            wordWrap: "on",
+            scrollBeyondLastLine: false,
 
-          <button
-            onClick={() => onSubmit?.(value)}
-            disabled={isSubmitting}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg disabled:opacity-60"
-          >
-            <Send size={18} />
-            {isSubmitting ? "Submitting..." : "Submit"}
-          </button>
-        </div>
+            padding: {
+              top: 12,
+              bottom: 12,
+            },
+
+            tabSize: 2,
+            insertSpaces: true,
+            smoothScrolling: true,
+            cursorBlinking: "smooth",
+            suggestOnTriggerCharacters: true,
+            quickSuggestions: true,
+          }}
+        />
       </div>
-
-      <Editor
-        height="500px"
-        language={
-          (function () {
-            const languageMap = {
-              JavaScript: "javascript",
-              Python: "python",
-              Java: "java",
-              "C++": "cpp",
-              C: "c",
-            };
-            return languageMap[language] || (language || "").toLowerCase() || "javascript";
-          })()
-        }
-        theme="vs-dark"
-        value={value}
-            onChange={(newValue) => onChange?.(newValue || "")}
-            beforeMount={(monaco) => {
-              try {
-                const m = monaco && monaco.default ? monaco.default : monaco;
-                console.log("MONACO beforeMount:", m);
-              } catch (e) {
-                console.error("Error logging monaco beforeMount", e);
-              }
-            }}
-            onMount={(editor, monaco) => {
-              try {
-                const m = monaco && monaco.default ? monaco.default : monaco;
-                console.log("MONACO onMount - editor:", editor);
-                console.log("MONACO onMount - monaco:", m);
-              } catch (e) {
-                console.error("Error logging onMount", e);
-              }
-            }}
-        options={{
-          fontSize: 16,
-          minimap: { enabled: false },
-          automaticLayout: true,
-          scrollBeyondLastLine: false,
-          wordWrap: "on",
-        }}
-      />
+      <div className="mt-3 flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={onRun}
+          disabled={!onRun || isRunning}
+          className="rounded-xl bg-slate-700 px-4 py-2 text-sm hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {isRunning ? "Running..." : "Run"}
+        </button>
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={!onSubmit || isSubmitting}
+          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </button>
+        <button
+          type="button"
+          onClick={onReset}
+          disabled={!onReset}
+          className="rounded-xl bg-slate-700 px-4 py-2 text-sm hover:bg-slate-600 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Reset
+        </button>
+      </div>
     </div>
   );
 }

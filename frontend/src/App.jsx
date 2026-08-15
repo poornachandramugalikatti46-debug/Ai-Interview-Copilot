@@ -15,7 +15,9 @@ import TechnicalInterview from "./pages/technical/TechnicalHome";
 import TechnicalInterviewSetup from "./pages/technical/InterviewSetup";
 import TechnicalInterviewRoom from "./pages/technical/InterviewRoom";
 import InterviewReportTechnical from "./pages/technical/InterviewReport";
-import ResumeInterview from "./pages/resume/ResumeInterview";
+import ResumeInterviewSetup from "./pages/resume/ResumeInterviewSetup";
+import ResumeInterviewRoom from "./pages/resume/ResumeInterviewRoom";
+import ResumeInterviewReport from "./pages/resume/ResumeInterviewReport";
 /* MOCK INTERVIEW PAGES */
 import MockInterview from "./pages/mock/MockInterview";
 import MockInterviewHome from "./pages/mock/MockInterviewHome";
@@ -253,6 +255,16 @@ function App() {
     );
   }
 
+  if (location.pathname.startsWith("/resume-interview")) {
+    return (
+      <Routes>
+        <Route path="/resume-interview" element={<ResumeInterviewSetup />} />
+        <Route path="/resume-interview/:interviewId" element={<ResumeInterviewRoom />} />
+        <Route path="/resume-interview/:interviewId/report" element={<ResumeInterviewReport />} />
+      </Routes>
+    );
+  }
+
   /* =========================
      MAIN APP UI
   ========================= */
@@ -281,83 +293,7 @@ function App() {
           🚀 AI Interview Copilot
         </div>
 
-        <div style={styles.topActions}>
-
-          {/* THEME */}
-
-          <button
-            onClick={() =>
-              setDarkMode(!darkMode)
-            }
-            style={styles.themeBtn}
-          >
-            {darkMode
-              ? "🌞 Light"
-              : "🌙 Dark"}
-          </button>
-
-          {/* ADMIN */}
-
-          <button
-            onClick={() =>
-              setAdminMode(!adminMode)
-            }
-            style={{
-              ...styles.adminBtn,
-
-              background: adminMode
-                ? "linear-gradient(135deg,#ef4444,#dc2626)"
-                : "linear-gradient(135deg,#7c3aed,#3b82f6)",
-            }}
-          >
-            {adminMode
-              ? "⬅ Exit Admin"
-              : "⚙ Admin"}
-          </button>
-
-          {/* SETTINGS */}
-
-          <button
-            onClick={() =>
-              setCurrentPage("settings")
-            }
-            style={styles.settingsBtn}
-          >
-            ⚙ Settings
-          </button>
-
-          {/* CHATBOT */}
-
-          <button
-            onClick={() =>
-              setCurrentPage("chatbot")
-            }
-            style={styles.chatbotBtn}
-          >
-            🤖 AI Chat
-          </button>
-
-          {/* DASHBOARD */}
-
-          <button
-            onClick={() =>
-              setCurrentPage("dashboard")
-            }
-            style={styles.dashboardBtn}
-          >
-            🏠 Dashboard
-          </button>
-
-          {/* LOGOUT */}
-
-          <button
-            onClick={logout}
-            style={styles.logoutBtn}
-          >
-            🚪 Logout
-          </button>
-
-        </div>
+        <div style={styles.topActions} />
       </div>
 
       {/* PAGE CONTENT */}

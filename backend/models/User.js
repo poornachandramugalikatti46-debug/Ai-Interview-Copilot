@@ -36,6 +36,26 @@ const userSchema = new mongoose.Schema(
       default: "fresher",
     },
 
+    gender: {
+      type: String,
+      default: "",
+    },
+
+    education: {
+      type: String,
+      default: "",
+    },
+
+    location: {
+      type: String,
+      default: "",
+    },
+
+    phone: {
+      type: String,
+      default: "",
+    },
+
     memory: {
       strengths: [String],
       weaknesses: [String],

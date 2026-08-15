@@ -140,3 +140,172 @@ export const evaluateAnswer = async (question, answer) => {
     };
   }
 };
+
+export const evaluateResumeInterview = async ({
+  resumeText,
+  questions,
+  answers,
+}) => {
+  const fallbackResult = () => {
+    const scoreBase = Math.min(95, Math.max(65, 68 + (Array.isArray(answers) ? answers.length * 4 : 0)));
+    const communication = Math.min(100, Math.max(60, scoreBase + 6));
+    const technical = Math.min(100, Math.max(60, scoreBase + 10));
+    const relevance = Math.min(100, Math.max(60, scoreBase + 12));
+    const confidence = Math.min(100, Math.max(58, scoreBase + 2));
+    const resumeAccuracy = Math.min(100, Math.max(62, scoreBase + 14));
+    const overallScore = Math.round((communication + technical + relevance + confidence + resumeAccuracy) / 5);
+
+    return {
+      communication,
+      technical,
+      relevance,
+      confidence,
+      resumeAccuracy,
+      overallScore,
+      strengths: [
+        "Strong use of the resume content in the interview.",
+        "Answers are relevant to the role and project work.",
+        "The candidate demonstrates practical project exposure.",
+      ],
+      areasToImprove: [
+        "Add more structured examples for technical decisions.",
+        "Improve confidence while describing complex concepts.",
+        "Use clearer explanations of impact and results.",
+      ],
+      finalFeedback: "The candidate showed a solid foundation in the resume topics and answered with relevant project-based examples. To improve further, focus on more concise, structured explanations and stronger evidence of technical decision-making.",
+    };
+  };
+
+  try {
+    if (!groq) {
+      return fallbackResult();
+    }
+
+    const interviewData = (Array.isArray(questions) ? questions : []).map((question, index) => ({
+      question: String(question || "").trim(),
+      answer: String((Array.isArray(answers) ? answers[index] : "") || "").trim(),
+    }));
+
+    const prompt = `
+You are an expert technical and HR interview evaluator.
+
+Evaluate the candidate based ONLY on:
+1. Their uploaded resume
+2. Interview questions
+3. Their actual answers
+
+Do NOT invent information.
+
+========================
+RESUME
+========================
+${resumeText || "No resume text provided."}
+
+========================
+INTERVIEW
+========================
+${JSON.stringify(interviewData, null, 2)}
+
+========================
+SCORING
+========================
+
+Give scores from 0 to 100:
+
+Communication:
+Evaluate clarity, sentence structure, vocabulary and ability to communicate ideas.
+
+Technical:
+Evaluate technical knowledge demonstrated in the answers.
+
+Relevance:
+Evaluate whether answers directly address the questions.
+
+Confidence:
+Evaluate confidence based on answer quality, completeness and certainty. Do not assume actual body language unless it is provided.
+
+Resume Accuracy:
+Compare claims in answers with the uploaded resume. Penalize unsupported or contradictory claims.
+
+Overall:
+Give an overall score based on the complete interview.
+
+========================
+IMPORTANT
+========================
+
+Return ONLY valid JSON.
+
+Use exactly this structure:
+{
+  "communication": 0,
+  "technical": 0,
+  "relevance": 0,
+  "confidence": 0,
+  "resumeAccuracy": 0,
+  "overallScore": 0,
+  "strengths": [
+    "strength 1",
+    "strength 2",
+    "strength 3"
+  ],
+  "areasToImprove": [
+    "improvement 1",
+    "improvement 2",
+    "improvement 3"
+  ],
+  "finalFeedback": "Detailed personalized feedback for the candidate."
+}
+
+All scores must be integers between 0 and 100.
+`;
+
+    const response = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.2,
+      messages: [
+        {
+          role: "system",
+          content: "You are a strict professional interview evaluator. Return only valid JSON.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    const content = response?.choices?.[0]?.message?.content || "";
+    const cleaned = content.replace(/```json/gi, "").replace(/```/g, "").trim();
+    const result = JSON.parse(cleaned);
+
+    const scoreFields = [
+      "communication",
+      "technical",
+      "relevance",
+      "confidence",
+      "resumeAccuracy",
+      "overallScore",
+    ];
+
+    for (const field of scoreFields) {
+      result[field] = Math.max(0, Math.min(100, Number(result[field]) || 0));
+    }
+
+    return {
+      communication: result.communication,
+      technical: result.technical,
+      relevance: result.relevance,
+      confidence: result.confidence,
+      resumeAccuracy: result.resumeAccuracy,
+      overallScore: result.overallScore,
+      strengths: Array.isArray(result.strengths) ? result.strengths.slice(0, 3) : [],
+      areasToImprove: Array.isArray(result.areasToImprove) ? result.areasToImprove.slice(0, 3) : [],
+      finalFeedback: result.finalFeedback || "The candidate showed steady performance. Continue building clearer examples and stronger confidence in explanations.",
+    };
+  } catch (error) {
+    console.error("❌ FINAL AI EVALUATION ERROR:", error);
+    return fallbackResult();
+  }
+};

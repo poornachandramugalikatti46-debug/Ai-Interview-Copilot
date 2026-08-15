@@ -1,7 +1,8 @@
 import axios from "axios";
+import { getApiBase } from "../api/axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api/mock",
+  baseURL: `${getApiBase()}/mock`,
   headers: {
     Accept: "application/json",
   },
