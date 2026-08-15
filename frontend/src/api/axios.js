@@ -1,56 +1,20 @@
 import axios from "axios";
 
-/* =========================
-   BASE API INSTANCE
-========================= */
-
-const apiOrigin = (import.meta.env.VITE_API_URL || "http://localhost:5000")
-  .replace(/\/$/, "");
-
-const baseUrl = apiOrigin.endsWith("/api") ? apiOrigin : `${apiOrigin}/api`;
-
-const api = axios.create({
-  baseURL: baseUrl,
-  withCredentials: true,
+const API = axios.create({
+  baseURL: `${import.meta.env.VITE_API_URL}/api`,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-/* =========================
-   AUTH INTERCEPTOR
-========================= */
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
 
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    console.log("[API] token:", token);
-    console.log("[API] headers before auth:", config.headers);
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    console.log("[API] headers after auth:", config.headers);
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-);
 
-/* =========================
-   RESPONSE ERROR HANDLING (OPTIONAL BUT USEFUL)
-========================= */
+  return config;
+});
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      console.log("Unauthorized - redirect to login");
-      // optional: logout logic here
-      localStorage.removeItem("token");
-    }
-
-    return Promise.reject(error);
-  }
-);
-
-export default api;
+export default API;
