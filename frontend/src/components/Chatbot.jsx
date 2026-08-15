@@ -1,7 +1,12 @@
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import api from "../api/axios";
+import useLivePractice from "../hooks/useLivePractice";
 
-export default function Chatbot({ setCurrentPage }) {
+export default function Chatbot({ setCurrentPage, setOpenChat }) {
+  useLivePractice("chatbot");
+
   const [message, setMessage] = useState("");
 
   const [chats, setChats] = useState(() => {
@@ -175,6 +180,17 @@ export default function Chatbot({ setCurrentPage }) {
     setLoading(false);
   };
 
+  const handleBack = () => {
+    if (setCurrentPage) {
+      setCurrentPage("dashboard");
+      return;
+    }
+
+    if (setOpenChat) {
+      setOpenChat(false);
+    }
+  };
+
   /* UI */
   return (
     <div style={styles.wrapper}>
@@ -212,7 +228,7 @@ export default function Chatbot({ setCurrentPage }) {
       <div style={styles.container}>
         <div style={styles.header}>
           <button
-            onClick={() => setCurrentPage("dashboard")}
+            onClick={handleBack}
             style={styles.backBtn}
           >
             ← Back
@@ -239,7 +255,13 @@ export default function Chatbot({ setCurrentPage }) {
                 }}
               >
                 <b>{msg.sender}</b>
-                <div>{msg.text}</div>
+                {msg.sender === "AI" ? (
+                  <div style={styles.markdownWrap}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+                  </div>
+                ) : (
+                  <div>{msg.text}</div>
+                )}
               </div>
             </div>
           ))}
@@ -315,6 +337,13 @@ const styles = {
     borderRadius: 10,
     color: "white",
     maxWidth: "70%",
+    overflowWrap: "anywhere",
+  },
+  markdownWrap: {
+    lineHeight: 1.7,
+    color: "#e2e8f0",
+    marginTop: 8,
+    wordBreak: "break-word",
   },
   inputContainer: {
     display: "flex",

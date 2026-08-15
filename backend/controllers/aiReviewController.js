@@ -21,22 +21,28 @@ export const reviewCode = async(req,res)=>{
 
         const {
 
+            sourceCode,
+
             code,
 
             language,
 
-            question
+            question,
+
+            problemId
 
 
         } = req.body;
 
-
+        // Support both naming conventions
+        const finalCode = sourceCode || code;
+        const finalQuestion = question || problemId;
 
 
         if(
-            !code ||
+            !finalCode ||
             !language ||
-            !question
+            !finalQuestion
         ){
 
 
@@ -45,7 +51,7 @@ export const reviewCode = async(req,res)=>{
                 success:false,
 
                 message:
-                "Missing review data"
+                "Missing review data (required: sourceCode or code, language, question or problemId)"
 
             });
 
@@ -59,11 +65,11 @@ export const reviewCode = async(req,res)=>{
         const review =
         await generateAIReview({
 
-            code,
+            code: finalCode,
 
             language,
 
-            question
+            question: finalQuestion
 
         });
 
@@ -87,6 +93,7 @@ export const reviewCode = async(req,res)=>{
 
     catch(error){
 
+        console.error("AI Review Error:", error);
 
         res.status(500).json({
 

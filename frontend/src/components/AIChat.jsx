@@ -45,11 +45,11 @@ export default function AIChat() {
       const id = localStorage.getItem("sessionId");
 
       const res = await axios.post(
-        "http://localhost:5001/api/ai/chat",
+        "http://localhost:5000/api/chat",
         {
-          sessionId: id,   // ✅ ALWAYS SENT
+          sessionId: id,
           message: userText,
-          mode: "HR"       // optional future feature
+          mode: "HR",
         }
       );
 

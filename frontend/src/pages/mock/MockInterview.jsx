@@ -1,6 +1,10 @@
+import useLivePractice from "../../hooks/useLivePractice";
+
 export default function MockInterview({
   setCurrentPage,
 }) {
+  useLivePractice("mock-interview");
+ 
   return (
     <div
       style={{

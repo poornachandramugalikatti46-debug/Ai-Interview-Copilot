@@ -14,6 +14,10 @@ export default function Auth({ setLoggedIn }) {
     fullname: "",
     email: "",
     password: "",
+    gender: "",
+    education: "",
+    location: "",
+    phone: "",
   });
 
   /* ================= INPUT ================= */
@@ -69,28 +73,39 @@ export default function Auth({ setLoggedIn }) {
           fullname: form.fullname.trim(),
           email: form.email.trim().toLowerCase(),
           password: form.password,
+          gender: form.gender || "",
+          education: form.education || "",
+          location: form.location || "",
+          phone: form.phone || "",
         },
         {
           headers: { "Content-Type": "application/json" },
         }
       );
 
-      alert("Registered Successfully 🎉");
-
-      setMode("login");
-      setForm({
-        fullname: "",
-        email: form.email,
-        password: "",
-      });
+      if (res.data.success) {
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem(
+          "user",
+          JSON.stringify(res.data.user)
+        );
+        alert("Registered Successfully 🎉");
+        setLoggedIn(true);
+      }
     } catch (err) {
-      console.log("REGISTER ERROR:", err);
+      console.log("REGISTER ERROR:", err.response?.data || err);
 
-      alert(
-        err.response?.data?.message ||
-          err.message ||
-          "Register failed"
-      );
+      const status = err.response?.status;
+      const message = err.response?.data?.message;
+
+      if (status === 409) {
+        alert(
+          "This email is already registered. Please login."
+        );
+        return;
+      }
+
+      alert(message || "Register failed");
     } finally {
       setLoading(false);
     }

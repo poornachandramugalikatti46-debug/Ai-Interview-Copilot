@@ -32,44 +32,42 @@ export const runCode = async (req,res)=>{
 
 
         const {
-
             question,
-
             userCode,
-
-            language
-
-
+            language,
         } = req.body;
 
+        const code =
+            typeof userCode === "string"
+                ? userCode
+                : String(userCode ?? "");
 
-
-        if(
-            !question ||
-            !userCode ||
-            !language
-        ){
-
+        if (!question) {
             return res.status(400).json({
-
-                success:false,
-
-                message:
-                "Missing required fields"
-
+                success: false,
+                message: "question missing",
             });
-
         }
 
+        if (!code.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "userCode missing or empty",
+            });
+        }
 
+        if (!language) {
+            return res.status(400).json({
+                success: false,
+                message: "language missing",
+            });
+        }
 
-        /*
-        Public test cases only
-        */
-
-        const testCases = question.testCases.filter(
-    (test) => !test.isHidden
-);
+        const testCases = Array.isArray(question.testCases)
+            ? question.testCases.filter(
+                  (test) => !test.isHidden
+              )
+            : [];
 
 
 
@@ -145,40 +143,44 @@ export const submitCode = async(req,res)=>{
 
     try{
 
-const { question, userCode, language } = req.body;
+        const { question, userCode, language } = req.body;
 
-console.log("BODY RECEIVED");
-console.log(req.body);
+        const code =
+            typeof userCode === "string"
+                ? userCode
+                : String(userCode ?? "");
 
-if (!question) {
-    return res.status(400).json({
-        success:false,
-        message:"question missing"
-    });
-}
+        console.log("BODY RECEIVED", {
+            hasQuestion: Boolean(question),
+            codeLength: code.length,
+            language,
+            hasTestCases: Array.isArray(question?.testCases),
+        });
 
-if (!userCode) {
-    return res.status(400).json({
-        success:false,
-        message:"userCode missing"
-    });
-}
+        if (!question) {
+            return res.status(400).json({
+                success: false,
+                message: "question missing",
+            });
+        }
 
-if (!language) {
-    return res.status(400).json({
-        success:false,
-        message:"language missing"
-    });
-}
+        if (!code.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "userCode missing or empty",
+            });
+        }
 
+        if (!language) {
+            return res.status(400).json({
+                success: false,
+                message: "language missing",
+            });
+        }
 
-
-        /*
-        All test cases
-        */
-
-        const testCases =
-            question.testCases;
+        const testCases = Array.isArray(question.testCases)
+            ? question.testCases
+            : [];
 
 
 
