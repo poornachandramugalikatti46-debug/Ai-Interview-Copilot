@@ -28,12 +28,27 @@ API.interceptors.request.use(
 API.interceptors.response.use(
   (response) => response,
   (error) => {
+    const status = error.response?.status;
+    const url = error.config?.url || "";
+
     console.error(
       "[API ERROR]",
-      error.response?.status,
-      error.config?.url,
+      status,
+      url,
       error.response?.data
     );
+
+    const isAuthRoute =
+      url.includes("/auth/login") ||
+      url.includes("/auth/register") ||
+      url.includes("/auth/send-otp") ||
+      url.includes("/auth/forgot-password");
+
+    if (status === 401 && !isAuthRoute) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/";
+    }
 
     return Promise.reject(error);
   }
