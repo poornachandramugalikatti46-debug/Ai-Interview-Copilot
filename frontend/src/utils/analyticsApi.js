@@ -1,7 +1,7 @@
 import axios from "axios";
+import { getApiBase } from "../api/axios";
 
-const API_URL =
-  "http://localhost:5000/api/analytics";
+const API_URL = `${getApiBase()}/analytics`;
 
 export const saveAnalyticsScore =
   async (

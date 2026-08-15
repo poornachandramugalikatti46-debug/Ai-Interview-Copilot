@@ -1,6 +1,7 @@
 import axios from "axios";
+import { getApiBase } from "../api/axios";
 
-const API = "http://localhost:5000/api/resume-interview";
+const API = `${getApiBase()}/resume-interview`;
 
 export const uploadResume = async (file) => {
   try {
@@ -109,7 +110,7 @@ export const submitResumeAnswer = async ({
     const token = localStorage.getItem("token");
 
     const response = await axios.post(
-      "http://localhost:5000/api/resume-interview/answer",
+      `${API}/answer`,
       {
         interviewId,
         question,

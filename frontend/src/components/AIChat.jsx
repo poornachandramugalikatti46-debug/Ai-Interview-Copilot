@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { FaRobot, FaUser } from "react-icons/fa";
+import { getApiBase } from "../api/axios";
 
 export default function AIChat() {
   const [message, setMessage] = useState("");
@@ -45,7 +46,7 @@ export default function AIChat() {
       const id = localStorage.getItem("sessionId");
 
       const res = await axios.post(
-        "http://localhost:5000/api/chat",
+        `${getApiBase()}/chat`,
         {
           sessionId: id,
           message: userText,
