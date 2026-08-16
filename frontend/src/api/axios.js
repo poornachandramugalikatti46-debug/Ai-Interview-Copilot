@@ -4,8 +4,6 @@ const API_BASE_URL = (
   import.meta.env.VITE_API_URL || "http://localhost:5000"
 ).replace(/\/$/, "");
 
-const API = axios.create({
-  baseURL: `${API_BASE_URL}/api`,
 export const getApiOrigin = () => {
   const raw = (
     import.meta.env.VITE_API_URL || "http://localhost:5000"
@@ -53,14 +51,12 @@ API.interceptors.response.use(
       error.response?.data
     );
 
-    const isAuthRoute =
     const isAuthRequest =
       url.includes("/auth/login") ||
       url.includes("/auth/register") ||
       url.includes("/auth/send-otp") ||
       url.includes("/auth/forgot-password");
 
-    if (status === 401 && !isAuthRoute) {
     if (status === 401 && !isAuthRequest) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
