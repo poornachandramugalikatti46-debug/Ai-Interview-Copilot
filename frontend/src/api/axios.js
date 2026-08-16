@@ -1,12 +1,10 @@
 import axios from "axios";
 
-const API = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api`,
-  headers: {
-    "Content-Type": "application/json",
-  },
 export const getApiOrigin = () => {
-  const raw = (import.meta.env.VITE_API_URL || "http://localhost:5000").trim();
+  const raw = (
+    import.meta.env.VITE_API_URL || "http://localhost:5000"
+  ).trim();
+
   return raw.replace(/\/$/, "").replace(/\/api$/, "");
 };
 
@@ -14,26 +12,28 @@ export const getApiBase = () => {
   return `${getApiOrigin()}/api`;
 };
 
-/* =========================
-   BASE API INSTANCE
-
-const api = axios.create({
+const API = axios.create({
   baseURL: getApiBase(),
   withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+API.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
 );
 
-/* =========================
-   RESPONSE ERROR HANDLING
-
-api.interceptors.response.use(
+API.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
@@ -46,8 +46,6 @@ api.interceptors.response.use(
       error.response?.data
     );
 
-    // IMPORTANT:
-    // Never redirect to login for login/register errors themselves.
     const isAuthRequest =
       url.includes("/auth/login") ||
       url.includes("/auth/register") ||
@@ -55,15 +53,13 @@ api.interceptors.response.use(
       url.includes("/auth/forgot-password");
 
     if (status === 401 && !isAuthRequest) {
-      console.warn(
-        "Unauthorized - redirecting to login"
-      );
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       window.location.href = "/";
     }
 
-  return config;
-});
+    return Promise.reject(error);
+  }
+);
 
 export default API;
