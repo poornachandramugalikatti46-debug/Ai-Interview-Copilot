@@ -5,10 +5,16 @@ import { startInterview } from '../controllers/interviewController.js';
 
 dotenv.config();
 
+const mongoUri = process.env.MONGODB_URI;
+
+if (!mongoUri) {
+  throw new Error('MONGODB_URI is not configured.');
+}
+
 const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhNmRlYzJhMTNkZWY3ZTRkZGMzNThkMiIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzg1NTg4Nzg3LCJleHAiOjE3ODYxOTM1ODd9.WX1M2Vw__G8mEPIDVDrPQIFPICDJbA0Nlhc2AnRVIug';
 
 (async ()=>{
-  await mongoose.connect(process.env.MONGO_URI);
+  await mongoose.connect(mongoUri);
 
   const req = {
     headers: { authorization: 'Bearer ' + token },

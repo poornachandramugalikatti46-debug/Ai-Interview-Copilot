@@ -93,42 +93,46 @@ app.get("/", (req, res) => {
 app.use(notFound);
 app.use(errorHandler);
 
-const requestedPort = Number(process.env.PORT) || 5000;
+export default app;
 
-const startServer = (port) => {
-  const server = http.createServer(app);
-  const io = new Server(server, {
-    cors: {
-      origin: FRONTEND_ORIGINS,
-      methods: ["GET", "POST"],
-      credentials: true,
-    },
-    path: "/socket.io",
-  });
+if (!process.env.VERCEL) {
+  const requestedPort = Number(process.env.PORT) || 5000;
 
-  setupAnalyticsSocket(io);
-
-  io.on("connection", (socket) => {
-    console.log("🔌 Socket connected:", socket.id);
-    socket.on("disconnect", () => {
-      console.log("⚡ Socket disconnected:", socket.id);
+  const startServer = (port) => {
+    const server = http.createServer(app);
+    const io = new Server(server, {
+      cors: {
+        origin: FRONTEND_ORIGINS,
+        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        credentials: true,
+      },
+      path: "/socket.io",
     });
-  });
 
-  server.on("error", (err) => {
-    if (err && err.code === "EADDRINUSE") {
-      const nextPort = port + 1;
-      console.warn(`Port ${port} is already in use. Trying ${nextPort} instead...`);
-      startServer(nextPort);
-      return;
-    }
-    console.error("Server error:", err);
-    process.exit(1);
-  });
+    setupAnalyticsSocket(io);
 
-  server.listen(port, () => {
-    console.log(`🚀 Server running on port ${port}`);
-  });
-};
+    io.on("connection", (socket) => {
+      console.log("🔌 Socket connected:", socket.id);
+      socket.on("disconnect", () => {
+        console.log("⚡ Socket disconnected:", socket.id);
+      });
+    });
 
-startServer(requestedPort);
+    server.on("error", (err) => {
+      if (err && err.code === "EADDRINUSE") {
+        const nextPort = port + 1;
+        console.warn(`Port ${port} is already in use. Trying ${nextPort} instead...`);
+        startServer(nextPort);
+        return;
+      }
+      console.error("Server error:", err);
+      process.exit(1);
+    });
+
+    server.listen(port, () => {
+      console.log(`🚀 Server running on port ${port}`);
+    });
+  };
+
+  startServer(requestedPort);
+}

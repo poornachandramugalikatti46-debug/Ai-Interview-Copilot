@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-let isConnecting = false;
 let connectionPromise = null;
 
 const connectDB = async () => {
@@ -12,12 +11,20 @@ const connectDB = async () => {
     return connectionPromise;
   }
 
-  isConnecting = true;
   connectionPromise = (async () => {
     try {
       mongoose.set("strictQuery", true);
 
-      const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/ai_copilot";
+      const mongoUri = process.env.MONGODB_URI;
+
+      if (!mongoUri) {
+        throw new Error(
+          "MONGODB_URI is not defined. Please add it to Render Environment Variables."
+        );
+      }
+
+      console.log("🔗 Connecting to MongoDB Atlas...");
+
       const conn = await mongoose.connect(mongoUri, {
         autoIndex: false,
         maxPoolSize: 20,
@@ -34,6 +41,7 @@ const connectDB = async () => {
  Database : ${conn.connection.name}
 ========================================
 `);
+
       return conn;
     } catch (error) {
       console.error(`
@@ -42,6 +50,7 @@ const connectDB = async () => {
 ========================================
 ${error.message}
 `);
+
       throw error;
     }
   })();
@@ -49,7 +58,6 @@ ${error.message}
   try {
     return await connectionPromise;
   } finally {
-    isConnecting = false;
     connectionPromise = null;
   }
 };
