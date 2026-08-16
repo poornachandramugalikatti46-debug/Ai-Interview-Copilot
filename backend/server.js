@@ -27,22 +27,29 @@ import { setupAnalyticsSocket } from "./sockets/analyticsSocket.js";
 
 const app = express();
 
-const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGINS || "https://ai-interview-copilot-frontend-ccwr.onrender.com,http://localhost:5173").split(",").map(s => s.trim());
+const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGINS || "https://ai-interview-copilot-frontend-ccwr.onrender.com,http://localhost:5173").split(",").map((s) => s.trim());
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // allow requests with no origin like mobile apps or curl
-      if (!origin) return callback(null, true);
-      if (FRONTEND_ORIGINS.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS policy: This origin is not allowed."));
-      }
-    },
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (FRONTEND_ORIGINS.includes(origin)) {
+      return callback(null, true);
+    }
+
+    console.warn(`CORS blocked origin: ${origin}`);
+    return callback(null, false);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
