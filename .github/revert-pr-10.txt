@@ -1,0 +1,3 @@
+This file is a marker for reverting PR #10 - fix Render CORS preflight
+Merge commit: 3b7867403cb130d4d606617c9490bebd5cf476a4
+Revert initiated to undo changes from PR #10
