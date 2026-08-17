@@ -3,6 +3,7 @@ import Groq from "groq-sdk";
 import Chat from "../models/Chat.js";
 
 const router = express.Router();
+const DEFAULT_GROQ_MODEL = process.env.GROQ_MODEL || "allam-2-7b";
 
 const groq = process.env.GROQ_API_KEY
   ? new Groq({ apiKey: process.env.GROQ_API_KEY })
@@ -54,7 +55,7 @@ router.post("/chat", async (req, res) => {
     }
 
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: DEFAULT_GROQ_MODEL,
       messages,
       temperature: 0.4,
       max_tokens: 800,

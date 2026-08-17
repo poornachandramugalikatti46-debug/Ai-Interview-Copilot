@@ -35,8 +35,13 @@ export default function Chatbot({ setCurrentPage, setOpenChat }) {
   ========================= */
   const trackEvent = async (event, meta = {}) => {
     try {
+      const now = new Date();
+
       await api.post("/analytics/track", {
-        userId: activeChatId,
+        feature: "chatbot",
+        durationSeconds: 1,
+        dateKey: now.toISOString().slice(0, 10),
+        hour: now.getHours(),
         event,
         meta,
       });
@@ -117,13 +122,14 @@ export default function Chatbot({ setCurrentPage, setOpenChat }) {
 
   /* SEND MESSAGE */
   const sendMessage = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || loading) return;
 
     const chatId = activeChatId;
+    const currentMessage = message.trim();
 
     const userMsg = {
       sender: "You",
-      text: message,
+      text: currentMessage,
       time: new Date().toLocaleTimeString(),
     };
 
@@ -134,23 +140,29 @@ export default function Chatbot({ setCurrentPage, setOpenChat }) {
         ...prev,
         [chatId]: {
           ...chat,
-          messages: [...chat.messages, userMsg],
+          messages: [...(chat.messages || []), userMsg],
         },
       };
     });
 
-    const currentMessage = message;
     setMessage("");
     setLoading(true);
 
-    /* ✅ TRACK USER MESSAGE */
     trackEvent("message_sent", { text: currentMessage });
 
     try {
+      console.log("📤 Sending:", currentMessage);
+
       const res = await api.post("/chat", {
         message: currentMessage,
-        userId: chatId,
+        sessionId: chatId,
       });
+
+      console.log("📥 AI Response:", res.data);
+
+      if (!res.data?.reply) {
+        throw new Error("AI response is empty");
+      }
 
       const aiMsg = {
         sender: "AI",
@@ -159,25 +171,46 @@ export default function Chatbot({ setCurrentPage, setOpenChat }) {
       };
 
       setChats((prev) => {
-        const chat = prev[chatId];
+        const chat = prev[chatId] || { title: "New Chat", messages: [] };
 
         return {
           ...prev,
           [chatId]: {
             ...chat,
-            messages: [...chat.messages, aiMsg],
+            messages: [...(chat.messages || []), aiMsg],
           },
         };
       });
 
-      /* ✅ TRACK AI RESPONSE */
       trackEvent("ai_response", { reply: res.data.reply });
-
     } catch (err) {
-      console.log(err);
-    }
+      console.error("❌ Chat error:", err);
 
-    setLoading(false);
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "Unable to get AI response.";
+
+      const aiMsg = {
+        sender: "AI",
+        text: `### AI Error\n\n${errorMessage}`,
+        time: new Date().toLocaleTimeString(),
+      };
+
+      setChats((prev) => {
+        const chat = prev[chatId] || { title: "New Chat", messages: [] };
+
+        return {
+          ...prev,
+          [chatId]: {
+            ...chat,
+            messages: [...(chat.messages || []), aiMsg],
+          },
+        };
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBack = () => {

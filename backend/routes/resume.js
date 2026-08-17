@@ -5,6 +5,7 @@ import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import Groq from "groq-sdk";
 
 const router = express.Router();
+const DEFAULT_GROQ_MODEL = process.env.GROQ_MODEL || "allam-2-7b";
 
 const groq = process.env.GROQ_API_KEY
   ? new Groq({ apiKey: process.env.GROQ_API_KEY })
@@ -128,7 +129,7 @@ router.post(
       const completion =
         await groq.chat.completions.create({
           model:
-            "llama-3.3-70b-versatile",
+            DEFAULT_GROQ_MODEL,
 
           messages: [
             {

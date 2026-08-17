@@ -1,5 +1,7 @@
 ﻿import Groq from "groq-sdk";
 
+const DEFAULT_GROQ_MODEL = process.env.GROQ_MODEL || "allam-2-7b";
+
 let groq = null;
 
 function getGroqClient() {
@@ -108,7 +110,7 @@ Rules:
   let completion;
   try {
     completion = await client.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: DEFAULT_GROQ_MODEL,
       temperature: 0.3,
       max_completion_tokens: 500,
       response_format: { type: "json_object" },

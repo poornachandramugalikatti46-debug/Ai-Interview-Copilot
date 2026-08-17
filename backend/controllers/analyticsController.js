@@ -50,14 +50,22 @@ export const trackActivity = async (
   try {
     const userId = req.user.id;
 
+    const rawFeature =
+      typeof req.body?.feature === "string"
+        ? req.body.feature.trim()
+        : "";
+
+    const normalizedFeature =
+      rawFeature ||
+      (typeof req.body?.event === "string" ? "chatbot" : "");
+
     const {
-      feature,
       durationSeconds,
       dateKey,
       hour,
     } = req.body;
 
-    if (!ALLOWED_FEATURES.includes(feature)) {
+    if (!ALLOWED_FEATURES.includes(normalizedFeature)) {
       return res.status(400).json({
         success: false,
         message: "Invalid analytics feature",
@@ -98,7 +106,7 @@ export const trackActivity = async (
     const activity =
       await AnalyticsActivity.create({
         user: userId,
-        feature,
+        feature: normalizedFeature,
         durationSeconds: safeDuration,
         dateKey: safeDateKey,
         hour: Math.max(

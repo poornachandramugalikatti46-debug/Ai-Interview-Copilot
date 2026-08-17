@@ -4,6 +4,7 @@ import Groq from "groq-sdk";
 dotenv.config();
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const DEFAULT_GROQ_MODEL = process.env.GROQ_MODEL || "allam-2-7b";
 
 let groq = null;
 if (GROQ_API_KEY) {
@@ -80,7 +81,7 @@ export const generateInterviewQuestion = async ({
     const prompt = `You are a senior interviewer conducting a REAL job interview.\n\nRole:\n${role}\n\nExperience:\n${experience}\n\nInterview Type:\n${interviewType}\n\nQuestion Number:\n${questionNumber}\n\nCurrent Difficulty:\n${difficulty || "Medium"}\n\nCANDIDATE RESUME:\n${safeResume}\n\nPREVIOUS QUESTION:\n${previousQuestion || "None"}\n\nPREVIOUS ANSWER:\n${previousAnswer || "None"}\n\nQUESTIONS ALREADY ASKED:\n${JSON.stringify(askedQuestions, null, 2)}\n\nFULL CONVERSATION:\n${JSON.stringify(conversation || [], null, 2)}\n\nINTERVIEW TYPE INSTRUCTION:\n${interviewTypeInstruction}\n\nReturn exactly one interview question that ends with a question mark.`;
 
     const response = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: DEFAULT_GROQ_MODEL,
       messages: [
         { role: "system", content: "You are a senior interviewer. Ask exactly one personalized interview question and return only that question." },
         { role: "user", content: prompt },
@@ -115,7 +116,7 @@ export const evaluateAnswer = async (question, answer) => {
     const prompt = `You are an expert technical interviewer.\nEvaluate the candidate's answer.\nQuestion:\n${question}\n\nCandidate Answer:\n${answer}\n\nReturn ONLY valid JSON with numeric scores between 0 and 100 and fields: score, confidence, fluency, grammar, feedback, improvement.`;
 
     const response = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: DEFAULT_GROQ_MODEL,
       messages: [
         { role: "system", content: "You are an expert interviewer evaluating a candidate answer. Return only valid JSON." },
         { role: "user", content: prompt },
@@ -261,7 +262,7 @@ All scores must be integers between 0 and 100.
 `;
 
     const response = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: DEFAULT_GROQ_MODEL,
       temperature: 0.2,
       messages: [
         {

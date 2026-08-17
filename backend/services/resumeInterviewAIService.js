@@ -1,5 +1,7 @@
 import Groq from "groq-sdk";
 
+const DEFAULT_GROQ_MODEL = process.env.GROQ_MODEL || "allam-2-7b";
+
 const getGroqClient = () => {
   if (!process.env.GROQ_API_KEY) {
     return null;
@@ -66,7 +68,7 @@ Example:
 `;
 
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: DEFAULT_GROQ_MODEL,
       messages: [
         {
           role: "system",
@@ -147,7 +149,7 @@ Return ONLY JSON:
 `;
 
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: DEFAULT_GROQ_MODEL,
       messages: [
         {
           role: "system",
