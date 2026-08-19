@@ -15,11 +15,21 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+router.get("/test", (req, res) => {
+  res.json({
+    success: true,
+    message: "Technical interview routes are working",
+  });
+});
+
 router.post("/start", protect, startInterview);
-router.get("/sessions", getInterviewSessions);
-router.post("/sessions", saveInterviewSession);
-router.post("/evaluate", evaluateInterviewAnswer);
-router.post("/improve", improveInterviewAnswer);
+
+router.get("/sessions", protect, getInterviewSessions);
+router.post("/sessions", protect, saveInterviewSession);
+
+router.post("/evaluate", protect, evaluateInterviewAnswer);
+router.post("/improve", protect, improveInterviewAnswer);
+
 router.get("/:id", protect, getInterview);
 router.put("/:id/save", protect, saveCode);
 router.put("/:id/next", protect, nextQuestion);
