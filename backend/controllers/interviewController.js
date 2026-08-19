@@ -36,72 +36,111 @@ export const startInterview = async (req, res) => {
       });
     }
 
+    const roles = [
+      "DSA",
+      "Frontend",
+      "Backend",
+      "Full Stack",
+      "React",
+      "Node.js",
+      "Python",
+      "Java",
+      "C++",
+      "SQL",
+    ];
+    const difficulties = ["Easy", "Medium", "Hard"];
+    const normalizeValue = (value, allowedValues) => {
+      const normalizedValue = String(value).trim().toLowerCase();
+      return allowedValues.find(
+        (allowedValue) => allowedValue.toLowerCase() === normalizedValue
+      ) || String(value).trim();
+    };
+
+    const normalizedRole = normalizeValue(role, roles);
+    const normalizedDifficulty = normalizeValue(difficulty, difficulties);
+    const normalizedTopic = topic ? String(topic).trim() : "";
+    const normalizedLanguage = language
+      ? String(language).trim()
+      : "";
     const requested = Number(count) || 5;
 
-    // -----------------------------
-    // BUILD QUESTION FILTER
-    // -----------------------------
+    const baseFilter = {
+      role: normalizedRole,
+      ...(normalizedDifficulty.toLowerCase() !== "mixed" && {
+        difficulty: normalizedDifficulty,
+      }),
+    };
     const filter = {
-      role,
-      difficulty,
+      ...baseFilter,
       isActive: true,
     };
 
-    // Mixed / All / Any = don't filter topic
     if (
-      topic &&
-      !["mixed", "all", "any"].includes(
-        String(topic).toLowerCase()
-      )
+      normalizedTopic &&
+      !["mixed", "all", "any"].includes(normalizedTopic.toLowerCase())
     ) {
-      filter.topic = topic;
+      filter.topic = normalizedTopic;
     }
 
-    // Language filter
-    if (language) {
-      filter.language = language;
+    if (normalizedLanguage) {
+      filter.language = normalizedLanguage;
     }
 
-    console.log("🔎 QUESTION FILTER:", filter);
+    console.log("BODY ROLE:", role);
+    console.log("BODY DIFFICULTY:", difficulty);
+    console.log("🔎 INITIAL FILTER:", filter);
     console.log("🔢 REQUESTED QUESTIONS:", requested);
 
-    // -----------------------------
-    // CHECK AVAILABLE QUESTIONS
-    // -----------------------------
     let available = await Question.countDocuments(filter);
+    console.log("📚 EXACT MATCH:", available);
 
-    console.log("📚 EXACT QUESTIONS FOUND:", available);
-
-    // If exact filter has no questions,
-    // try without language.
     if (available === 0 && language) {
-      console.log(
-        "⚠️ No exact questions. Trying without language..."
-      );
-
       delete filter.language;
-
       available = await Question.countDocuments(filter);
-
-      console.log(
-        "📚 QUESTIONS WITHOUT LANGUAGE FILTER:",
-        available
-      );
+      console.log("📚 WITHOUT LANGUAGE:", available);
     }
 
-    // Still no questions
+    if (available === 0 && filter.topic) {
+      delete filter.topic;
+      available = await Question.countDocuments(filter);
+      console.log("📚 WITHOUT TOPIC:", available);
+    }
+
+    if (available === 0 && filter.isActive) {
+      delete filter.isActive;
+      available = await Question.countDocuments(filter);
+      console.log("📚 WITHOUT isActive:", available);
+    }
+
+    const [totalQuestions, questionsForRole, questionsForDifficulty] =
+      await Promise.all([
+        Question.countDocuments({}),
+        Question.countDocuments({ role: normalizedRole }),
+        normalizedDifficulty.toLowerCase() === "mixed"
+          ? 0
+          : Question.countDocuments({ difficulty: normalizedDifficulty }),
+      ]);
+    console.log("📚 TOTAL QUESTIONS:", totalQuestions);
+    console.log("📚 QUESTIONS FOR ROLE:", questionsForRole);
+    console.log(
+      "📚 QUESTIONS FOR DIFFICULTY:",
+      questionsForDifficulty
+    );
+
     if (available === 0) {
       return res.status(404).json({
         success: false,
         message:
           "No questions available for the selected role and difficulty.",
         filter,
+        diagnostics: {
+          totalQuestions,
+          questionsForRole,
+          questionsForDifficulty,
+        },
       });
     }
 
-    // -----------------------------
-    // SELECT RANDOM QUESTIONS
-    // -----------------------------
     const sampleSize = Math.min(
       Math.max(1, requested),
       available
@@ -159,10 +198,13 @@ export const startInterview = async (req, res) => {
 
     const interviewData = {
       user: req.user._id,
-      role,
-      difficulty,
-      language: language || "",
-      topic: topic || "Mixed",
+      role: normalizedRole,
+      difficulty:
+        normalizedDifficulty.toLowerCase() === "mixed"
+          ? "Easy"
+          : normalizedDifficulty,
+      language: normalizedLanguage,
+      topic: normalizedTopic || "Mixed",
       duration: Number(duration) || 30,
       totalQuestions: questions.length,
       maxScore: questions.length * 100,
@@ -201,10 +243,10 @@ export const startInterview = async (req, res) => {
         Number(duration) || 30,
       company:
         company || "Random",
-      role,
-      difficulty,
-      language,
-      topic: topic || "Mixed",
+      role: normalizedRole,
+      difficulty: normalizedDifficulty,
+      language: normalizedLanguage,
+      topic: normalizedTopic || "Mixed",
     });
   } catch (err) {
     console.error("=================================");
