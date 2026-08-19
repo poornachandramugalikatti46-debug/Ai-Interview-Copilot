@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import axios from "axios";
 
 const API_URL =
-  "http://localhost:5000/api/analytics";
+  "https://ai-interview-copilot-1-a7tr.onrender.com/api/analytics";
 
 const getLocalDateKey = () => {
   const date = new Date();

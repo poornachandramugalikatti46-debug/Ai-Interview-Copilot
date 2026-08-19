@@ -28,7 +28,7 @@ export default function ResumeAnalyzer({ setOpenResume }) {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:5000/api/resume/analyze",
+        "https://ai-interview-copilot-1-a7tr.onrender.com/api/resume/analyze",
         formData,
         {
           headers: {

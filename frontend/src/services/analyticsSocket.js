@@ -14,7 +14,7 @@ export const connectAnalytics = () => {
     return socket;
   }
 
-  socket = io("http://localhost:5000", {
+  socket = io("https://ai-interview-copilot-1-a7tr.onrender.com", {
     auth: { token },
     transports: ["websocket", "polling"],
     path: "/socket.io",

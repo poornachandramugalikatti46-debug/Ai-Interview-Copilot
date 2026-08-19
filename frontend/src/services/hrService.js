@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API =
-  (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
+  (import.meta.env.VITE_API_URL || "https://ai-interview-copilot-1-a7tr.onrender.com").replace(/\/$/, "");
 
 const api = axios.create({
   baseURL: `${API}/api/hr`,

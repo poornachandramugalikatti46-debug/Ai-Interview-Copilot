@@ -13,7 +13,7 @@ export default function AdminChat() {
 
     try {
       const res = await axios.post(
-        "http://localhost:5001/api/ai",
+        "https://ai-interview-copilot-1-a7tr.onrender.com/api/ai",
         { message: input }
       );
 

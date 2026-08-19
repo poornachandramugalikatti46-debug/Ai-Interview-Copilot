@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API = "http://localhost:5000/api/hr";
+const API = "https://ai-interview-copilot-1-a7tr.onrender.com/api/hr";
 
 export default function HRSetup() {
   const navigate = useNavigate();

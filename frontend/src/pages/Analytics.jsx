@@ -36,7 +36,7 @@ const Analytics = ({ setCurrentPage }) => {
       const token = localStorage.getItem("token");
 
       const response = await axios.get(
-        "http://localhost:5000/api/analytics/dashboard",
+        "https://ai-interview-copilot-1-a7tr.onrender.com/api/analytics/dashboard",
         {
           headers: {
             Authorization: `Bearer ${token}`,

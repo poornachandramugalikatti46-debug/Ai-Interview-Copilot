@@ -21,7 +21,7 @@ export default function AppUpdates() {
   useEffect(() => {
 
     fetch(
-      "http://localhost:5001/api/settings"
+      "https://ai-interview-copilot-1-a7tr.onrender.com/api/settings"
     )
 
       .then((res) => res.json())
@@ -57,7 +57,7 @@ export default function AppUpdates() {
     async () => {
 
       const res = await fetch(
-        "http://localhost:5001/api/settings",
+        "https://ai-interview-copilot-1-a7tr.onrender.com/api/settings",
         {
           method: "POST",
 
