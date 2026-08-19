@@ -27,7 +27,12 @@ import { setupAnalyticsSocket } from "./sockets/analyticsSocket.js";
 
 const app = express();
 
-const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGINS || "https://ai-interview-copilot-frontend-ccwr.onrender.com,http://localhost:5173").split(",").map((s) => s.trim());
+const FRONTEND_ORIGINS = (
+  process.env.FRONTEND_ORIGINS ||
+  "https://ai-interview-copilot-new.vercel.app,http://localhost:5173"
+)
+  .split(",")
+  .map((s) => s.trim());
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -66,10 +71,6 @@ app.use("/api/technical-interview", technicalInterviewRoutes);
 app.use("/api/judge", judgeRoutes);
 app.use("/api/questions", questionRoutes);
 app.use(
-    "/api/judge",
-    judgeRoutes
-);
-app.use(
     "/api/submissions",
     submissionRoutes
 );
@@ -82,8 +83,6 @@ app.use(
     aiReviewRoutes
 );
 app.use("/api/mock", mockInterviewRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/ai", aiRoutes);
 app.use("/api/hr", hrRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/uploads", express.static(path.join("uploads")));
