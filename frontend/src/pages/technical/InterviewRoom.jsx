@@ -27,24 +27,59 @@ export default function InterviewRoom() {
   // RESTORE INTERVIEW
   // ========================================
 
-  const storedState = useMemo(() => {
+  const initialState = useMemo(() => {
     try {
-      const saved = sessionStorage.getItem(
+      if (
+        state &&
+        Array.isArray(state.questions) &&
+        state.questions.length > 0
+      ) {
+        return state;
+      }
+
+      const savedState = sessionStorage.getItem(
         "technicalInterviewState"
       );
+      if (savedState) {
+        const parsedState = JSON.parse(savedState);
+        if (
+          Array.isArray(parsedState.questions) &&
+          parsedState.questions.length > 0
+        ) {
+          return parsedState;
+        }
+      }
 
-      return saved ? JSON.parse(saved) : null;
+      const savedQuestions = sessionStorage.getItem(
+        "technicalInterviewQuestions"
+      );
+      const savedConfig = sessionStorage.getItem(
+        "technicalInterviewConfig"
+      );
+      const questions = savedQuestions
+        ? JSON.parse(savedQuestions)
+        : [];
+      const config = savedConfig
+        ? JSON.parse(savedConfig)
+        : {};
+
+      return {
+        ...config,
+        questions: Array.isArray(questions)
+          ? questions
+          : [],
+      };
     } catch (error) {
       console.error(
-        "Session storage error:",
+        "Failed to restore technical interview:",
         error
       );
 
-      return null;
+      return {
+        questions: [],
+      };
     }
-  }, []);
-
-  const initialState = state || storedState;
+  }, [state]);
 
   // ========================================
   // INTERVIEW INFORMATION

@@ -36,11 +36,49 @@ export default function InterviewSetup() {
         topic,
       });
 
-      const interviewId = res.data.interviewId;
-      const interviewQuestions = res.data.questions || [];
+      const data = res?.data || {};
 
-      navigate("/technical/interview", {
-        state: {
+      if (data.success === false) {
+        setError(
+          data.message ||
+            "Unable to start the technical interview."
+        );
+        return;
+      }
+
+      const interviewQuestions = Array.isArray(
+        data.questions
+      )
+        ? data.questions
+        : [];
+
+      if (interviewQuestions.length === 0) {
+        setError(
+          data.message ||
+            "No interview questions were returned."
+        );
+        return;
+      }
+
+      const interviewId = data.interviewId || null;
+      const interviewData = {
+        interviewId,
+        role,
+        difficulty,
+        language,
+        duration,
+        company,
+        topic,
+        questions: interviewQuestions,
+      };
+
+      sessionStorage.setItem(
+        "technicalInterviewQuestions",
+        JSON.stringify(interviewQuestions)
+      );
+      sessionStorage.setItem(
+        "technicalInterviewConfig",
+        JSON.stringify({
           interviewId,
           role,
           difficulty,
@@ -48,10 +86,17 @@ export default function InterviewSetup() {
           duration,
           company,
           topic,
-          questions: interviewQuestions,
-        },
+        })
+      );
+
+      navigate("/technical/interview", {
+        state: interviewData,
       });
     } catch (err) {
+      console.error(
+        "START TECHNICAL INTERVIEW ERROR:",
+        err.response?.data || err
+      );
       setError(err.response?.data?.message || err.message || "Unable to start the interview right now.");
     } finally {
       setLoading(false);
