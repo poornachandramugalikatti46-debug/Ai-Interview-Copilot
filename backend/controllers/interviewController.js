@@ -70,7 +70,7 @@ export const startInterview = async (req, res) => {
         difficulty: normalizedDifficulty,
       }),
     };
-    const filter = {
+    let filter = {
       ...baseFilter,
       isActive: true,
     };
@@ -128,17 +128,23 @@ export const startInterview = async (req, res) => {
     );
 
     if (available === 0) {
-      return res.status(404).json({
-        success: false,
-        message:
-          "No questions available for the selected role and difficulty.",
-        filter,
-        diagnostics: {
-          totalQuestions,
-          questionsForRole,
-          questionsForDifficulty,
-        },
-      });
+      if (totalQuestions === 0) {
+        return res.status(200).json({
+          success: false,
+          message: "No questions exist in the database. Please add questions first.",
+          questions: [],
+          filter,
+          diagnostics: {
+            totalQuestions,
+            questionsForRole,
+            questionsForDifficulty,
+          },
+        });
+      }
+
+      console.log("No exact match. Using available fallback questions.");
+      filter = {};
+      available = totalQuestions;
     }
 
     const sampleSize = Math.min(
