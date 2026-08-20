@@ -91,26 +91,8 @@ export const startInterview = async (req, res) => {
     console.log("🔎 INITIAL FILTER:", filter);
     console.log("🔢 REQUESTED QUESTIONS:", requested);
 
-    let available = await Question.countDocuments(filter);
-    console.log("📚 EXACT MATCH:", available);
-
-    if (available === 0 && language) {
-      delete filter.language;
-      available = await Question.countDocuments(filter);
-      console.log("📚 WITHOUT LANGUAGE:", available);
-    }
-
-    if (available === 0 && filter.topic) {
-      delete filter.topic;
-      available = await Question.countDocuments(filter);
-      console.log("📚 WITHOUT TOPIC:", available);
-    }
-
-    if (available === 0 && filter.isActive) {
-      delete filter.isActive;
-      available = await Question.countDocuments(filter);
-      console.log("📚 WITHOUT isActive:", available);
-    }
+    const available = await Question.countDocuments(filter);
+    console.log("📚 MATCHING QUESTIONS:", available);
 
     const [totalQuestions, questionsForRole, questionsForDifficulty] =
       await Promise.all([
@@ -128,23 +110,17 @@ export const startInterview = async (req, res) => {
     );
 
     if (available === 0) {
-      if (totalQuestions === 0) {
-        return res.status(200).json({
-          success: false,
-          message: "No questions exist in the database. Please add questions first.",
-          questions: [],
-          filter,
-          diagnostics: {
-            totalQuestions,
-            questionsForRole,
-            questionsForDifficulty,
-          },
-        });
-      }
-
-      console.log("No exact match. Using available fallback questions.");
-      filter = {};
-      available = totalQuestions;
+      return res.status(404).json({
+        success: false,
+        message:
+          "No questions available for the selected role, difficulty, language, and topic.",
+        filter,
+        diagnostics: {
+          totalQuestions,
+          questionsForRole,
+          questionsForDifficulty,
+        },
+      });
     }
 
     const sampleSize = Math.min(

@@ -153,6 +153,120 @@ const technicalQuestions = [
     tags: ["Searching", "Binary Search"],
     isActive: true,
   },
+  {
+    title: "Frontend Reverse String",
+    slug: "frontend-reverse-string",
+    role: "Frontend",
+    topic: "Strings",
+    difficulty: "Easy",
+    language: ["JavaScript"],
+    description:
+      "Given a string, return a new string with its characters in reverse order.",
+    examples: [
+      {
+        input: "hello",
+        output: "olleh",
+        explanation: "The characters are returned from last to first.",
+      },
+    ],
+    constraints: ["1 <= input.length <= 10000"],
+    hint: "Use the string's characters in reverse order.",
+    starterCode: {
+      javascript:
+        "function reverseString(input) {\n  // Write your code here\n}",
+    },
+    solution: {
+      javascript:
+        "function reverseString(input) {\n  return input.split(\"\").reverse().join(\"\");\n}",
+    },
+    testCases: [
+      { input: "hello", expectedOutput: "olleh", isHidden: false },
+      { input: "frontend", expectedOutput: "dnetnorf", isHidden: true },
+    ],
+    timeComplexity: "O(n)",
+    spaceComplexity: "O(n)",
+    marks: 100,
+    estimatedTime: 10,
+    companies: ["Microsoft", "Google"],
+    tags: ["Strings", "JavaScript"],
+    isActive: true,
+  },
+  {
+    title: "Frontend Find Largest Number",
+    slug: "frontend-find-largest-number",
+    role: "Frontend",
+    topic: "Arrays",
+    difficulty: "Easy",
+    language: ["JavaScript"],
+    description:
+      "Given an array of numbers, return the largest number in the array.",
+    examples: [
+      {
+        input: "[3, 8, 2, 9, 4]",
+        output: "9",
+        explanation: "9 is greater than every other value in the array.",
+      },
+    ],
+    constraints: ["1 <= numbers.length <= 10000"],
+    hint: "Keep the largest value seen while traversing the array.",
+    starterCode: {
+      javascript:
+        "function findLargest(numbers) {\n  // Write your code here\n}",
+    },
+    solution: {
+      javascript:
+        "function findLargest(numbers) {\n  return Math.max(...numbers);\n}",
+    },
+    testCases: [
+      { input: "[3,8,2,9,4]", expectedOutput: "9", isHidden: false },
+      { input: "[-5,-2,-9]", expectedOutput: "-2", isHidden: true },
+    ],
+    timeComplexity: "O(n)",
+    spaceComplexity: "O(1)",
+    marks: 100,
+    estimatedTime: 10,
+    companies: ["Microsoft", "Amazon"],
+    tags: ["Arrays", "JavaScript"],
+    isActive: true,
+  },
+  {
+    title: "Frontend Count Vowels",
+    slug: "frontend-count-vowels",
+    role: "Frontend",
+    topic: "Strings",
+    difficulty: "Easy",
+    language: ["JavaScript"],
+    description:
+      "Given a string, count and return the number of vowels it contains.",
+    examples: [
+      {
+        input: "Interview",
+        output: "4",
+        explanation: "The vowels are I, e, i, and e.",
+      },
+    ],
+    constraints: ["1 <= input.length <= 10000"],
+    hint: "Check each character against the vowels a, e, i, o, and u.",
+    starterCode: {
+      javascript:
+        "function countVowels(input) {\n  // Write your code here\n}",
+    },
+    solution: {
+      javascript:
+        "function countVowels(input) {\n  return [...input.toLowerCase()].filter((character) => \"aeiou\".includes(character)).length;\n}",
+    },
+    testCases: [
+      { input: "Interview", expectedOutput: "4", isHidden: false },
+      { input: "rhythm", expectedOutput: "0", isHidden: true },
+    ],
+    timeComplexity: "O(n)",
+    spaceComplexity: "O(n)",
+    marks: 100,
+    estimatedTime: 10,
+    companies: ["Microsoft", "Google", "Amazon"],
+    tags: ["Strings", "JavaScript"],
+    isActive: true,
+  },
 ];
 
 const seedTechnicalQuestions = async () => {
@@ -182,8 +296,18 @@ const seedTechnicalQuestions = async () => {
       );
     }
 
+    const total = await Question.countDocuments();
+    const frontendEasyJavaScript = await Question.countDocuments({
+      role: "Frontend",
+      difficulty: "Easy",
+      language: "JavaScript",
+      isActive: true,
+    });
+
+    console.log(`Seeded or updated ${technicalQuestions.length} questions.`);
+    console.log(`Total questions in database: ${total}`);
     console.log(
-      `Seeded ${technicalQuestions.length} Backend Medium JavaScript questions.`
+      `Frontend + Easy + JavaScript: ${frontendEasyJavaScript}`
     );
   } finally {
     await mongoose.disconnect();
