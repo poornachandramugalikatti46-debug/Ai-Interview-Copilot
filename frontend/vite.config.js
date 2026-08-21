@@ -11,4 +11,7 @@ export default defineConfig({
     tailwindcss(),
     monaco({}),
   ],
+  build: {
+    chunkSizeWarningLimit: 5000,
+  },
 });
