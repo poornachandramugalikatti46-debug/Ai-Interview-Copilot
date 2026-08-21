@@ -1,0 +1,5 @@
+[
+	{"title":"Python Find Even Numbers","slug":"python-find-even-numbers","role":"Python","topic":"Arrays","difficulty":"Easy","language":["Python"],"description":"Return all even numbers from a list while preserving order.","testCases":[{"input":"[1,2,3,4]","expectedOutput":"[2,4]","isHidden":false,"points":100}],"isActive":true},
+	{"title":"Python Group Anagrams","slug":"python-group-anagrams","role":"Python","topic":"Strings","difficulty":"Medium","language":["Python"],"description":"Group words that are anagrams.","testCases":[{"input":"[eat,tea,ate]","expectedOutput":"[[eat,tea,ate]]","isHidden":false,"points":100}],"isActive":true},
+	{"title":"Python LRU Cache","slug":"python-lru-cache","role":"Python","topic":"Design","difficulty":"Hard","language":["Python"],"description":"Design a cache that evicts the least recently used item.","testCases":[{"input":"capacity=2","expectedOutput":"least recent evicted","isHidden":false,"points":100}],"isActive":true}
+]

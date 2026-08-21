@@ -1,0 +1,5 @@
+[
+	{"title":"Full Stack Validate User","slug":"full-stack-validate-user","role":"Full Stack","topic":"Authentication","difficulty":"Easy","language":["JavaScript"],"description":"Validate an email and password with at least six characters.","testCases":[{"input":"user@test.com,password123","expectedOutput":"true","isHidden":false,"points":100}],"isActive":true},
+	{"title":"Full Stack Merge Users","slug":"full-stack-merge-users","role":"Full Stack","topic":"APIs","difficulty":"Medium","language":["JavaScript"],"description":"Merge user records with profile records by id.","testCases":[{"input":"users and profiles","expectedOutput":"merged objects","isHidden":false,"points":100}],"isActive":true},
+	{"title":"Full Stack Pagination","slug":"full-stack-pagination","role":"Full Stack","topic":"APIs","difficulty":"Hard","language":["JavaScript"],"description":"Return one page of records from a collection.","testCases":[{"input":"page=2,size=2","expectedOutput":"records 3 and 4","isHidden":false,"points":100}],"isActive":true}
+]

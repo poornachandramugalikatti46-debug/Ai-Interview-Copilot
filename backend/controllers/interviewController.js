@@ -70,9 +70,9 @@ export const startInterview = async (req, res) => {
         difficulty: normalizedDifficulty,
       }),
     };
+    // First try: role + difficulty + optional topic/language
     let filter = {
       ...baseFilter,
-      isActive: true,
     };
 
     if (
@@ -82,17 +82,55 @@ export const startInterview = async (req, res) => {
       filter.topic = normalizedTopic;
     }
 
-    if (normalizedLanguage) {
-      filter.language = normalizedLanguage;
+    // Support MongoDB language stored as an array
+    if (
+      normalizedLanguage &&
+      !["mixed", "all", "any"].includes(normalizedLanguage.toLowerCase())
+    ) {
+      filter.language = {
+        $in: [normalizedLanguage],
+      };
     }
 
     console.log("BODY ROLE:", role);
     console.log("BODY DIFFICULTY:", difficulty);
-    console.log("🔎 INITIAL FILTER:", filter);
+    console.log("BODY LANGUAGE:", language);
+    console.log("BODY TOPIC:", topic);
+    console.log("🔎 EXACT FILTER:", JSON.stringify(filter));
     console.log("🔢 REQUESTED QUESTIONS:", requested);
 
-    const available = await Question.countDocuments(filter);
-    console.log("📚 MATCHING QUESTIONS:", available);
+    let available = await Question.countDocuments(filter);
+    console.log("📚 EXACT MATCHING QUESTIONS:", available);
+
+    // If selected topic/language has no questions, fall back to role + difficulty
+    if (available === 0) {
+      console.log(
+        "⚠️ No exact match. Falling back to role + difficulty."
+      );
+      filter = {
+        ...baseFilter,
+      };
+      available = await Question.countDocuments(filter);
+      console.log("📚 FALLBACK MATCHING QUESTIONS:", available);
+    }
+
+    // If difficulty also has no questions, fall back to role only
+    if (available === 0) {
+      filter = {
+        role: normalizedRole,
+      };
+      console.log("⚠️ No role + difficulty match. Falling back to role only.");
+      available = await Question.countDocuments(filter);
+      console.log("📚 ROLE-ONLY MATCHING QUESTIONS:", available);
+    }
+
+    // If the requested role is absent, use any available question as a last resort
+    if (available === 0) {
+      filter = {};
+      console.log("⚠️ No role match. Falling back to any question.");
+      available = await Question.countDocuments(filter);
+      console.log("📚 ANY-QUESTION MATCHING QUESTIONS:", available);
+    }
 
     const [totalQuestions, questionsForRole, questionsForDifficulty] =
       await Promise.all([
@@ -110,10 +148,10 @@ export const startInterview = async (req, res) => {
     );
 
     if (available === 0) {
-      return res.status(404).json({
+      return res.status(400).json({
         success: false,
         message:
-          "No questions available for the selected role, difficulty, language, and topic.",
+          "No questions exist in the MongoDB database. Run the seed script against the database used by this backend.",
         filter,
         diagnostics: {
           totalQuestions,

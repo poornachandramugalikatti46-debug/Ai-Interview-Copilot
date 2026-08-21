@@ -34,8 +34,10 @@ const connectDB = async () => {
 const readQuestions = (folderPath) => {
   let questions = [];
 
+  console.log("📁 Reading seed folder:", folderPath);
+
   if (!fs.existsSync(folderPath)) {
-    console.log(`⚠ Folder not found: ${folderPath}`);
+    console.error(`❌ Seed folder not found: ${folderPath}`);
     return questions;
   }
 
@@ -43,20 +45,25 @@ const readQuestions = (folderPath) => {
     .readdirSync(folderPath)
     .filter((file) => file.endsWith(".json"));
 
+  console.log("📄 JSON files found:", files);
+
   for (const file of files) {
     const filePath = path.join(folderPath, file);
 
     try {
+      console.log(`Reading: ${file}`);
       const raw = fs.readFileSync(filePath, "utf-8");
       const json = JSON.parse(raw);
 
       if (Array.isArray(json)) {
         questions.push(...json);
+        console.log(`   ✅ ${json.length} questions found`);
       } else {
         questions.push(json);
+        console.log("   ✅ 1 question found");
       }
     } catch (err) {
-      console.log(`❌ Error reading ${file}`);
+      console.error(`❌ Error reading ${file}`);
       console.log(err.message);
     }
   }
@@ -72,37 +79,67 @@ const seedQuestions = async () => {
 
     const questions = readQuestions(seedFolder);
 
-    console.log(`📚 Found ${questions.length} questions`);
+    console.log("=================================");
+    console.log(`📚 TOTAL QUESTIONS FOUND: ${questions.length}`);
+    console.log("=================================");
+
+    if (questions.length === 0) {
+      throw new Error(`No question JSON records found in ${seedFolder}`);
+    }
 
     let inserted = 0;
     let skipped = 0;
+    let failed = 0;
 
     for (const question of questions) {
-      if (!question.slug) {
-        console.warn(`Skipping entry without slug: ${question.title || JSON.stringify(question).slice(0, 80)}`);
-        continue;
+      try {
+        if (!question.title || !question.slug) {
+          console.warn(`⚠ Skipped invalid question: ${question.title || "No title"}`);
+          failed++;
+          continue;
+        }
+
+        const exists = await Question.findOne({
+          $or: [{ slug: question.slug }, { title: question.title }],
+        });
+
+        if (exists) {
+          console.log(`⏭ Already exists: ${question.title}`);
+          skipped++;
+          continue;
+        }
+
+        await Question.create({
+          ...question,
+          isActive: question.isActive !== undefined ? question.isActive : true,
+        });
+        console.log(`✅ Inserted: ${question.title}`);
+        inserted++;
+      } catch (error) {
+        console.error(`❌ Failed: ${question.title || "Unknown question"}`);
+        console.error(error.message);
+        failed++;
       }
-
-      const exists = await Question.findOne({ slug: question.slug });
-
-      if (exists) {
-        skipped++;
-        continue;
-      }
-
-      await Question.create(question);
-      inserted++;
     }
 
-    console.log("--------------------------------");
-    console.log(`✅ Inserted : ${inserted}`);
-    console.log(`⏭ Skipped  : ${skipped}`);
-    console.log(`📦 Total    : ${questions.length}`);
-    console.log("--------------------------------");
+    const totalInDatabase = await Question.countDocuments();
 
+    console.log("");
+    console.log("=================================");
+    console.log("🎉 QUESTION SEED COMPLETED");
+    console.log("---------------------------------");
+    console.log(`✅ Inserted: ${inserted}`);
+    console.log(`⏭ Skipped: ${skipped}`);
+    console.log(`❌ Failed: ${failed}`);
+    console.log(`📦 Total in MongoDB: ${totalInDatabase}`);
+    console.log("=================================");
+
+    await mongoose.connection.close();
     process.exit(0);
   } catch (error) {
-    console.error(error);
+    console.error("❌ SEED ERROR:");
+    console.error(error.message);
+    await mongoose.connection.close();
     process.exit(1);
   }
 };

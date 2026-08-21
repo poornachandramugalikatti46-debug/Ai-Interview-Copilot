@@ -1,0 +1,5 @@
+[
+	{"title":"C++ Find Maximum","slug":"cpp-find-maximum","role":"C++","topic":"Arrays","difficulty":"Easy","language":["C++"],"description":"Return the largest number in an array.","testCases":[{"input":"[3,7,2,9]","expectedOutput":"9","isHidden":false,"points":100}],"isActive":true},
+	{"title":"C++ Longest Increasing Subsequence","slug":"cpp-longest-increasing-subsequence","role":"C++","topic":"Dynamic Programming","difficulty":"Medium","language":["C++"],"description":"Return the length of the longest strictly increasing subsequence.","testCases":[{"input":"[10,9,2,5,3,7,101,18]","expectedOutput":"4","isHidden":false,"points":100}],"isActive":true},
+	{"title":"C++ Graph Shortest Path","slug":"cpp-graph-shortest-path","role":"C++","topic":"Graphs","difficulty":"Hard","language":["C++"],"description":"Find shortest unweighted paths from a source vertex.","testCases":[{"input":"graph and source","expectedOutput":"distance array","isHidden":false,"points":100}],"isActive":true}
+]

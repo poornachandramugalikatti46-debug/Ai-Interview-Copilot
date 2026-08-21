@@ -1,0 +1,5 @@
+[
+	{"title":"Node.js Safe JSON Parse","slug":"nodejs-safe-json-parse","role":"Node.js","topic":"Node.js","difficulty":"Easy","language":["JavaScript"],"description":"Parse JSON and return null for invalid input.","testCases":[{"input":"{\"a\":1}","expectedOutput":"{\"a\":1}","isHidden":false,"points":100}],"isActive":true},
+	{"title":"Node.js Middleware Pipeline","slug":"nodejs-middleware-pipeline","role":"Node.js","topic":"Express.js","difficulty":"Medium","language":["JavaScript"],"description":"Run middleware functions in sequence.","testCases":[{"input":"two middleware functions","expectedOutput":"executed in order","isHidden":false,"points":100}],"isActive":true},
+	{"title":"Node.js Event Emitter","slug":"nodejs-event-emitter","role":"Node.js","topic":"Node.js","difficulty":"Hard","language":["JavaScript"],"description":"Implement subscribe and publish behavior for events.","testCases":[{"input":"subscribe then emit","expectedOutput":"listener called","isHidden":false,"points":100}],"isActive":true}
+]

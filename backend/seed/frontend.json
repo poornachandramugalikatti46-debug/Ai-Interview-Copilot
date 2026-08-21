@@ -1,0 +1,5 @@
+[
+	{"title":"Frontend Reverse String","slug":"frontend-reverse-string","role":"Frontend","topic":"JavaScript","difficulty":"Easy","language":["JavaScript"],"description":"Reverse a given string.","testCases":[{"input":"hello","expectedOutput":"olleh","isHidden":false,"points":100}],"isActive":true},
+	{"title":"Frontend Array Sum","slug":"frontend-array-sum","role":"Frontend","topic":"Arrays","difficulty":"Medium","language":["JavaScript"],"description":"Return the sum of all numbers in an array.","testCases":[{"input":"[1,2,3]","expectedOutput":"6","isHidden":false,"points":100}],"isActive":true},
+	{"title":"Frontend Debounce","slug":"frontend-debounce","role":"Frontend","topic":"JavaScript","difficulty":"Hard","language":["JavaScript"],"description":"Implement a debounce function that delays execution until input stops.","testCases":[{"input":"delay=300","expectedOutput":"debounced","isHidden":false,"points":100}],"isActive":true}
+]

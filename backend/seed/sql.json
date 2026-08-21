@@ -1,0 +1,5 @@
+[
+	{"title":"SQL Select Employees","slug":"sql-select-employees","role":"SQL","topic":"SELECT","difficulty":"Easy","language":["SQL"],"description":"Return all columns from the employees table.","testCases":[{"input":"employees table","expectedOutput":"SELECT * FROM employees;","isHidden":false,"points":100}],"isActive":true},
+	{"title":"SQL Department Count","slug":"sql-department-count","role":"SQL","topic":"GROUP BY","difficulty":"Medium","language":["SQL"],"description":"Count employees in each department.","testCases":[{"input":"employees(department_id)","expectedOutput":"grouped counts","isHidden":false,"points":100}],"isActive":true},
+	{"title":"SQL Second Highest Salary","slug":"sql-second-highest-salary","role":"SQL","topic":"Subquery","difficulty":"Hard","language":["SQL"],"description":"Return the second highest distinct salary.","testCases":[{"input":"100,200,300","expectedOutput":"200","isHidden":false,"points":100}],"isActive":true}
+]

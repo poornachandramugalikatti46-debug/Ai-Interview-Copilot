@@ -1,0 +1,5 @@
+[
+	{"title":"Backend Count Vowels","slug":"backend-count-vowels","role":"Backend","topic":"Strings","difficulty":"Easy","language":["JavaScript","Python","Java"],"description":"Count the number of vowels in a string.","testCases":[{"input":"hello","expectedOutput":"2","isHidden":false,"points":100}],"isActive":true},
+	{"title":"Backend Maximum Subarray","slug":"backend-maximum-subarray","role":"Backend","topic":"Arrays","difficulty":"Medium","language":["JavaScript","Python","Java","C++"],"description":"Find the maximum sum of a contiguous subarray.","testCases":[{"input":"[-2,1,-3,4,-1,2,1,-5,4]","expectedOutput":"6","isHidden":false,"points":100}],"isActive":true},
+	{"title":"Backend Rate Limiter","slug":"backend-rate-limiter","role":"Backend","topic":"System Design","difficulty":"Hard","language":["JavaScript","Python","Java"],"description":"Design a fixed-window rate limiter for a client.","testCases":[{"input":"limit=3","expectedOutput":"true,true,true,false","isHidden":false,"points":100}],"isActive":true}
+]
