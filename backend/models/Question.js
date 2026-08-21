@@ -164,6 +164,11 @@ const questionSchema = new mongoose.Schema(
 
     solution: solutionSchema,
 
+    execution: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+
     testCases: {
       type: [testCaseSchema],
       validate: [

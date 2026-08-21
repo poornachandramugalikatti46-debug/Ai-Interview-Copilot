@@ -127,7 +127,7 @@ export const runSubmission = async ({
             )
             ===
             normalizeOutput(
-                testCase.output
+                testCase.output ?? testCase.expectedOutput
             );
 
 
@@ -147,7 +147,7 @@ export const runSubmission = async ({
 
 
             expected:
-                testCase.output,
+                testCase.output ?? testCase.expectedOutput,
 
 
             actual:
