@@ -1,3 +1,4 @@
+import dns from "node:dns";
 import mongoose from "mongoose";
 
 let connectionPromise = null;
@@ -24,6 +25,10 @@ const connectDB = async () => {
       }
 
       console.log("🔗 Connecting to MongoDB Atlas...");
+
+      if (dns.getServers().some((server) => server === "127.0.0.1")) {
+        dns.setServers(["1.1.1.1", "8.8.8.8"]);
+      }
 
       const conn = await mongoose.connect(mongoUri, {
         autoIndex: false,
