@@ -247,7 +247,6 @@ const questionSchema = new mongoose.Schema(
 questionSchema.index({ role: 1 });
 questionSchema.index({ difficulty: 1 });
 questionSchema.index({ topic: 1 });
-questionSchema.index({ slug: 1 });
 questionSchema.index({ tags: 1 });
 questionSchema.index({ companies: 1 });
 
