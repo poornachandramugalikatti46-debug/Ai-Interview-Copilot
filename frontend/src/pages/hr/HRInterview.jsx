@@ -9,7 +9,7 @@ import QuestionCard from "./QuestionCard";
 import AnswerBox from "./AnswerBox";
 import VoiceRecorder from "./VoiceRecorder";
 
-const API = "https://ai-interview-copilot-1-a7tr.onrender.com/api/hr";
+const API = "http://localhost:5000/api/hr";
 
 export default function HRInterview() {
   useLivePractice("hr-interview");

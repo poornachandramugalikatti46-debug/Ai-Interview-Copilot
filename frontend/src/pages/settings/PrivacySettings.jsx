@@ -17,7 +17,7 @@ export default function PrivacySettings() {
   useEffect(() => {
 
     fetch(
-      "https://ai-interview-copilot-1-a7tr.onrender.com/api/settings"
+      "http://localhost:5000/api/settings"
     )
 
       .then((res) => res.json())
@@ -54,7 +54,7 @@ export default function PrivacySettings() {
       };
 
       const res = await fetch(
-        "https://ai-interview-copilot-1-a7tr.onrender.com/api/settings",
+        "http://localhost:5000/api/settings",
         {
           method: "POST",
 

@@ -32,7 +32,7 @@ const useLiveAnalytics = () => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const response = await fetch("https://ai-interview-copilot-1-a7tr.onrender.com/api/analytics/dashboard", {
+        const response = await fetch("http://localhost:5000/api/analytics/dashboard", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

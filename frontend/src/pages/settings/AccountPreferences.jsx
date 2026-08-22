@@ -51,7 +51,7 @@ export default function AccountPreferences() {
   useEffect(() => {
 
     fetch(
-      "https://ai-interview-copilot-1-a7tr.onrender.com/api/settings"
+      "http://localhost:5000/api/settings"
     )
 
       .then((res) => res.json())

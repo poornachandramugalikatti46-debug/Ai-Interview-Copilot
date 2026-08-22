@@ -1,12 +1,12 @@
 import axios from "axios";
 
 const API_BASE_URL = (
-  import.meta.env.VITE_API_URL || "https://ai-interview-copilot-1-a7tr.onrender.com"
+  import.meta.env.VITE_API_URL || "http://localhost:5000"
 ).replace(/\/$/, "");
 
 export const getApiOrigin = () => {
   const raw = (
-    import.meta.env.VITE_API_URL || "https://ai-interview-copilot-1-a7tr.onrender.com"
+    import.meta.env.VITE_API_URL || "http://localhost:5000"
   ).trim();
 
   return raw.replace(/\/$/, "").replace(/\/api$/, "");

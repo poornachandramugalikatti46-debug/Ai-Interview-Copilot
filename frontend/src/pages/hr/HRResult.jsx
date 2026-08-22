@@ -4,7 +4,7 @@ import axios from "axios";
 
 
 const API =
-"https://ai-interview-copilot-1-a7tr.onrender.com/api/hr";
+"http://localhost:5000/api/hr";
 
 
 

@@ -1,6 +1,6 @@
 
 import axios from "axios";
-const API_BASE_URL = (import.meta.env.VITE_API_URL || "https://ai-interview-copilot-1-a7tr.onrender.com").replace(/\/$/, "");
+const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -32,7 +32,7 @@ export const runCode = async ({
   language,
 }) => {
   try {
-    const res = await api.post("/api/judge/run", {
+    const res = await api.post("/judge/run", {
       question,
       userCode,
       language,
@@ -61,7 +61,7 @@ export const submitCode = async ({
   language,
 }) => {
   try {
-    const res = await api.post("/api/judge/submit", {
+    const res = await api.post("/judge/submit", {
       question,
       userCode,
       language,
@@ -90,7 +90,7 @@ export const getAIReview = async ({
   problemId,
 }) => {
   try {
-    const res = await api.post("/api/ai-review/review", {
+    const res = await api.post("/ai-review/review", {
       sourceCode,
       language,
       problemId,

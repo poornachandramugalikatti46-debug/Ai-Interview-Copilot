@@ -27,7 +27,7 @@ export default function NotificationSettings() {
   useEffect(() => {
 
     fetch(
-      "https://ai-interview-copilot-1-a7tr.onrender.com/api/settings"
+      "http://localhost:5000/api/settings"
     )
 
       .then((res) => res.json())
@@ -63,7 +63,7 @@ export default function NotificationSettings() {
     async () => {
 
       const res = await fetch(
-        "https://ai-interview-copilot-1-a7tr.onrender.com/api/settings",
+        "http://localhost:5000/api/settings",
         {
           method: "POST",
 
